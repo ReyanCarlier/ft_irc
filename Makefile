@@ -42,7 +42,7 @@ run:${NAME}
 
 debug:${NAME}
 	clear
-	valgrind ./${NAME} "" ""
+	valgrind --track-fds=yes ./${NAME} "" ""
 	${RM} ${OBJ_PATH} ${NAME} .vscode
 
 ${OBJ_PATH}%.o:${SRC_PATH}%.cpp

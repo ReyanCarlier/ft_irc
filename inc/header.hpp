@@ -14,15 +14,28 @@
 #define HEADER_HPP
 
 #include <iostream>
+#include <sys/socket.h>	// socket setsockopt getsockname bind
+#include <sys/socket.h>	// connect listen accept send recv
+#include <netdb.h>		// getprotobyname gethostbyname getaddrinfo freeaddrinfo
+#include <arpa/inet.h>	// htons htonl ntohs ntohl inet_addr inet_ntoa
+#include <csignal>		// signal
+#include <unistd.h>		// lseek
+#include <sys/stat.h>	// fstat
+#include <fcntl.h>		// fcntl
+#include <poll.h>		// poll
+#include <cstring>		// strlen
+#include <cstdlib>		// atoi
 
-#define RESET	"\33[00m"
-#define BLACK	"\33[30m"
-#define RED		"\33[31m"
-#define GREEN	"\33[32m"
-#define YELLOW	"\33[33m"
-#define BLUE	"\33[34m"
-#define MAGENTA	"\33[35m"
-#define CYAN	"\33[36m"
-#define ENDL	"\33[00m" << std::endl
+#define RESET			"\33[00m"
+#define BLACK			"\33[30m"
+#define RED				"\33[31m"
+#define GREEN			"\33[32m"
+#define YELLOW			"\33[33m"
+#define BLUE			"\33[34m"
+#define MAGENTA			"\33[35m"
+#define CYAN			"\33[36m"
+#define ENDL			"\33[00m" << std::endl
+#define ERROR			"\33[31m" << "Error: "
+#define MAX_TCP_PORT	65535
 
 #endif
