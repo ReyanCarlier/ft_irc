@@ -23,6 +23,9 @@ OBJ_PATH	=	./obj/
 OBJ_DIRS	=	${OBJ_PATH}
 OBJ			=	${addprefix ${OBJ_PATH},${SRC:.cpp=.o}}
 DEPS		=	${addprefix ${OBJ_PATH},${SRC:.cpp=.d}}
+GARBAGE		=	.vscode client
+PORT		=	8080
+PASSWORD	=	""
 
 all:${NAME}
 
@@ -30,20 +33,21 @@ clean:
 	${RM} ${OBJ_PATH}
 
 fclean:clean
-	${RM} ${NAME} .vscode
+	${RM} ${NAME} ${GARBAGE}
 
 re:fclean
 	make all
 
 run:${NAME}
 	clear
-	./${NAME} "" ""
-	${RM} ${OBJ_PATH} ${NAME} .vscode
+	./${NAME} ${PORT} ${PASSWORD}
+	${RM} ${OBJ_PATH} ${NAME} ${GARBAGE}
 
 debug:${NAME}
+	${CPP} -Wall -Wextra -Werror -std=c++98 src/client.cpp -o client
 	clear
-	valgrind --track-fds=yes ./${NAME} "" ""
-	${RM} ${OBJ_PATH} ${NAME} .vscode
+	valgrind --track-fds=yes ./${NAME} ${PORT} ${PASSWORD}
+	${RM} ${OBJ_PATH} ${NAME} ${GARBAGE}
 
 ${OBJ_PATH}%.o:${SRC_PATH}%.cpp
 	${CPP} ${CPPFLAGS} ${INC} -c $< -o $@

@@ -15,7 +15,7 @@
 
 #include <iostream>
 #include <sys/socket.h>	// socket setsockopt getsockname bind
-#include <sys/socket.h>	// connect listen accept send recv
+						// connect listen accept send recv
 #include <netdb.h>		// getprotobyname gethostbyname getaddrinfo freeaddrinfo
 #include <arpa/inet.h>	// htons htonl ntohs ntohl inet_addr inet_ntoa
 #include <csignal>		// signal
@@ -37,5 +37,6 @@
 #define ENDL			"\33[00m" << std::endl
 #define ERROR			"\33[31m" << "Error: "
 #define MAX_TCP_PORT	65535
+#define MAX_REQUESTS	8
 
 #endif

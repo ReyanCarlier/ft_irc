@@ -33,6 +33,7 @@
 
 # My executables
 ircserv
+client
 
 # Code
 .vscode

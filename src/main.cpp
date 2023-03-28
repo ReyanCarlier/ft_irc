@@ -61,15 +61,23 @@ int	main(int ac, char **av)
 		std::cerr << ERROR << "bind() failed." << ENDL;
 		return (1);
 	}
-
-	
-
-	// Debug
-	for (int i = 0; i < 16; i++)
+	if (listen(server_fd, MAX_REQUESTS) == -1)
 	{
-		std::cout << RED << "Ar" << YELLOW << "c-" << GREEN << "en" << CYAN <<
-		"-c" << BLUE << "ie" << MAGENTA << "l!" << ENDL;
+		std::cerr << ERROR << "listen() failed." << ENDL;
+		return (1);
 	}
 
+	// Need c++ cast
+	int	addrlen = sizeof(address);
+	int	new_socket = accept(server_fd, (struct sockaddr *)&address,
+	(socklen_t*)&addrlen);
+
+	if (new_socket == -1)
+	{
+		std::cerr << ERROR << "accept() failed." << ENDL;
+		return (1);
+	}
+	close(new_socket);
+	close(server_fd);
 	return (0);
 }
