@@ -11,9 +11,7 @@
 # **************************************************************************** #
 
 NAME		=	ircserv
-SRC			=	main.cpp \
-				Message.cpp \
-				Server.cpp
+SRC			=	main.cpp
 CPP			=	c++
 CPPFLAGS	=	-Wall -Wextra -Werror -std=c++98 -MMD
 RM			=	rm -rf
@@ -39,6 +37,7 @@ re:fclean
 	make all
 
 run:${NAME}
+	${CPP} -Wall -Wextra -Werror -std=c++98 src/client.cpp -o client
 	clear
 	./${NAME} ${PORT} ${PASSWORD}
 	${RM} ${OBJ_PATH} ${NAME} ${GARBAGE}
