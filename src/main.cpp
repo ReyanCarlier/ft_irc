@@ -51,12 +51,12 @@ int	main(int ac, char **av)
 	std::string			password(av[2]);
 	struct sockaddr_in	address;
 
-	// Need c++ cast
-	memset((char *)&address, 0, sizeof(address));
+	memset(reinterpret_cast<char*>(&address), 0, sizeof(address));
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 	address.sin_port = htons(port);
-	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) == -1)
+	if (bind(server_fd, reinterpret_cast<struct sockaddr*>(&address),
+	sizeof(address)) == -1)
 	{
 		std::cerr << ERROR << "bind() failed." << ENDL;
 		return (1);
@@ -67,17 +67,27 @@ int	main(int ac, char **av)
 		return (1);
 	}
 
-	// Need c++ cast
 	int	addrlen = sizeof(address);
-	int	new_socket = accept(server_fd, (struct sockaddr *)&address,
-	(socklen_t*)&addrlen);
+	int	new_socket = accept(
+		server_fd,
+		reinterpret_cast<struct sockaddr*>(&address),
+		reinterpret_cast<socklen_t*>(&addrlen)
+	);
 
 	if (new_socket == -1)
 	{
 		std::cerr << ERROR << "accept() failed." << ENDL;
 		return (1);
 	}
+
+	char	buffer[1024] = {0};
+
+	read(new_socket, buffer, 1024);
+	std::cout << buffer << std::endl;
+	send(new_socket, "Hello from server.", 18, 0);
+	std::cout << BLUE << "Hello message sent." << ENDL;
 	close(new_socket);
+	shutdown(server_fd, SHUT_RDWR);
 	close(server_fd);
 	return (0);
 }

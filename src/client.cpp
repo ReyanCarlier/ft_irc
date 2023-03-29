@@ -15,7 +15,7 @@
 int	main(void)
 {
 	int					client_fd = socket(AF_INET, SOCK_STREAM, 0);
-	char				hello[] = "Hello from client";
+	char				hello[] = "Hello from client.";
 	char				buffer[1024] = {0};
 	struct sockaddr_in	serv_addr;
 
@@ -31,14 +31,14 @@ int	main(void)
 		std::cerr << ERROR << "Invalid address." << ENDL;
 		return (1);
 	}
-	if (connect(client_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr))
-	== -1)
+	if (connect(client_fd, reinterpret_cast<struct sockaddr*>(&serv_addr),
+	sizeof(serv_addr)) == -1)
 	{
 		std::cerr << ERROR << "Connection Failed." << ENDL;
 		return (1);
 	}
 	send(client_fd, hello, strlen(hello), 0);
-	std::cout << "Hello message sent." << std::endl;
+	std::cout << BLUE << "Hello message sent." << ENDL;
 	read(client_fd, buffer, 1024);
 	std::cout << buffer << std::endl;
 	close(client_fd);
