@@ -25,6 +25,7 @@
 #include <poll.h>		// poll
 #include <cstring>		// strlen
 #include <cstdlib>		// atoi
+#include <cerrno>		// errno
 
 #define RESET			"\33[00m"
 #define BLACK			"\33[30m"

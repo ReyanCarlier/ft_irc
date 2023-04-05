@@ -42,6 +42,7 @@ int	main(int ac, char **av)
 
 	/* Variable ************************************************************* */
 	int					server_fd = socket(AF_INET, SOCK_STREAM, 0);
+	int					opt = 1;
 	int					port = atoi(av[1]);
 	std::string			password(av[2]);
 	struct sockaddr_in	address;
@@ -49,10 +50,18 @@ int	main(int ac, char **av)
 	int					new_socket;
 	char				buffer[1024] = {0};
 
-	/* IRC server *********************************************************** */
+	/* IRC server setup ***************************************************** */
 	if (server_fd == -1)
 	{
-		std::cerr << ERROR << "Cannot create socket." << ENDL;
+		std::cerr << ERROR << "socket(): " << strerror(errno) << ENDL;
+		close(server_fd);
+		return (1);
+	}
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt,
+	sizeof(opt)))
+	{
+		std::cerr << ERROR << "setsockopt(): " << strerror(errno) << ENDL;
+		close(server_fd);
 		return (1);
 	}
 	memset(reinterpret_cast<char*>(&address), 0, sizeof(address));
@@ -62,31 +71,39 @@ int	main(int ac, char **av)
 	if (bind(server_fd, reinterpret_cast<struct sockaddr*>(&address),
 	sizeof(address)) == -1)
 	{
-		std::cerr << ERROR << "bind() failed." << ENDL;
+		std::cerr << ERROR << "bind(): " << strerror(errno) << ENDL;
+		close(server_fd);
 		return (1);
 	}
 	if (listen(server_fd, MAX_REQUESTS) == -1)
 	{
-		std::cerr << ERROR << "listen() failed." << ENDL;
+		std::cerr << ERROR << "listen(): " << strerror(errno) << ENDL;
+		close(server_fd);
 		return (1);
 	}
-	new_socket = accept(
-		server_fd,
-		reinterpret_cast<struct sockaddr*>(&address),
-		reinterpret_cast<socklen_t*>(&addrlen)
-	);
-	if (new_socket == -1)
-	{
-		std::cerr << ERROR << "accept() failed." << ENDL;
-		return (1);
-	}
-	read(new_socket, buffer, 1024);
-	std::cout << buffer << std::endl;
-	send(new_socket, "Hello from server.", 18, 0);
-	std::cout << BLUE << "Hello message sent." << ENDL;
 
-	/* Close server ********************************************************* */
-	close(new_socket);
+	/* IRC server *********************************************************** */
+	for (int i = 0; i < 8; i++)
+	{
+		new_socket = accept(
+			server_fd,
+			reinterpret_cast<struct sockaddr*>(&address),
+			reinterpret_cast<socklen_t*>(&addrlen)
+		);
+		if (new_socket == -1)
+		{
+			std::cerr << ERROR << "accept(): " << strerror(errno) << ENDL;
+			close(server_fd);
+			return (1);
+		}
+		read(new_socket, buffer, 1024);
+		std::cout << buffer << std::endl;
+		send(new_socket, "Hello from server.", 18, 0);
+		std::cout << BLUE << "Hello message sent." << ENDL;
+
+		/* Close server ***************************************************** */
+		close(new_socket);
+	}
 	close(server_fd);
 	return (0);
 }
