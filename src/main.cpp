@@ -51,7 +51,7 @@ int	main(int ac, char **av)
 		return (1);
 	}
 	if (setsockopt(irc.getSocket(), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-	&opt, sizeof(opt)))
+	&opt, sizeof(int)))
 	{
 		std::cerr << ERROR << "setsockopt(): " << strerror(errno) << ENDL;
 		return (1);

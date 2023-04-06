@@ -18,14 +18,13 @@
 class Server
 {
 	private:
-		int			socket_fd;
-		int			opt;
-		int			addrlen;
-		int			accept_fd;
-		int			port;
-		char		*password;
-		char		buffer[1024];
-		sockaddr_in	address;
+		int			_socket_fd;
+		int			_addrlen;
+		int			_accept_fd;
+		int			_port;
+		char		*_password;
+		char		_buffer[1024];
+		sockaddr_in	_address;
 	public:
 		/* Constructor & Destructor ***************************************** */
 		Server(char **av);
