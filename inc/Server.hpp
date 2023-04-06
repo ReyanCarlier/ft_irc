@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 13:21:29 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/06 13:21:51 by frrusso          ###   ########.fr       */
+/*   Updated: 2023/04/06 15:53:42 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,24 +18,26 @@
 class Server
 {
 	private:
-		int			_socket_fd;
+		int			_master_socket_fd;
 		int			_addrlen;
 		int			_accept_fd;
 		int			_port;
 		char		*_password;
 		char		_buffer[1024];
 		sockaddr_in	_address;
+		int			_max_client;
 	public:
 		/* Constructor & Destructor ***************************************** */
 		Server(char **av);
 		~Server();
 
 		/* Getter & Setter ************************************************** */
-		int		getSocket(void);
+		int		getMasterSocket(void);
 		int		getAccept(void);
 		char	*getBuffer(void);
 		void	setAccept(void);
 		void	setAddress(void);
+		int		getMaxClient(void);
 
 		/* Function ********************************************************* */
 		sockaddr	*getCastAddress(void);

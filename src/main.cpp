@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/03/22 12:01:33 by frrusso          ###   ########.fr       */
+/*   Updated: 2023/04/06 16:43:09 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,48 +42,103 @@ int	main(int ac, char **av)
 
 	/* Variable ************************************************************* */
 	Server	irc(av);
+	fd_set readfds;
 	int		opt = 1;
-
+	int		max_sd, sd, activity, valread;
+	int		client_socket[irc.getMaxClient()];
 	/* IRC server setup ***************************************************** */
-	if (irc.getSocket() == -1)
+	for (int i = 0 ; i < irc.getMaxClient(); i++)
+	{
+		client_socket[i] = 0;
+	}
+	if (irc.getMasterSocket() == -1)
 	{
 		std::cerr << ERROR << "socket(): " << strerror(errno) << ENDL;
 		return (1);
 	}
-	if (setsockopt(irc.getSocket(), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+	if (setsockopt(irc.getMasterSocket(), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
 	&opt, sizeof(int)))
 	{
 		std::cerr << ERROR << "setsockopt(): " << strerror(errno) << ENDL;
 		return (1);
 	}
 	irc.setAddress();
-	if (bind(irc.getSocket(), irc.getCastAddress(), sizeof(sockaddr_in)) == -1)
+	if (bind(irc.getMasterSocket(), irc.getCastAddress(), sizeof(sockaddr_in)) == -1)
 	{
 		std::cerr << ERROR << "bind(): " << strerror(errno) << ENDL;
 		return (1);
 	}
-	if (listen(irc.getSocket(), MAX_REQUESTS) == -1)
+	if (listen(irc.getMasterSocket(), MAX_REQUESTS) == -1)
 	{
 		std::cerr << ERROR << "listen(): " << strerror(errno) << ENDL;
 		return (1);
 	}
 
 	/* IRC server *********************************************************** */
-	for (int i = 0; i < 3; i++)
+	while(42)
 	{
-		irc.setAccept();
-		if (irc.getAccept() == -1)
+		FD_ZERO(&readfds);
+		
+		FD_SET(irc.getMasterSocket(), &readfds);
+		max_sd = irc.getMasterSocket();
+		for (int i = 0; i < irc.getMaxClient(); i++)
 		{
-			std::cerr << ERROR << "accept(): " << strerror(errno) << ENDL;
-			return (1);
+			sd = client_socket[i];
+			
+			if(sd > 0)
+				FD_SET(sd, &readfds);
+			if(sd > max_sd)
+				max_sd = sd;
 		}
-		read(irc.getAccept(), irc.getBuffer(), 1024);
-		std::cout << irc.getBuffer() << std::endl;
-		send(irc.getAccept(), "Hello from server.", 18, 0);
-		std::cout << BLUE << "Hello message sent." << ENDL;
+		activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+		
+		if((activity < 0) && (errno!=EINTR))
+			std::cerr << "select error" << std::endl;
 
-		/* Close server ***************************************************** */
-		close(irc.getAccept());
+		
+		if (FD_ISSET(irc.getMasterSocket(), &readfds))
+		{
+			irc.setAccept();
+			if(irc.getAccept() == -1)
+			{
+				std::cerr << "accept error" << std::endl;
+				return (1);
+			}
+			std::cout << "New connection from fd : " << irc.getAccept() << std::endl;
+			if (send(irc.getAccept(), "Coucou", 6, 0) != 6)
+				std::cerr << "send error" << std::endl;
+			std::cout << "Coucou send" << std::endl;
+			for(int i = 0; i < irc.getMaxClient(); i++)
+			{
+				if (client_socket[i] == 0)
+				{
+					client_socket[i] = irc.getAccept();
+					break ;
+				}
+			}
+		}
+		
+		for(int i = 0; i < irc.getMaxClient(); i++)
+		{
+			sd = client_socket[i];
+
+			if (FD_ISSET(sd, &readfds))
+			{
+				valread = read(sd, irc.getBuffer(), 1024);
+				if(valread == 0)
+				{
+					std::cerr << "Host disconnect" << std::endl;
+					close (sd);
+					client_socket[i] = 0;
+				}
+				else
+				{
+					irc.getBuffer()[valread] = 0;
+					send(sd, irc.getBuffer(), strlen(irc.getBuffer()), 0);
+					std::cout << irc.getBuffer() << std::endl;
+				}
+			}
+		}
 	}
 	return (0);
 }
