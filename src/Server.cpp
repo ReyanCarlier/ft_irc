@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 13:22:04 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/06 13:22:06 by frrusso          ###   ########.fr       */
+/*   Updated: 2023/04/07 14:34:06 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,27 +14,34 @@
 
 Server::Server(char **av)
 {
-	_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	_master_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	_addrlen = sizeof(sockaddr_in);
 	_port = atoi(av[1]);
 	_password = av[2];
 	bzero(_buffer, 1024);
+	_max_client = 42;
 }
 
 Server::~Server()
 {
-	close(_socket_fd);
+	close(_master_socket_fd);
 }
 
-int		Server::getSocket(void)
+int		Server::getMasterSocket(void)
 {
-	return (_socket_fd);
+	return (_master_socket_fd);
 }
 
 int		Server::getAccept(void)
 {
 	return (_accept_fd);
 }
+
+int		Server::getMaxClient(void)
+{
+	return (_max_client);
+}
+
 
 char	*Server::getBuffer(void)
 {
@@ -44,7 +51,7 @@ char	*Server::getBuffer(void)
 void	Server::setAccept(void)
 {
 	_accept_fd = accept(
-		_socket_fd,
+		_master_socket_fd,
 		reinterpret_cast<sockaddr*>(&_address),
 		reinterpret_cast<socklen_t*>(&_addrlen)
 	);
