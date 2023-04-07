@@ -6,11 +6,27 @@
 /*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/06 16:43:09 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/07 17:21:44 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
+#include <Client.hpp>
+
+bool startwith(std::string prefix, std::string str)
+{
+	int i = 0;
+
+	if (prefix.length() > str.length())
+		return (false);
+	while(prefix[i])
+	{
+		if (prefix[i] != str[i])
+			return (false);
+		i++;
+	}
+	return (true);
+}
 
 bool	isport(char *av)
 {
@@ -43,14 +59,12 @@ int	main(int ac, char **av)
 	/* Variable ************************************************************* */
 	Server	irc(av);
 	fd_set readfds;
+	fd_set writefds;
 	int		opt = 1;
 	int		max_sd, sd, activity, valread;
-	int		client_socket[irc.getMaxClient()];
+	Client	client[irc.getMaxClient()];
+	std::string test, name;
 	/* IRC server setup ***************************************************** */
-	for (int i = 0 ; i < irc.getMaxClient(); i++)
-	{
-		client_socket[i] = 0;
-	}
 	if (irc.getMasterSocket() == -1)
 	{
 		std::cerr << ERROR << "socket(): " << strerror(errno) << ENDL;
@@ -78,19 +92,23 @@ int	main(int ac, char **av)
 	while(42)
 	{
 		FD_ZERO(&readfds);
+		FD_ZERO(&writefds);
 		
 		FD_SET(irc.getMasterSocket(), &readfds);
 		max_sd = irc.getMasterSocket();
 		for (int i = 0; i < irc.getMaxClient(); i++)
 		{
-			sd = client_socket[i];
+			sd = client[i].GetSocket();
 			
 			if(sd > 0)
+			{
 				FD_SET(sd, &readfds);
+				FD_SET(sd, &writefds);
+			}
 			if(sd > max_sd)
 				max_sd = sd;
 		}
-		activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+		activity = select(max_sd + 1, &readfds, &writefds, NULL, NULL);
 		
 		if((activity < 0) && (errno!=EINTR))
 			std::cerr << "select error" << std::endl;
@@ -105,14 +123,11 @@ int	main(int ac, char **av)
 				return (1);
 			}
 			std::cout << "New connection from fd : " << irc.getAccept() << std::endl;
-			if (send(irc.getAccept(), "Coucou", 6, 0) != 6)
-				std::cerr << "send error" << std::endl;
-			std::cout << "Coucou send" << std::endl;
 			for(int i = 0; i < irc.getMaxClient(); i++)
 			{
-				if (client_socket[i] == 0)
+				if (client[i].GetSocket() == 0)
 				{
-					client_socket[i] = irc.getAccept();
+					client[i].SetSocket(irc.getAccept());
 					break ;
 				}
 			}
@@ -120,22 +135,74 @@ int	main(int ac, char **av)
 		
 		for(int i = 0; i < irc.getMaxClient(); i++)
 		{
-			sd = client_socket[i];
+			sd = client[i].GetSocket();
 
 			if (FD_ISSET(sd, &readfds))
 			{
 				valread = read(sd, irc.getBuffer(), 1024);
 				if(valread == 0)
 				{
-					std::cerr << "Host disconnect" << std::endl;
+					std::cerr << "Client disconnect" << std::endl;
 					close (sd);
-					client_socket[i] = 0;
+					client[i].SetSocket(0);
+					client[i].setbvn(1);
+					client[i].Setok(0);
 				}
 				else
 				{
 					irc.getBuffer()[valread] = 0;
-					send(sd, irc.getBuffer(), strlen(irc.getBuffer()), 0);
-					std::cout << irc.getBuffer() << std::endl;
+					client[i].SetMessage(irc.getBuffer());
+					test = client[i].GetMessage();
+					std::cout << "DEBUG : buffer : " << irc.getBuffer() << std::endl;
+					if (startwith("CAP LS\r\n", test))
+						test.erase(0, 8);
+					else
+						std::cerr << "Ca vas etre tout noir ! TG !" << std::endl;
+					std::cout <<"debug : message : " << test << std::endl;
+					if (startwith("NICK ", test))
+					{
+						test.erase(0, 5);
+						name = test;
+						test.erase(test.find("\r\n"));
+						client[i].SetNick(test);
+						std::cout << "DEBUG : client : " << i << " setnick to " << test << std::endl;
+						name.erase(0, test.length() + 2);
+						// std::cout <<"debug : message rest : " << name << std::endl;
+						test = name;
+					}
+					else
+						std::cerr << "here" << std::endl;
+					if (startwith("USER ", test))
+					{
+						test.erase(0, 5);
+						name = test;
+						name.erase(name.find(" "));
+						client[i].SetUserName(name);
+						name = test;
+						name.erase(name.find(" "));
+						client[i].SetHostName(name);
+						name = test;
+						name.erase(name.find(" "));
+						client[i].SetHost(name);
+						name = test;
+						name.erase(name.find(" :"));
+						client[i].SetRealName(name);
+						client[i].Setok(1);
+						std::cout << "client id " << i << " ok" << std::endl;
+					}
+					
+				}
+			}
+			if (FD_ISSET(sd, &writefds))
+			{
+				if (client[i].getok() && client[i].getbvn())
+				{
+					test = ":ircserver 001 ";
+					test.append(client[i].getUserName());
+					test.append(" :coucou");
+					std::cout << "DEBUG bvn message : " << test << "    " << client[i].GetSocket() << std::endl;
+					write(client[i].GetSocket(), test.c_str(), test.length());
+					client[i].setbvn(0);
 				}
 			}
 		}
