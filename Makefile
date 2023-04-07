@@ -23,9 +23,9 @@ OBJ_PATH	=	./obj/
 OBJ_DIRS	=	${OBJ_PATH}
 OBJ			=	${addprefix ${OBJ_PATH},${SRC:.cpp=.o}}
 DEPS		=	${addprefix ${OBJ_PATH},${SRC:.cpp=.d}}
-GARBAGE		=	.vscode client
-PORT		=	8080
-PASSWORD	=	""
+GARBAGE		=	.vscode
+PORT		=	6667
+PASSWORD	=	password
 PROGRESS	=	🔁
 CHECK		=	✅
 

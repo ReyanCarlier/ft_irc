@@ -42,7 +42,6 @@ int		Server::getMaxClient(void)
 	return (_max_client);
 }
 
-
 char	*Server::getBuffer(void)
 {
 	return (_buffer);

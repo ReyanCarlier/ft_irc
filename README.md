@@ -5,8 +5,8 @@ operates using numerous standards and protocols to allow interoperability
 between connected machines. It is always interesting to know what kind of thing.
 
 ## Authors
-- [@François Russo](https://www.github.com/LolinEagle)
-- [@Nathan Felsemberg](https://github.com/geekprod27)
+- [François Russo](https://www.github.com/LolinEagle)
+- [Nathan Felsemberg](https://github.com/geekprod27)
 
 ## Deployment
 To deploy this project run

@@ -31,13 +31,15 @@ class Server
 		Server(char **av);
 		~Server();
 
-		/* Getter & Setter ************************************************** */
+		/* Getter *********************************************************** */
 		int		getMasterSocket(void);
 		int		getAccept(void);
 		char	*getBuffer(void);
+		int		getMaxClient(void);
+
+		/* Setter *********************************************************** */
 		void	setAccept(void);
 		void	setAddress(void);
-		int		getMaxClient(void);
 
 		/* Function ********************************************************* */
 		sockaddr	*getCastAddress(void);
