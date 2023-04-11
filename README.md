@@ -7,7 +7,7 @@ between connected machines. It is always interesting to know what kind of thing.
 ## Authors
 - [François Russo](https://www.github.com/LolinEagle)
 - [Nathan Felsemberg](https://github.com/geekprod27)
-- [Reyan Carlier](https://github.com/geekprod27)
+- [Reyan Carlier](https://github.com/ReyanCarlier)
 
 ## Deployment
 To deploy this project run
