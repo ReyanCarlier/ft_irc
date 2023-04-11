@@ -3,7 +3,7 @@
 #include "Client.hpp"
 #include <string>
 #include <iostream>
-#include <list>
+#include <vector>
 
 /**
  * Representation of a channel in the server.
@@ -21,12 +21,12 @@ class Channel {
 
         int                 getId() const;
         std::string         getName() const;
-        std::list<Client>   getClients() const;
-        std::list<Client>   getOperators() const;
-        std::list<Client>   getAdmins() const;
-        std::list<Client>   getOwners() const;
-        std::list<Client>   getBanned() const;
-        std::list<Client>   getMuted() const;
+        std::vector<Client>   getClients() const;
+        std::vector<Client>   getOperators() const;
+        std::vector<Client>   getAdmins() const;
+        std::vector<Client>   getOwners() const;
+        std::vector<Client>   getBanned() const;
+        std::vector<Client>   getMuted() const;
 
         void setId(const int id);
         void setName(const std::string name);
@@ -46,10 +46,10 @@ class Channel {
     private:
         int                 _id;
         std::string         _name;
-        std::list<Client>   _clients;
-        std::list<Client>   _operators;
-        std::list<Client>   _admins;
-        std::list<Client>   _owners;
-        std::list<Client>   _banned;
-        std::list<Client>   _muted;
+        std::vector<Client>   _clients;
+        std::vector<Client>   _operators;
+        std::vector<Client>   _admins;
+        std::vector<Client>   _owners;
+        std::vector<Client>   _banned;
+        std::vector<Client>   _muted;
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 18:01:32 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/11 18:41:49 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,23 +67,20 @@ int	main(int ac, char **av)
 	try
 	{
 		server.run();
-		std::cout << GREEN << "✅ Socket created successfully." << std::endl;
+		std::cout << GREEN << "✅ Socket created successfully." << ENDL;
 		server.bind(atoi(av[1]));
-		std::cout << GREEN << "✅ Socket binded successfully." << std::endl;
+		std::cout << GREEN << "✅ Socket binded successfully." << ENDL;
 		server.listen();
-		std::cout << GREEN << "✅ Server listening on 127.0.0.1:" << server.getPort() << "." << std::endl;
+		std::cout << GREEN << "✅ Server listening on 127.0.0.1:" << server.getPort() << "." << ENDL;
 	
 		//////////////////////// MAIN LOOP  ////////////////////////
 
-		int			sd, valread;
+		int			sd, valread, poll_ret;
 		std::string	test, name;
 		Client *currentClient = NULL;
 		/* IRC server *********************************************************** */
 		while (true)
 		{
-			std::cout << RED << "NULLING..." << ENDL;
-			
-			std::cout << RED << "NULLING DONE" << ENDL;
 			int new_socket;
 			struct sockaddr_in address;
 			int addrlen = sizeof(address);
@@ -110,29 +107,6 @@ int	main(int ac, char **av)
 			{
 				std::cout << "LE CLIENT EXISTE TA GROSSE TETE" << ENDL;
 			}
-				// std::list<Client> clients = server.getClients();
-				// std::list<Client>::iterator it;
-				// it = clients.begin();
-				// for (; it != server.getClients().end(); it++)
-				// {
-				// 	if (it->getSocket() == new_socket)
-				// 	{
-				// 		currentClient = &(*it);
-				// 		break;
-				// 	}
-				// 	else if (it == server.getClients().end())
-				// 	{
-				// 		if (server.getClients().size() == MAX_CLIENT)
-				// 		{
-				// 			std::cerr << RED << "Max client reached." << ENDL;
-				// 			return (0);
-				// 		}
-				// 		Client *newClient = new Client();
-				// 		newClient->setSocket(new_socket);
-				// 		server.addClient(*newClient);
-				// 		currentClient = newClient;
-				// 	}
-				// }
 			
 			sd = currentClient->getSocket();
 			valread = read(sd, server.getBuffer(), 1024);

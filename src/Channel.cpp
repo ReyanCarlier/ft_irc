@@ -54,28 +54,28 @@ std::string Channel::getName() const {
 /**
  * Returns the list of Client that are in the Channel.
 */
-std::list<Client> Channel::getClients() const {
+std::vector<Client> Channel::getClients() const {
     return this->_clients;
 }
 
 /**
  * Returns the list of Client that are in the Channel with operator privileges.
 */
-std::list<Client> Channel::getOperators() const {
+std::vector<Client> Channel::getOperators() const {
     return this->_operators;
 }
 
 /**
  * Returns the list of Client that are in the Channel with admin privileges.
 */
-std::list<Client> Channel::getAdmins() const {
+std::vector<Client> Channel::getAdmins() const {
     return this->_admins;
 }
 
 /**
  * Returns the list of Client that are in the Channel with ownership.
 */
-std::list<Client> Channel::getOwners() const {
+std::vector<Client> Channel::getOwners() const {
     return this->_owners;
 }
 
@@ -83,7 +83,7 @@ std::list<Client> Channel::getOwners() const {
  * Returns the list of Client that are banned from the Channel.
  * > They can't join the channel anymore.
 */
-std::list<Client> Channel::getBanned() const {
+std::vector<Client> Channel::getBanned() const {
     return this->_banned;
 }
 
@@ -91,7 +91,7 @@ std::list<Client> Channel::getBanned() const {
  * Returns the list of Client that are muted in the Channel.
  * > They can't send messages to the channel anymore.
 */
-std::list<Client> Channel::getMuted() const {
+std::vector<Client> Channel::getMuted() const {
     return this->_muted;
 }
 
@@ -160,7 +160,7 @@ void Channel::addMuted(const Client client) {
  * @param client 
  */
 void Channel::removeClient(Client client) {
-    for (std::list<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
+    for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
         if (it->getId() == client.getId()) {
             this->_clients.erase(it);
             break;
@@ -169,7 +169,7 @@ void Channel::removeClient(Client client) {
 }
 
 void Channel::removeOperator(Client client) {
-    for (std::list<Client>::iterator it = this->_operators.begin(); it != this->_operators.end(); it++) {
+    for (std::vector<Client>::iterator it = this->_operators.begin(); it != this->_operators.end(); it++) {
         if (it->getId() == client.getId()) {
             this->_operators.erase(it);
             break;
@@ -178,7 +178,7 @@ void Channel::removeOperator(Client client) {
 }
 
 void Channel::removeAdmin(Client client) {
-    for (std::list<Client>::iterator it = this->_admins.begin(); it != this->_admins.end(); it++) {
+    for (std::vector<Client>::iterator it = this->_admins.begin(); it != this->_admins.end(); it++) {
         if (it->getId() == client.getId()) {
             this->_admins.erase(it);
             break;
@@ -187,7 +187,7 @@ void Channel::removeAdmin(Client client) {
 }
 
 void Channel::disownClient(Client client) {
-    for (std::list<Client>::iterator it = this->_owners.begin(); it != this->_owners.end(); it++) {
+    for (std::vector<Client>::iterator it = this->_owners.begin(); it != this->_owners.end(); it++) {
         if (it->getId() == client.getId()) {
             this->_owners.erase(it);
             break;
@@ -202,7 +202,7 @@ void Channel::disownClient(Client client) {
  * @param client 
  */
 void Channel::unbanClient(Client client) {
-    for (std::list<Client>::iterator it = this->_banned.begin(); it != this->_banned.end(); it++) {
+    for (std::vector<Client>::iterator it = this->_banned.begin(); it != this->_banned.end(); it++) {
         if (it->getId() == client.getId()) {
             this->_banned.erase(it);
             break;
@@ -217,7 +217,7 @@ void Channel::unbanClient(Client client) {
  * @param client 
  */
 void Channel::unmuteClient(Client client) {
-    for (std::list<Client>::iterator it = this->_muted.begin(); it != this->_muted.end(); it++) {
+    for (std::vector<Client>::iterator it = this->_muted.begin(); it != this->_muted.end(); it++) {
         if (it->getId() == client.getId()) {
             this->_muted.erase(it);
             break;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 13:22:04 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 17:57:38 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/11 18:38:03 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ Server::Server()
 	_accept_fd = 0;
 	_opt = 1;
 	_max_clients = MAX_CLIENT;
-	_clients = std::list<Client>();
-	_channels = std::list<Channel>();
+	_clients = std::vector<Client>();
+	_channels = std::vector<Channel>();
 	bzero(_buffer, 1024);
 }
 
@@ -85,7 +85,7 @@ Client	*Server::getClient(int i)
 		return (&_clients.front());
 	if ((size_t)i > _clients.size())
 		return (NULL);
-	std::list<Client>::iterator it = _clients.begin();
+	std::vector<Client>::iterator it = _clients.begin();
 	std::advance(it, i - 1);
 	return (&(*it));
 }
@@ -125,7 +125,7 @@ void Server::addClient(Client &client) {
 }
 
 void Server::removeClient(Client client) {
-	for (std::list<Client>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++) {
 		if (it->getSocket() == client.getSocket()) {
 			_clients.erase(it);
 			break;
@@ -138,7 +138,7 @@ void Server::addChannel(Channel channel) {
 }
 
 void Server::removeChannel(Channel channel) {
-	for (std::list<Channel>::iterator it = _channels.begin(); it != _channels.end(); it++) {
+	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); it++) {
 		if (it->getName() == channel.getName()) {
 			_channels.erase(it);
 			break;
@@ -146,10 +146,10 @@ void Server::removeChannel(Channel channel) {
 	}
 }
 
-std::list<Client> Server::getClients() {
+std::vector<Client> Server::getClients() {
 	return _clients;
 }
 
-std::list<Channel> Server::getChannels() {
+std::vector<Channel> Server::getChannels() {
 	return _channels;
 }

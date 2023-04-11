@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 13:21:29 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 17:58:01 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/11 18:38:30 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #define SERVER_HPP
 
 #include <header.hpp>
-#include <list>
+#include <vector>
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Message.hpp"
@@ -31,13 +31,13 @@ class Server
 		char				_buffer[1024];
 		
 		
-		std::list<Channel>	_channels;
-		std::list<Client>	_clients;
+		std::vector<Channel>	_channels;
+		std::vector<Client>	_clients;
 		sockaddr_in			_address;
 		int					_port;
 		int					_socket_fd;
 
-		//std::list<Message>	_messages;
+		//std::vector<Message>	_messages;
 
 	public:
 		/* Constructor & Destructor ***************************************** */
@@ -61,8 +61,8 @@ class Server
 		void	removeClient(Client client);
 		void	removeChannel(Channel channel);
 
-		std::list<Client>	getClients(void);
-		std::list<Channel>	getChannels(void);
+		std::vector<Client>	getClients(void);
+		std::vector<Channel>	getChannels(void);
 
 		/* Function ********************************************************* */
 		int			*getPtrOpt(void);
