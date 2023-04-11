@@ -61,7 +61,6 @@ int	main(int ac, char **av)
 	Client	client[irc.getMaxClient()];
 
 	fd_set		readfds, writefds;
-	int			opt = 1;
 	int			max_sd, sd, activity, valread;
 	std::string	test, name;
 
@@ -71,8 +70,16 @@ int	main(int ac, char **av)
 		std::cerr << ERROR << "socket(): " << strerror(errno) << ENDL;
 		return (1);
 	}
+	/* int setsockopt(int sockfd, int level, int optname,
+	                  const void *optval, socklen_t optlen);
+	irc.getMasterSocket(): manipulate options for the socket referred.
+	SOL_SOCKET: To manipulate options at the sockets API level.
+	SO_REUSEADDR: Reuse of local addresses is supported.
+	SO_REUSEPORT: Allows multiple sockets to bind to the same address and port.
+	irc.getPtrOpt(): Are used to access option values.
+	sizeof(int): Type of optval.*/
 	if (setsockopt(irc.getMasterSocket(), SOL_SOCKET,
-	SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(int)))
+	SO_REUSEADDR | SO_REUSEPORT, irc.getPtrOpt(), sizeof(int)))
 	{
 		std::cerr << ERROR << "setsockopt(): " << strerror(errno) << ENDL;
 		return (1);

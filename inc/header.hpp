@@ -39,5 +39,6 @@
 #define ERROR			"\33[31m" << "Error: "
 #define MAX_TCP_PORT	65535
 #define MAX_REQUESTS	8
+#define MAX_CLIENT		42
 
 #endif

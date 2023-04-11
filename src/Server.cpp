@@ -14,12 +14,19 @@
 
 Server::Server(char **av)
 {
+	/* int socket(int domain, int type, int protocol);
+	AF_INET: IPv4 Internet protocols (man 7 ip)
+	SOCK_STREAM: Provides sequenced, reliable, two-way, connection-based
+	bytestreams. An out-of-band data transmission mechanism may be supported.
+	0: Normally only a single protocol exists to support a particular socket
+	type within a given protocol family, in which case protocol can be 0.*/
 	_master_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	_addrlen = sizeof(sockaddr_in);
+	_max_client = MAX_CLIENT;
+	_opt = 1;
 	_port = atoi(av[1]);
 	_password = av[2];
 	bzero(_buffer, 1024);
-	_max_client = 42;
 }
 
 Server::~Server()
@@ -58,10 +65,21 @@ void	Server::setAccept(void)
 
 void	Server::setAddress(void)
 {
+	/* memset(): Init the struct sockaddr_in to 0
+	AF_INET: IPv4 Internet protocols (man 7 ip)
+	htonl(INADDR_ANY): converts the unsigned integer INADDR_ANY from host byte
+	order to network byte order.
+	htons(_port): converts the unsigned short integer _port from host byte 
+	order to network byte order.*/
 	memset(reinterpret_cast<char*>(&_address), 0, sizeof(sockaddr_in));
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(_port);
+}
+
+int			*Server::getPtrOpt(void)
+{
+	return (&_opt);
 }
 
 sockaddr	*Server::getCastAddress(void)

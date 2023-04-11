@@ -21,11 +21,12 @@ class Server
 		int			_master_socket_fd;
 		int			_addrlen;
 		int			_accept_fd;
+		int			_max_client;
+		int			_opt;
 		int			_port;
 		char		*_password;
 		char		_buffer[1024];
 		sockaddr_in	_address;
-		int			_max_client;
 	public:
 		/* Constructor & Destructor ***************************************** */
 		Server(char **av);
@@ -42,6 +43,7 @@ class Server
 		void	setAddress(void);
 
 		/* Function ********************************************************* */
+		int			*getPtrOpt(void);
 		sockaddr	*getCastAddress(void);
 };
 
