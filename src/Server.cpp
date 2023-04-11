@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 13:22:04 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 17:07:34 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/11 17:57:38 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ int Server::getPort() {
 	return _port;
 }
 
-void Server::addClient(Client client) {
+void Server::addClient(Client &client) {
 	_clients.push_back(client);
 }
 

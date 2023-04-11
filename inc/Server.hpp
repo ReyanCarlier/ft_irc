@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 13:21:29 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 16:57:02 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/11 17:58:01 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ class Server
 		void	setAddress(void);
 		void	setPort(int port);
 
-		void	addClient(Client client);
+		void	addClient(Client& client);
 		void	addChannel(Channel channel);
 		void	removeClient(Client client);
 		void	removeChannel(Channel channel);

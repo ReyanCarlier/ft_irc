@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 17:19:38 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/11 18:01:32 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,12 +77,12 @@ int	main(int ac, char **av)
 
 		int			sd, valread;
 		std::string	test, name;
-
+		Client *currentClient = NULL;
 		/* IRC server *********************************************************** */
 		while (true)
 		{
 			std::cout << RED << "NULLING..." << ENDL;
-			Client *currentClient = NULL;
+			
 			std::cout << RED << "NULLING DONE" << ENDL;
 			int new_socket;
 			struct sockaddr_in address;
@@ -96,37 +96,43 @@ int	main(int ac, char **av)
 			// Loop for each _clients list from server
 			if (server.getClients().size() == 0)
 			{
-				// Create new client
-				Client *newClient = new Client();
-				newClient->setSocket(new_socket);
-				server.addClient(*newClient);
-				currentClient = newClient;
+				currentClient = new Client();
+				currentClient->setSocket(new_socket);
+				server.addClient(*currentClient);
+			}
+			else if ((currentClient = server.getClient(new_socket)) == NULL)
+			{
+				currentClient = new Client();
+				currentClient->setSocket(new_socket);
+				server.addClient(*currentClient);
 			}
 			else
 			{
-				std::list<Client>::iterator it;
-				it = server.getClients().begin();
-				for (; it != server.getClients().end(); it++)
-				{
-					if (it->getSocket() == new_socket)
-					{
-						currentClient = &(*it);
-						break;
-					}
-					else if (it == server.getClients().end())
-					{
-						if (server.getClients().size() == MAX_CLIENT)
-						{
-							std::cerr << RED << "Max client reached." << ENDL;
-							return (0);
-						}
-						Client *newClient = new Client();
-						newClient->setSocket(new_socket);
-						server.addClient(*newClient);
-						currentClient = newClient;
-					}
-				}
+				std::cout << "LE CLIENT EXISTE TA GROSSE TETE" << ENDL;
 			}
+				// std::list<Client> clients = server.getClients();
+				// std::list<Client>::iterator it;
+				// it = clients.begin();
+				// for (; it != server.getClients().end(); it++)
+				// {
+				// 	if (it->getSocket() == new_socket)
+				// 	{
+				// 		currentClient = &(*it);
+				// 		break;
+				// 	}
+				// 	else if (it == server.getClients().end())
+				// 	{
+				// 		if (server.getClients().size() == MAX_CLIENT)
+				// 		{
+				// 			std::cerr << RED << "Max client reached." << ENDL;
+				// 			return (0);
+				// 		}
+				// 		Client *newClient = new Client();
+				// 		newClient->setSocket(new_socket);
+				// 		server.addClient(*newClient);
+				// 		currentClient = newClient;
+				// 	}
+				// }
 			
 			sd = currentClient->getSocket();
 			valread = read(sd, server.getBuffer(), 1024);
@@ -178,6 +184,16 @@ int	main(int ac, char **av)
 					currentClient->SetRealName(name);
 					currentClient->Setok(1);
 					std::cout << "client id " << currentClient->getUserName() << " ok" << std::endl;
+				}
+				if (currentClient->getok() && currentClient->getbvn())
+				{
+					test = ":serverserver 001 ";
+					test.append(currentClient->getUserName());
+					test.append(" :coucou\r\n");
+					std::cout << "DEBUG bvn message : " << test << "    " <<
+					currentClient->getSocket() << std::endl;
+					write(currentClient->getSocket(), test.c_str(), test.length());
+					currentClient->setbvn(0);
 				}
 			}
 			// for (int i = 0; i < MAX_CLIENT; i++)
