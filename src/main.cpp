@@ -3,15 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/07 17:21:44 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/11 15:14:47 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
 #include <Client.hpp>
+
+void	DebugMessage(std::string message)
+{
+	std::cout << YELLOW << message << std::endl;
+}
 
 bool	startwith(std::string prefix, std::string str)
 {

@@ -3,18 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/07 18:00:08 by frrusso          ###   ########.fr       */
+/*   Updated: 2023/04/11 15:34:25 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
-
+#pragma once
 #include <header.hpp>
 
+/**
+ * Representation of a client.
+ * 
+ */
 class Client
 {
 	public:
@@ -32,6 +34,7 @@ class Client
 		std::string getUserName(void);
 		int			getok(void);
 		int			getbvn(void);
+		int			getId();
 
 		/* Setter *********************************************************** */
 		void		SetNick(std::string nickname);
@@ -43,9 +46,11 @@ class Client
 		void		SetHost(std::string name);
 		void		Setok(int ok);
 		void		setbvn(int bvn);
+		void		setId(int id);
 
 		/* Function ********************************************************* */
 	private:
+		int			_id;
 		std::string _nickname;
 		std::string _username;
 		std::string _hostname;
@@ -56,5 +61,3 @@ class Client
 		int			_isok;
 		int			_bvn;
 };
-
-#endif /* ********************************************************** CLIENT_H */

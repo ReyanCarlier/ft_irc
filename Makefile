@@ -3,17 +3,20 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+         #
+#    By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/22 11:58:06 by frrusso           #+#    #+#              #
-#    Updated: 2023/04/07 15:12:19 by nfelsemb         ###   ########.fr        #
+#    Updated: 2023/04/11 15:26:55 by recarlie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		=	ircserv
 SRC			=	main.cpp \
 				Server.cpp \
-				Client.cpp
+				Client.cpp \
+				Channel.cpp \
+				Message.cpp
+				
 CPP			=	c++
 CPPFLAGS	=	-Wall -Wextra -Werror -std=c++98 -MMD
 RM			=	rm -rf
@@ -25,7 +28,7 @@ OBJ			=	${addprefix ${OBJ_PATH},${SRC:.cpp=.o}}
 DEPS		=	${addprefix ${OBJ_PATH},${SRC:.cpp=.d}}
 GARBAGE		=	.vscode
 PORT		=	6667
-PASSWORD	=	password
+PASSWORD	=	""
 PROGRESS	=	🔁
 CHECK		=	✅
 

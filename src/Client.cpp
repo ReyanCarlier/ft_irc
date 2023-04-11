@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/07 18:00:24 by frrusso          ###   ########.fr       */
+/*   Updated: 2023/04/11 15:34:31 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,17 @@ int			Client::getbvn(void)
 	return (_bvn);
 }
 
+int			Client::getId(void)
+{
+	return (_id);
+}
+
 /* Setter ******************************************************************* */
+
+void		Client::setId(int id)
+{
+	_id = id;
+}
 
 void		Client::SetSocket(int socket)
 {
