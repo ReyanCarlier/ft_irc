@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 15:14:47 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/11 17:19:38 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ int	main(int ac, char **av)
 	/* Parsing ************************************************************** */
 	if (ac != 3)
 	{
-		std::cout << YELLOW << "Usage: ./ircserv <port> <password>" << ENDL;
+		std::cout << YELLOW << "Usage: ./serverserv <port> <password>" << ENDL;
 		return (0);
 	}
 	if (isport(av[1]) == false)
@@ -62,159 +62,154 @@ int	main(int ac, char **av)
 	}
 
 	/* Variable ************************************************************* */
-	Server	irc(av);
-	Client	client[MAX_CLIENT];
+	Server	server;
 
-	fd_set		readfds, writefds;
-	int			max_sd, sd, activity, valread;
-	std::string	test, name;
+	try
+	{
+		server.run();
+		std::cout << GREEN << "✅ Socket created successfully." << std::endl;
+		server.bind(atoi(av[1]));
+		std::cout << GREEN << "✅ Socket binded successfully." << std::endl;
+		server.listen();
+		std::cout << GREEN << "✅ Server listening on 127.0.0.1:" << server.getPort() << "." << std::endl;
+	
+		//////////////////////// MAIN LOOP  ////////////////////////
 
-	/* IRC server setup ***************************************************** */
-	if (irc.getMasterSocket() == -1)
-	{
-		std::cerr << ERROR << "socket(): " << strerror(errno) << ENDL;
-		return (1);
-	}
-	/* int setsockopt(int sockfd, int level, int optname,
-	                  const void *optval, socklen_t optlen);
-	irc.getMasterSocket(): manipulate options for the socket referred.
-	SOL_SOCKET: To manipulate options at the sockets API level.
-	SO_REUSEADDR: Reuse of local addresses is supported.
-	SO_REUSEPORT: Allows multiple sockets to bind to the same address and port.
-	irc.getPtrOpt(): Are used to access option values.
-	sizeof(int): Type of optval.*/
-	if (setsockopt(irc.getMasterSocket(), SOL_SOCKET,
-	SO_REUSEADDR | SO_REUSEPORT, irc.getPtrOpt(), sizeof(int)))
-	{
-		std::cerr << ERROR << "setsockopt(): " << strerror(errno) << ENDL;
-		return (1);
-	}
-	irc.setAddress();
-	if (bind(irc.getMasterSocket(), irc.getCastAddress(), sizeof(sockaddr_in))
-	== -1)
-	{
-		std::cerr << ERROR << "bind(): " << strerror(errno) << ENDL;
-		return (1);
-	}
-	if (listen(irc.getMasterSocket(), MAX_REQUESTS) == -1)
-	{
-		std::cerr << ERROR << "listen(): " << strerror(errno) << ENDL;
-		return (1);
-	}
+		int			sd, valread;
+		std::string	test, name;
 
-	/* IRC server *********************************************************** */
-	while (true)
-	{
-		FD_ZERO(&readfds);
-		FD_ZERO(&writefds);
-		FD_SET(irc.getMasterSocket(), &readfds);
-		max_sd = irc.getMasterSocket();
-		for (int i = 0; i < MAX_CLIENT; i++)
+		/* IRC server *********************************************************** */
+		while (true)
 		{
-			sd = client[i].GetSocket();
-			if (sd > 0)
+			std::cout << RED << "NULLING..." << ENDL;
+			Client *currentClient = NULL;
+			std::cout << RED << "NULLING DONE" << ENDL;
+			int new_socket;
+			struct sockaddr_in address;
+			int addrlen = sizeof(address);
+			
+			std::cout << RED << "Waiting for new connection..." << ENDL;
+			if ((new_socket = accept(server.getSocketFd(), (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
+				throw "Failed to accept connection.";
+			std::cout << GREEN << "✅ Connection accepted on FD " << new_socket << "." << ENDL;
+
+			// Loop for each _clients list from server
+			if (server.getClients().size() == 0)
 			{
-				FD_SET(sd, &readfds);
-				FD_SET(sd, &writefds);
+				// Create new client
+				Client *newClient = new Client();
+				newClient->setSocket(new_socket);
+				server.addClient(*newClient);
+				currentClient = newClient;
 			}
-			if (sd > max_sd)
-				max_sd = sd;
-		}
-		activity = select(max_sd + 1, &readfds, &writefds, NULL, NULL);
-		if ((activity < 0) && (errno != EINTR))
-			std::cerr << ERROR << "select(): " << strerror(errno) << ENDL;
-		if (FD_ISSET(irc.getMasterSocket(), &readfds))
-		{
-			irc.setAccept();
-			if (irc.getAccept() == -1)
+			else
 			{
-				std::cerr << ERROR << "accept(): " << strerror(errno) << ENDL;
-				return (1);
-			}
-			std::cout << "New connection from fd : " << irc.getAccept() <<
-			std::endl;
-			for (int i = 0; i < MAX_CLIENT; i++)
-			{
-				if (client[i].GetSocket() == 0)
+				std::list<Client>::iterator it;
+				it = server.getClients().begin();
+				for (; it != server.getClients().end(); it++)
 				{
-					client[i].SetSocket(irc.getAccept());
-					break ;
+					if (it->getSocket() == new_socket)
+					{
+						currentClient = &(*it);
+						break;
+					}
+					else if (it == server.getClients().end())
+					{
+						if (server.getClients().size() == MAX_CLIENT)
+						{
+							std::cerr << RED << "Max client reached." << ENDL;
+							return (0);
+						}
+						Client *newClient = new Client();
+						newClient->setSocket(new_socket);
+						server.addClient(*newClient);
+						currentClient = newClient;
+					}
 				}
 			}
-		}
-		for (int i = 0; i < MAX_CLIENT; i++)
-		{
-			sd = client[i].GetSocket();
-			if (FD_ISSET(sd, &readfds))
+			
+			sd = currentClient->getSocket();
+			valread = read(sd, server.getBuffer(), 1024);
+			if (valread == 0)
 			{
-				valread = read(sd, irc.getBuffer(), 1024);
-				if (valread == 0)
+				std::cerr << RED << "Client disconnect." << ENDL;
+				close(sd);
+				currentClient->setSocket(0);
+				currentClient->setbvn(1);
+				currentClient->Setok(0);
+			}
+			else
+			{
+				server.getBuffer()[valread] = 0;
+				currentClient->SetMessage(server.getBuffer());
+				test = currentClient->GetMessage();
+				std::cout << "DEBUG : buffer : " << server.getBuffer() << std::endl;
+				if (startwith("CAP LS\r\n", test))
+					test.erase(0, 8);
+				else
+					std::cerr << "Placeholder text" << std::endl;
+				std::cout <<"debug : message : " << test << std::endl;
+				if (startwith("NICK ", test))
 				{
-					std::cerr << RED << "Client disconnect." << ENDL;
-					close(sd);
-					client[i].SetSocket(0);
-					client[i].setbvn(1);
-					client[i].Setok(0);
+					test.erase(0, 5);
+					name = test;
+					test.erase(test.find("\r\n"));
+					currentClient->SetNick(test);
+					std::cout << "DEBUG : client : " << currentClient->getUserName() << " setnick to " << test << std::endl;
+					name.erase(0, test.length() + 2);
+					test = name;
 				}
 				else
+					std::cerr << "Placeholder text" << std::endl;
+				if (startwith("USER ", test))
 				{
-					irc.getBuffer()[valread] = 0;
-					client[i].SetMessage(irc.getBuffer());
-					test = client[i].GetMessage();
-					std::cout << "DEBUG : buffer : " << irc.getBuffer() <<
-					std::endl;
-					if (startwith("CAP LS\r\n", test))
-						test.erase(0, 8);
-					else
-						std::cerr << "Placeholder text" << std::endl;
-					std::cout <<"debug : message : " << test << std::endl;
-					if (startwith("NICK ", test))
-					{
-						test.erase(0, 5);
-						name = test;
-						test.erase(test.find("\r\n"));
-						client[i].SetNick(test);
-						std::cout << "DEBUG : client : " << i << " setnick to "
-						<< test << std::endl;
-						name.erase(0, test.length() + 2);
-						test = name;
-					}
-					else
-						std::cerr << "Placeholder text" << std::endl;
-					if (startwith("USER ", test))
-					{
-						test.erase(0, 5);
-						name = test;
-						name.erase(name.find(" "));
-						client[i].SetUserName(name);
-						name = test;
-						name.erase(name.find(" "));
-						client[i].SetHostName(name);
-						name = test;
-						name.erase(name.find(" "));
-						client[i].SetHost(name);
-						name = test;
-						name.erase(name.find(" :"));
-						client[i].SetRealName(name);
-						client[i].Setok(1);
-						std::cout << "client id " << i << " ok" << std::endl;
-					}
+					test.erase(0, 5);
+					name = test;
+					name.erase(name.find(" "));
+					currentClient->SetUserName(name);
+					name = test;
+					name.erase(name.find(" "));
+					currentClient->SetHostName(name);
+					name = test;
+					name.erase(name.find(" "));
+					currentClient->SetHost(name);
+					name = test;
+					name.erase(name.find(" :"));
+					currentClient->SetRealName(name);
+					currentClient->Setok(1);
+					std::cout << "client id " << currentClient->getUserName() << " ok" << std::endl;
 				}
 			}
-			if (FD_ISSET(sd, &writefds))
-			{
-				if (client[i].getok() && client[i].getbvn())
-				{
-					test = ":ircserver 001 ";
-					test.append(client[i].getUserName());
-					test.append(" :coucou");
-					std::cout << "DEBUG bvn message : " << test << "    " <<
-					client[i].GetSocket() << std::endl;
-					write(client[i].GetSocket(), test.c_str(), test.length());
-					client[i].setbvn(0);
-				}
-			}
+			// for (int i = 0; i < MAX_CLIENT; i++)
+			// {
+				
+			// 	Client *currentClient = server.getClient(i);
+				
+				
+			// 	if (FD_ISSET(sd, &writefds))
+			// 	{
+			// 		if (currentClient->getok() && currentClient->getbvn())
+			// 		{
+			// 			test = ":serverserver 001 ";
+			// 			test.append(currentClient->getUserName());
+			// 			test.append(" :coucou\r\n");
+			// 			std::cout << "DEBUG bvn message : " << test << "    " <<
+			// 			currentClient->getSocket() << std::endl;
+			// 			write(currentClient->getSocket(), test.c_str(), test.length());
+			// 			currentClient->setbvn(0);
+			// 		}
+			// 	}
+			// }
 		}
+		//////////////////////// MAIN LOOP  ////////////////////////
 	}
+	catch(const char *e)
+	{
+		std::cerr << RED << e << ENDL;
+		return (1);
+	}
+	
+
+	
 	return (0);
 }

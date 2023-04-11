@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 15:34:31 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/11 17:16:28 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 Client::Client() : _socket(0), _isok(0), _bvn(1)
 {
+	std::cout << "Client created." << std::endl;
 }
 
 Client::Client(const Client &src)
@@ -27,18 +28,23 @@ Client::Client(const Client &src)
 
 Client::~Client()
 {
+	std::cout << "Client " << _nickname << " deleted." << std::endl;
 }
 
 /* Operator overload ******************************************************** */
 Client&		Client::operator=(Client const &rhs)
 {
 	_nickname = rhs._nickname;
+	_username = rhs._username;
+	_hostname = rhs._hostname;
+	_host = rhs._host;
+	_realname = rhs._realname;
 	return (*this);
 }
 
 /* Getter ******************************************************************* */
 
-int			Client::GetSocket(void)
+int			Client::getSocket(void)
 {
 	return (_socket);
 }
@@ -75,7 +81,7 @@ void		Client::setId(int id)
 	_id = id;
 }
 
-void		Client::SetSocket(int socket)
+void		Client::setSocket(int socket)
 {
 	_socket = socket;
 }
@@ -92,6 +98,7 @@ void		Client::SetNick(std::string nickname)
 
 void		Client::SetUserName(std::string name)
 {
+	std::cout << "username of " << _username << "set to " << name << std::endl;
 	_username = name;
 }
 

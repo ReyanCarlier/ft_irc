@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 15:34:25 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/11 17:05:39 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Client
 		Client&		operator=(Client const &rhs);
 
 		/* Getter *********************************************************** */
-		int			GetSocket(void);
+		int			getSocket(void);
 		std::string	GetMessage(void);
 		std::string getUserName(void);
 		int			getok(void);
@@ -38,7 +38,7 @@ class Client
 
 		/* Setter *********************************************************** */
 		void		SetNick(std::string nickname);
-		void		SetSocket(int socket);
+		void		setSocket(int socket);
 		void		SetMessage(std::string	messageentrant);
 		void		SetUserName(std::string name);
 		void		SetHostName(std::string name);

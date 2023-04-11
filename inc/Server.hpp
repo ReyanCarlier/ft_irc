@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 13:21:29 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 15:16:34 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/11 16:57:02 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,34 +22,55 @@
 class Server
 {
 	private:
-		int					_master_socket_fd;
 		int					_addrlen;
 		int					_accept_fd;
+		int					_max_clients;
 		int					_opt;
-		int					_port;
+		
 		char				*_password;
 		char				_buffer[1024];
-		sockaddr_in			_address;
-		std::list<Message>	_messages;
+		
+		
 		std::list<Channel>	_channels;
 		std::list<Client>	_clients;
+		sockaddr_in			_address;
+		int					_port;
+		int					_socket_fd;
+
+		//std::list<Message>	_messages;
+
 	public:
 		/* Constructor & Destructor ***************************************** */
-		Server(char **av);
+		Server();
 		~Server();
 
 		/* Getter *********************************************************** */
-		int		getMasterSocket(void);
+		int		getSocketFd(void);
 		int		getAccept(void);
+		int		getPort(void);
 		char	*getBuffer(void);
+		Client	*getClient(int fd);
 
 		/* Setter *********************************************************** */
 		void	setAccept(void);
 		void	setAddress(void);
+		void	setPort(int port);
+
+		void	addClient(Client client);
+		void	addChannel(Channel channel);
+		void	removeClient(Client client);
+		void	removeChannel(Channel channel);
+
+		std::list<Client>	getClients(void);
+		std::list<Channel>	getChannels(void);
 
 		/* Function ********************************************************* */
 		int			*getPtrOpt(void);
 		sockaddr	*getCastAddress(void);
+
+		void		bind(int port);
+		void		listen(void);
+		void		run(void);
 };
 
 #endif
