@@ -25,7 +25,6 @@ class Server
 		int					_master_socket_fd;
 		int					_addrlen;
 		int					_accept_fd;
-		int					_max_client;
 		int					_opt;
 		int					_port;
 		char				*_password;
@@ -43,7 +42,6 @@ class Server
 		int		getMasterSocket(void);
 		int		getAccept(void);
 		char	*getBuffer(void);
-		int		getMaxClient(void);
 
 		/* Setter *********************************************************** */
 		void	setAccept(void);

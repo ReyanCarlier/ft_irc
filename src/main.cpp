@@ -63,7 +63,7 @@ int	main(int ac, char **av)
 
 	/* Variable ************************************************************* */
 	Server	irc(av);
-	Client	client[irc.getMaxClient()];
+	Client	client[MAX_CLIENT];
 
 	fd_set		readfds, writefds;
 	int			max_sd, sd, activity, valread;
@@ -109,7 +109,7 @@ int	main(int ac, char **av)
 		FD_ZERO(&writefds);
 		FD_SET(irc.getMasterSocket(), &readfds);
 		max_sd = irc.getMasterSocket();
-		for (int i = 0; i < irc.getMaxClient(); i++)
+		for (int i = 0; i < MAX_CLIENT; i++)
 		{
 			sd = client[i].GetSocket();
 			if (sd > 0)
@@ -133,7 +133,7 @@ int	main(int ac, char **av)
 			}
 			std::cout << "New connection from fd : " << irc.getAccept() <<
 			std::endl;
-			for (int i = 0; i < irc.getMaxClient(); i++)
+			for (int i = 0; i < MAX_CLIENT; i++)
 			{
 				if (client[i].GetSocket() == 0)
 				{
@@ -142,7 +142,7 @@ int	main(int ac, char **av)
 				}
 			}
 		}
-		for (int i = 0; i < irc.getMaxClient(); i++)
+		for (int i = 0; i < MAX_CLIENT; i++)
 		{
 			sd = client[i].GetSocket();
 			if (FD_ISSET(sd, &readfds))

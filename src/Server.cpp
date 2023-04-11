@@ -22,7 +22,6 @@ Server::Server(char **av)
 	type within a given protocol family, in which case protocol can be 0.*/
 	_master_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	_addrlen = sizeof(sockaddr_in);
-	_max_client = MAX_CLIENT;
 	_opt = 1;
 	_port = atoi(av[1]);
 	_password = av[2];
@@ -42,11 +41,6 @@ int		Server::getMasterSocket(void)
 int		Server::getAccept(void)
 {
 	return (_accept_fd);
-}
-
-int		Server::getMaxClient(void)
-{
-	return (_max_client);
 }
 
 char	*Server::getBuffer(void)
