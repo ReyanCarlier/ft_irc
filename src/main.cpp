@@ -6,7 +6,7 @@
 /*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 15:27:11 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/12 16:09:03 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,58 +134,6 @@ int	main(int ac, char **av)
 					std::cout << "DEBUG : currentClient->getSocket() : " << server.getClient(new_socket)->getSocket() << std::endl;
 					currentClient = newClient;
 				}
-
-				sd = currentClient->getSocket();
-				std::cout << YELLOW << "DEBUG : sd avant valread : " << sd << ENDL;
-				valread = read(sd, server.getBuffer(), 1024);
-				std::cout << "DEBUG : valread : " << valread << std::endl;
-				if (valread == 0)
-				{
-					std::cerr << RED << "Client disconnect." << ENDL;
-					close(sd);
-					server.removeClient(currentClient);
-				}
-				else
-				{
-					server.getBuffer()[valread] = '\0';
-					currentClient->setMessage(server.getBuffer());
-					test = currentClient->getMessage();
-					std::cout << YELLOW << "DEBUG : buffer : " << server.getBuffer() << ENDL;
-
-					if (startwith("CAP LS\r\n", test))
-						test.erase(0, 8);
-					else
-						std::cerr << "Placeholder text" << std::endl;
-					if (startwith("NICK ", test))
-					{
-						test.erase(0, 5);
-						name = test;
-						test.erase(test.find("\r\n"));
-						currentClient->setNick(test);
-						name.erase(0, test.length() + 2);
-						test = name;
-					}
-					else
-						std::cerr << "Placeholder text" << std::endl;
-
-					if (startwith("USER ", test))
-					{
-						test.erase(0, 5);
-						name = test;
-						name.erase(name.find(" "));
-						currentClient->setUserName(name);
-						name = test;
-						name.erase(name.find(" "));
-						currentClient->setHostName(name);
-						name = test;
-						name.erase(name.find(" "));
-						currentClient->setHost(name);
-						name = test;
-						name.erase(name.find(" :"));
-						currentClient->setRealName(name);
-						currentClient->setOk(1);
-					}
-				}
 			}
 
 			for (size_t i = 0; i < server.getClients().size(); i++)
@@ -220,7 +168,7 @@ int	main(int ac, char **av)
 						server.getBuffer()[valread] = '\0';
 						currentClient->setMessage(server.getBuffer());
 						test = currentClient->getMessage();
-						std::cout << YELLOW << "DEBUG : buffer2 : " << server.getBuffer() << ENDL;
+						std::cout << YELLOW << "DEBUG : buffer : " << server.getBuffer() << ENDL;
 						if (startwith("PING ", currentClient->getMessage()))
 						{
 							if (FD_ISSET(sd, &writefds))
@@ -232,6 +180,34 @@ int	main(int ac, char **av)
 								write(currentClient->getSocket(), test.c_str(), test.size());
 								currentClient->setbvn(0);
 							}
+						}
+						if (startwith("CAP LS\r\n", test))
+							test.erase(0, 8);;
+						if (startwith("NICK ", test))
+						{
+							test.erase(0, 5);
+							name = test;
+							test.erase(test.find("\r\n"));
+							currentClient->setNick(test);
+							name.erase(0, test.length() + 2);
+							test = name;
+						}
+						if (startwith("USER ", test))
+						{
+							test.erase(0, 5);
+							name = test;
+							name.erase(name.find(" "));
+							currentClient->setUserName(name);
+							name = test;
+							name.erase(name.find(" "));
+							currentClient->setHostName(name);
+							name = test;
+							name.erase(name.find(" "));
+							currentClient->setHost(name);
+							name = test;
+							name.erase(name.find(" :"));
+							currentClient->setRealName(name);
+							currentClient->setOk(1);
 						}
 					}
 				}
