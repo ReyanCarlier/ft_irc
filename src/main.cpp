@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 14:52:44 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/12 15:27:11 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,7 +206,37 @@ int	main(int ac, char **av)
 						currentClient->setbvn(0);
 					}
 				}
+				if (FD_ISSET(sd, &readfds))
+				{
+					valread = read(sd, server.getBuffer(), 1024);
+					if (valread == 0)
+					{
+						std::cerr << RED << "Client disconnect." << ENDL;
+						close(sd);
+						server.removeClient(currentClient);
+					}
+					else
+					{
+						server.getBuffer()[valread] = '\0';
+						currentClient->setMessage(server.getBuffer());
+						test = currentClient->getMessage();
+						std::cout << YELLOW << "DEBUG : buffer2 : " << server.getBuffer() << ENDL;
+						if (startwith("PING ", currentClient->getMessage()))
+						{
+							if (FD_ISSET(sd, &writefds))
+							{
+								
+								test = ":serverserver PONG serverserver :";
+								test.append(currentClient->getUserName());
+								test.append("\r\n");
+								write(currentClient->getSocket(), test.c_str(), test.size());
+								currentClient->setbvn(0);
+							}
+						}
+					}
+				}
 			}
+		}
 			// auto var = FD_ISSET(server.getSocketFd(), &writefds);
 			// std::cout << "Retour de FD_ISSET : " << var << std::endl;
 			// if (var)
@@ -224,7 +254,6 @@ int	main(int ac, char **av)
 				// 	currentClient->setbvn(0);
 				// }
 			// }
-		}
 		//////////////////////// MAIN LOOP  ////////////////////////
 	}
 	catch(const char *e)
