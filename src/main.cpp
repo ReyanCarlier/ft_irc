@@ -142,7 +142,9 @@ int	main(int ac, char **av)
 					name = test;
 					test.erase(test.find("\r\n"));
 					currentClient->setNick(test);
-					std::cout << "DEBUG : client : " << currentClient->getUserName() << " setNick to " << test << std::endl;
+					std::cout << "DEBUG : client : " <<
+					currentClient->getUserName() << " setNick to " << test <<
+					std::endl;
 					name.erase(0, test.length() + 2);
 					test = name;
 				}
@@ -159,7 +161,7 @@ int	main(int ac, char **av)
 					currentClient->setHostName(name);
 					name = test;
 					name.erase(name.find(" "));
-					currentClient->setRealName(name);
+					currentClient->setHost(name);
 					name = test;
 					name.erase(name.find(" :"));
 					currentClient->setRealName(name);
@@ -174,7 +176,8 @@ int	main(int ac, char **av)
 					test.append(" :coucou\r\n");
 					std::cout << "DEBUG bvn message : " << test << "    " <<
 					currentClient->getSocket() << std::endl;
-					write(currentClient->getSocket(), test.c_str(), test.size());
+					write(currentClient->getSocket(), test.c_str(),
+					test.size());
 					currentClient->setbvn(0);
 				}
 			}
@@ -193,7 +196,8 @@ int	main(int ac, char **av)
 			// 			test.append(" :coucou\r\n");
 			// 			std::cout << "DEBUG bvn message : " << test << "    " <<
 			// 			currentClient->getSocket() << std::endl;
-			// 			write(currentClient->getSocket(), test.c_str(), test.length());
+			// 			write(currentClient->getSocket(), test.c_str(),
+			// 			test.size());
 			// 			currentClient->setbvn(0);
 			// 		}
 			// 	}
