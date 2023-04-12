@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 13:22:04 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 18:38:03 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/12 14:39:51 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ Server::Server()
 	_accept_fd = 0;
 	_opt = 1;
 	_max_clients = MAX_CLIENT;
-	_clients = std::vector<Client>();
+	_clients = std::vector<Client *>();
 	_channels = std::vector<Channel>();
 	bzero(_buffer, 1024);
 }
@@ -79,15 +79,14 @@ int			*Server::getPtrOpt(void)
 	return (&_opt);
 }
 
-Client	*Server::getClient(int i)
+Client	*Server::getClient(int fd)
 {
-	if (i == 0)
-		return (&_clients.front());
-	if ((size_t)i > _clients.size())
-		return (NULL);
-	std::vector<Client>::iterator it = _clients.begin();
-	std::advance(it, i - 1);
-	return (&(*it));
+	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if ((*it)->getSocket() == fd)
+			return (*it);
+	}
+	throw "Client not found.";
 }
 
 sockaddr	*Server::getCastAddress(void)
@@ -120,13 +119,13 @@ int Server::getPort() {
 	return _port;
 }
 
-void Server::addClient(Client &client) {
+void Server::addClient(Client *client) {
 	_clients.push_back(client);
 }
 
-void Server::removeClient(Client client) {
-	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++) {
-		if (it->getSocket() == client.getSocket()) {
+void Server::removeClient(Client *client) {
+	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+		if ((*it)->getSocket() == client->getSocket()) {
 			_clients.erase(it);
 			break;
 		}
@@ -146,7 +145,7 @@ void Server::removeChannel(Channel channel) {
 	}
 }
 
-std::vector<Client> Server::getClients() {
+std::vector<Client *> Server::getClients() {
 	return _clients;
 }
 

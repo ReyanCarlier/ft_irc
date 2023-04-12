@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/06 13:21:29 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 18:38:30 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/12 14:37:47 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class Server
 		char					*_password;
 		char					_buffer[1024];
 		std::vector<Channel>	_channels;
-		std::vector<Client>		_clients;
+		std::vector<Client *>		_clients;
 		sockaddr_in				_address;
 		int						_port;
 		int						_socket_fd;
@@ -50,12 +50,12 @@ class Server
 		void	setAddress(void);
 		void	setPort(int port);
 
-		void	addClient(Client& client);
+		void	addClient(Client *client);
 		void	addChannel(Channel channel);
-		void	removeClient(Client client);
+		void	removeClient(Client *client);
 		void	removeChannel(Channel channel);
 
-		std::vector<Client>		getClients(void);
+		std::vector<Client *>		getClients(void);
 		std::vector<Channel>	getChannels(void);
 
 		/* Function ********************************************************* */

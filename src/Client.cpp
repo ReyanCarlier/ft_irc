@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 17:44:44 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/12 14:26:27 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,11 @@ Client::Client() : _socket(0), _isok(0), _bvn(1)
 	std::cout << "Client created." << std::endl;
 }
 
+Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1)
+{
+	
+}
+
 Client::Client(const Client &src)
 {
 	*this = src;
@@ -28,7 +33,7 @@ Client::Client(const Client &src)
 
 Client::~Client()
 {
-	std::cout << "Client " << _nickname << " deleted." << std::endl;
+	//std::cout << "Client " << _nickname << " deleted." << std::endl;
 }
 
 /* Operator overload ******************************************************** */

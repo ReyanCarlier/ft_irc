@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 13:37:33 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/12 14:52:44 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,9 +93,11 @@ int	main(int ac, char **av)
 			FD_SET(server.getSocketFd(), &readfds);
 			FD_SET(server.getSocketFd(), &writefds);
 			max_sd = server.getSocketFd();
+
+			/// NOT READ IF NO CLIENT
 			for (size_t i = 0; i < server.getClients().size(); i++)
 			{
-				sd = server.getClients().at(i).getSocket();
+				sd = server.getClients().at(i)->getSocket();
 				if(sd > 0)
 				{
 					FD_SET(sd, &readfds);
@@ -104,15 +106,11 @@ int	main(int ac, char **av)
 				if(sd > max_sd)
 					max_sd = sd;
 			}
-			
-			
-			std::cout << RED << "Waiting for new connection..." << ENDL;
 
 			activity = select(max_sd + 1, &readfds, &writefds, NULL, NULL);
-
-			std::cout << RED << "after select" << ENDL;
 			if((activity < 0) && (errno!=EINTR))
 				std::cerr << "select error" << std::endl;
+
 			if (FD_ISSET(server.getSocketFd(), &readfds))
 			{
 				new_socket = accept(
@@ -122,62 +120,54 @@ int	main(int ac, char **av)
 				);
 				if (new_socket < 0)
 					throw "Failed to accept connection.";
-				std::cout << GREEN << "✅ Connection accepted on FD " << new_socket
-				<< "." << ENDL;
-				// Loop for each _clients list from server
-				if (server.getClients().size() == 0)
+
+				std::cout << GREEN << "✅ Connection accepted on FD " << new_socket << "." << ENDL;
+				try
 				{
-					currentClient = new Client();
-					currentClient->setSocket(new_socket);
-					server.addClient(*currentClient);
+					currentClient = server.getClient(new_socket);
+					std::cout << "COUCOU" << std::endl;
 				}
-				else if ((currentClient = server.getClient(new_socket)) == NULL)
+				catch (const char *e)
 				{
-					currentClient = new Client();
-					currentClient->setSocket(new_socket);
-					server.addClient(*currentClient);
+					Client *newClient = new Client(new_socket);
+					server.addClient(newClient);
+					std::cout << "DEBUG : currentClient->getSocket() : " << server.getClient(new_socket)->getSocket() << std::endl;
+					currentClient = newClient;
 				}
-				else
-				{
-					std::cout << "LE CLIENT EXISTE TA GROSSE TETE" << ENDL;
-				}
-				
+
 				sd = currentClient->getSocket();
+				std::cout << YELLOW << "DEBUG : sd avant valread : " << sd << ENDL;
 				valread = read(sd, server.getBuffer(), 1024);
+				std::cout << "DEBUG : valread : " << valread << std::endl;
 				if (valread == 0)
 				{
 					std::cerr << RED << "Client disconnect." << ENDL;
 					close(sd);
-					currentClient->setSocket(0);
-					currentClient->setbvn(1);
-					currentClient->setOk(0);
+					server.removeClient(currentClient);
 				}
 				else
 				{
-					server.getBuffer()[valread] = 0;
+					server.getBuffer()[valread] = '\0';
 					currentClient->setMessage(server.getBuffer());
 					test = currentClient->getMessage();
-					std::cout << "DEBUG : buffer : " << server.getBuffer() <<
-					std::endl;
+					std::cout << YELLOW << "DEBUG : buffer : " << server.getBuffer() << ENDL;
+
 					if (startwith("CAP LS\r\n", test))
 						test.erase(0, 8);
 					else
 						std::cerr << "Placeholder text" << std::endl;
-					std::cout <<"debug : message : " << test << std::endl;
 					if (startwith("NICK ", test))
 					{
 						test.erase(0, 5);
 						name = test;
 						test.erase(test.find("\r\n"));
 						currentClient->setNick(test);
-						std::cout << "DEBUG : client : " <<
-						currentClient->getUserName() << " setNick to " << test <<
-						std::endl;
 						name.erase(0, test.length() + 2);
 						test = name;
 					}
 					else
 						std::cerr << "Placeholder text" << std::endl;
+
 					if (startwith("USER ", test))
 					{
 						test.erase(0, 5);
@@ -194,27 +184,46 @@ int	main(int ac, char **av)
 						name.erase(name.find(" :"));
 						currentClient->setRealName(name);
 						currentClient->setOk(1);
-						std::cout << "client id " << currentClient->getUserName() <<
-						" ok" << std::endl;
 					}
 				}
 			}
-			std::cout << "ici" << ENDL;
-			if (FD_ISSET(server.getSocketFd(), &writefds))
+
+			for (size_t i = 0; i < server.getClients().size(); i++)
 			{
-				std::cout << " la" << ENDL;
-				if (currentClient->getok() && currentClient->getbvn())
+				currentClient = server.getClients().at(i);
+				sd = currentClient->getSocket();
+				if (FD_ISSET(sd, &writefds))
 				{
-					test = ":serverserver 001 ";
-					test.append(currentClient->getUserName());
-					test.append(" :coucou\r\n");
-					std::cout << "DEBUG bvn message : " << test << "    " <<
-					currentClient->getSocket() << std::endl;
-					write(currentClient->getSocket(), test.c_str(),
-					test.size());
-					currentClient->setbvn(0);
+					if (currentClient->getok() && currentClient->getbvn())
+					{
+						test = ":serverserver 001 ";
+						test.append(currentClient->getUserName());
+						test.append(" :coucou\r\n");
+						std::cout << "DEBUG bvn message : " << test << "    " <<
+						currentClient->getSocket() << std::endl;
+						write(currentClient->getSocket(), test.c_str(),
+						test.size());
+						currentClient->setbvn(0);
+					}
 				}
 			}
+			// auto var = FD_ISSET(server.getSocketFd(), &writefds);
+			// std::cout << "Retour de FD_ISSET : " << var << std::endl;
+			// if (var)
+			// {
+			// 	std::cout << " la" << ENDL;
+				// if (currentClient->getok() && currentClient->getbvn())
+				// {
+				// 	test = ":serverserver 001 ";
+				// 	test.append(currentClient->getUserName());
+				// 	test.append(" :coucou\r\n");
+				// 	std::cout << "DEBUG bvn message : " << test << "    " <<
+				// 	currentClient->getSocket() << std::endl;
+				// 	write(currentClient->getSocket(), test.c_str(),
+				// 	test.size());
+				// 	currentClient->setbvn(0);
+				// }
+			// }
 		}
 		//////////////////////// MAIN LOOP  ////////////////////////
 	}

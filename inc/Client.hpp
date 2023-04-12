@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/11 17:05:39 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/12 14:23:59 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ class Client
 	public:
 		/* Constructor & Destructor ***************************************** */
 		Client();
+		Client(int _fd);
 		Client(Client const &src);
 		~Client();
 
