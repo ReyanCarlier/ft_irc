@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 14:23:59 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/12 18:39:54 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,21 +32,23 @@ class Client
 		/* Getter *********************************************************** */
 		int			getSocket(void);
 		std::string	getMessage(void);
-		std::string getUserName(void);
-		int			getok(void);
-		int			getbvn(void);
+		std::string getUsername(void);
+		std::string getHostname(void);
+		std::string getRealName(void);
+		int			isReady(void);
+		int			isWelcomed(void);
 		int			getId();
 
 		/* Setter *********************************************************** */
 		void		setNick(std::string nickname);
 		void		setSocket(int socket);
 		void		setMessage(std::string	messageentrant);
-		void		setUserName(std::string name);
-		void		setHostName(std::string name);
+		void		setUsername(std::string name);
+		void		setHostname(std::string name);
 		void		setRealName(std::string name);
 		void		setHost(std::string name);
 		void		setOk(int ok);
-		void		setbvn(int bvn);
+		void		setWelcomed(int bvn);
 		void		setId(int id);
 
 		/* Function ********************************************************* */

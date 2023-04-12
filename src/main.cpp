@@ -3,35 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 16:09:03 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/12 19:15:53 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
 #include <Client.hpp>
-
-void	DebugMessage(std::string message)
-{
-	std::cout << YELLOW << message << std::endl;
-}
-
-bool	startwith(std::string prefix, std::string str)
-{
-	int	i = 0;
-
-	if (prefix.length() > str.length())
-		return (false);
-	while (prefix[i])
-	{
-		if (prefix[i] != str[i])
-			return (false);
-		i++;
-	}
-	return (true);
-}
 
 bool	isport(char *av)
 {
@@ -49,22 +29,21 @@ bool	isport(char *av)
 
 int	main(int ac, char **av)
 {
-	/* Parsing ************************************************************** */
 	if (ac != 3)
 	{
-		std::cout << YELLOW << "Usage: ./serverserv <port> <password>" << ENDL;
+		std::cout << RED << "Usage: ./serverserv <port> <password>" << ENDL;
 		return (0);
 	}
 	if (isport(av[1]) == false)
 	{
-		std::cerr << YELLOW << "Port \"" << av[1] << "\" is not good." << ENDL;
+		std::cerr << RED << "Port \"" << av[1] << "\" is not good." << ENDL;
 		return (0);
 	}
 
-	/* Variable ************************************************************* */
 	Server	server;
 	fd_set readfds;
 	fd_set writefds;
+
 	try
 	{
 		server.run();
@@ -74,46 +53,27 @@ int	main(int ac, char **av)
 		server.listen();
 		std::cout << GREEN << "✅ Server listening on 127.0.0.1:" <<
 		server.getPort() << "." << ENDL;
-	
-		//////////////////////// MAIN LOOP  ////////////////////////
 
 		int			sd, valread;
-		std::string	test, name;
+		std::string	buffer, name;
 		Client		*currentClient = NULL;
-		/* IRC server ******************************************************* */
+
 		while (42)
 		{
 			FD_ZERO(&readfds);
 			FD_ZERO(&writefds);
-			int new_socket;
-			struct sockaddr_in address;
-			int activity, max_sd = 0;
-			int addrlen = sizeof(address);
-			
 			FD_SET(server.getSocketFd(), &readfds);
 			FD_SET(server.getSocketFd(), &writefds);
-			max_sd = server.getSocketFd();
 
-			/// NOT READ IF NO CLIENT
-			for (size_t i = 0; i < server.getClients().size(); i++)
-			{
-				sd = server.getClients().at(i)->getSocket();
-				if(sd > 0)
-				{
-					FD_SET(sd, &readfds);
-					FD_SET(sd, &writefds);
-				}
-				if(sd > max_sd)
-					max_sd = sd;
-			}
-
-			activity = select(max_sd + 1, &readfds, &writefds, NULL, NULL);
-			if((activity < 0) && (errno!=EINTR))
+			if ((select(server.getHighestFd(&readfds, &writefds) + 1, &readfds, &writefds, NULL, NULL) < 0) && (errno != EINTR))
 				std::cerr << "select error" << std::endl;
 
 			if (FD_ISSET(server.getSocketFd(), &readfds))
 			{
-				new_socket = accept(
+				struct sockaddr_in address;
+				int addrlen = sizeof(address);
+				
+				int new_socket = accept(
 					server.getSocketFd(),
 					reinterpret_cast<sockaddr*>(&address),
 					reinterpret_cast<socklen_t*>(&addrlen)
@@ -121,116 +81,41 @@ int	main(int ac, char **av)
 				if (new_socket < 0)
 					throw "Failed to accept connection.";
 
-				std::cout << GREEN << "✅ Connection accepted on FD " << new_socket << "." << ENDL;
+				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << "." << ENDL;
 				try
 				{
 					currentClient = server.getClient(new_socket);
-					std::cout << "COUCOU" << std::endl;
 				}
 				catch (const char *e)
 				{
 					Client *newClient = new Client(new_socket);
 					server.addClient(newClient);
-					std::cout << "DEBUG : currentClient->getSocket() : " << server.getClient(new_socket)->getSocket() << std::endl;
 					currentClient = newClient;
 				}
 			}
 
 			for (size_t i = 0; i < server.getClients().size(); i++)
 			{
-				currentClient = server.getClients().at(i);
-				sd = currentClient->getSocket();
-				if (FD_ISSET(sd, &writefds))
+				if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
+					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed())
+						server.welcome(server.getClients().at(i));
+				if (FD_ISSET(server.getClients().at(i)->getSocket(), &readfds))
 				{
-					if (currentClient->getok() && currentClient->getbvn())
-					{
-						test = ":serverserver 001 ";
-						test.append(currentClient->getUserName());
-						test.append(" :coucou\r\n");
-						std::cout << "DEBUG bvn message : " << test << "    " <<
-						currentClient->getSocket() << std::endl;
-						write(currentClient->getSocket(), test.c_str(),
-						test.size());
-						currentClient->setbvn(0);
-					}
-				}
-				if (FD_ISSET(sd, &readfds))
-				{
-					valread = read(sd, server.getBuffer(), 1024);
+					valread = read(server.getClients().at(i)->getSocket(), server.getBuffer(), 1024);
 					if (valread == 0)
 					{
-						std::cerr << RED << "Client disconnect." << ENDL;
-						close(sd);
-						server.removeClient(currentClient);
+						std::cerr << RED << "Client " << server.getClients().at(i)->getSocket() << " disconnected." << ENDL;
+						close(server.getClients().at(i)->getSocket());
+						server.removeClient(server.getClients().at(i));
 					}
 					else
 					{
 						server.getBuffer()[valread] = '\0';
-						currentClient->setMessage(server.getBuffer());
-						test = currentClient->getMessage();
-						std::cout << YELLOW << "DEBUG : buffer : " << server.getBuffer() << ENDL;
-						if (startwith("PING ", currentClient->getMessage()))
-						{
-							if (FD_ISSET(sd, &writefds))
-							{
-								
-								test = ":serverserver PONG serverserver :";
-								test.append(currentClient->getUserName());
-								test.append("\r\n");
-								write(currentClient->getSocket(), test.c_str(), test.size());
-								currentClient->setbvn(0);
-							}
-						}
-						if (startwith("CAP LS\r\n", test))
-							test.erase(0, 8);;
-						if (startwith("NICK ", test))
-						{
-							test.erase(0, 5);
-							name = test;
-							test.erase(test.find("\r\n"));
-							currentClient->setNick(test);
-							name.erase(0, test.length() + 2);
-							test = name;
-						}
-						if (startwith("USER ", test))
-						{
-							test.erase(0, 5);
-							name = test;
-							name.erase(name.find(" "));
-							currentClient->setUserName(name);
-							name = test;
-							name.erase(name.find(" "));
-							currentClient->setHostName(name);
-							name = test;
-							name.erase(name.find(" "));
-							currentClient->setHost(name);
-							name = test;
-							name.erase(name.find(" :"));
-							currentClient->setRealName(name);
-							currentClient->setOk(1);
-						}
+						server.commandHandler(server.getBuffer(), server.getClients().at(i));
 					}
 				}
 			}
 		}
-			// auto var = FD_ISSET(server.getSocketFd(), &writefds);
-			// std::cout << "Retour de FD_ISSET : " << var << std::endl;
-			// if (var)
-			// {
-			// 	std::cout << " la" << ENDL;
-				// if (currentClient->getok() && currentClient->getbvn())
-				// {
-				// 	test = ":serverserver 001 ";
-				// 	test.append(currentClient->getUserName());
-				// 	test.append(" :coucou\r\n");
-				// 	std::cout << "DEBUG bvn message : " << test << "    " <<
-				// 	currentClient->getSocket() << std::endl;
-				// 	write(currentClient->getSocket(), test.c_str(),
-				// 	test.size());
-				// 	currentClient->setbvn(0);
-				// }
-			// }
-		//////////////////////// MAIN LOOP  ////////////////////////
 	}
 	catch(const char *e)
 	{

@@ -6,7 +6,7 @@
 #    By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/22 11:58:06 by frrusso           #+#    #+#              #
-#    Updated: 2023/04/12 13:47:39 by recarlie         ###   ########.fr        #
+#    Updated: 2023/04/12 18:51:28 by recarlie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ SRC			=	main.cpp \
 				Channel.cpp \
 				Message.cpp
 CPP			=	c++
-CPPFLAGS	=	-Wall -Wextra -Werror -MMD -g3
+CPPFLAGS	=	-Wall -Wextra -Werror -MMD -g3 -std=c++98
 RM			=	rm -rf
 INC			=	-I ./inc/
 SRC_PATH	=	./src/

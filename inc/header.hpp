@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   header.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:00:30 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/07 15:52:40 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/12 16:37:03 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,3 +39,4 @@
 #define MAX_TCP_PORT	65535
 #define MAX_REQUESTS	8
 #define MAX_CLIENT		42
+#define SERVER_NAME     "ft_irc"

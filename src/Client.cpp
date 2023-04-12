@@ -6,37 +6,23 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 14:26:27 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/12 18:51:24 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
 
-/* Constructor ************************************************************** */
+Client::Client() : _socket(0), _isok(0), _bvn(1) {}
 
-Client::Client() : _socket(0), _isok(0), _bvn(1)
-{
-	std::cout << "Client created." << std::endl;
-}
-
-Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1)
-{
-	
-}
+Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1) {}
 
 Client::Client(const Client &src)
 {
 	*this = src;
 }
 
-/* Destructor *************************************************************** */
+Client::~Client() {}
 
-Client::~Client()
-{
-	//std::cout << "Client " << _nickname << " deleted." << std::endl;
-}
-
-/* Operator overload ******************************************************** */
 Client&		Client::operator=(Client const &rhs)
 {
 	_nickname = rhs._nickname;
@@ -46,8 +32,6 @@ Client&		Client::operator=(Client const &rhs)
 	_realname = rhs._realname;
 	return (*this);
 }
-
-/* Getter ******************************************************************* */
 
 int			Client::getSocket(void)
 {
@@ -59,17 +43,17 @@ std::string	Client::getMessage(void)
 	return (_messageentrant);
 }
 
-std::string Client::getUserName(void)
+std::string Client::getUsername(void)
 {
 	return (_username);
 }
 
-int			Client::getok(void)
+int			Client::isReady(void)
 {
 	return (_isok);
 }
 
-int			Client::getbvn(void)
+int			Client::isWelcomed(void)
 {
 	return (_bvn);
 }
@@ -79,7 +63,15 @@ int			Client::getId(void)
 	return (_id);
 }
 
-/* Setter ******************************************************************* */
+std::string	Client::getHostname(void)
+{
+	return (_hostname);
+}
+
+std::string	Client::getRealName(void)
+{
+	return (_realname);
+}
 
 void		Client::setId(int id)
 {
@@ -101,13 +93,12 @@ void		Client::setNick(std::string nickname)
 	_nickname = nickname;
 }
 
-void		Client::setUserName(std::string name)
+void		Client::setUsername(std::string name)
 {
-	std::cout << "username of " << _username << "set to " << name << std::endl;
 	_username = name;
 }
 
-void		Client::setHostName(std::string name)
+void		Client::setHostname(std::string name)
 {
 	_hostname = name;
 }
@@ -127,7 +118,7 @@ void		Client::setOk(int ok)
 	_isok = ok;
 }
 
-void		Client::setbvn(int bvn)
+void		Client::setWelcomed(int bvn)
 {
 	_bvn = bvn;
 }

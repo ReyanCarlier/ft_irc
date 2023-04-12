@@ -1,25 +1,22 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/06 13:22:04 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 14:39:51 by recarlie         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include <Server.hpp>
+
+bool	startwith(std::string prefix, std::string str)
+{
+	int	i = 0;
+
+	if (prefix.length() > str.length())
+		return (false);
+	while (prefix[i])
+	{
+		if (prefix[i] != str[i])
+			return (false);
+		i++;
+	}
+	return (true);
+}
 
 Server::Server()
 {
-	/* int socket(int domain, int type, int protocol);
-	AF_INET: IPv4 Internet protocols (man 7 ip)
-	SOCK_STREAM: Provides sequenced, reliable, two-way, connection-based
-	bytestreams. An out-of-band data transmission mechanism may be supported.
-	0: Normally only a single protocol exists to support a particular socket
-	type within a given protocol family, in which case protocol can be 0.*/
 	_socket_fd = 0;
 	_port = 0;
 	_password = NULL;
@@ -27,7 +24,7 @@ Server::Server()
 	_opt = 1;
 	_max_clients = MAX_CLIENT;
 	_clients = std::vector<Client *>();
-	_channels = std::vector<Channel>();
+	_channels = std::vector<Channel *>();
 	bzero(_buffer, 1024);
 }
 
@@ -51,6 +48,27 @@ char	*Server::getBuffer(void)
 	return (_buffer);
 }
 
+/**
+ * @brief Returns the biggest fd from the clients
+ * 
+ * @param readfds 
+ * @param writefds 
+ * @return int 
+ */
+int		Server::getHighestFd(fd_set *readfds, fd_set *writefds)
+{
+	int		highest_fd = _socket_fd;
+
+	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		FD_SET((*it)->getSocket(), readfds);
+		FD_SET((*it)->getSocket(), writefds);
+		if ((*it)->getSocket() > highest_fd)
+			highest_fd = (*it)->getSocket();
+	}
+	return (highest_fd);
+}
+
 void	Server::setAccept(void)
 {
 	_accept_fd = accept(
@@ -62,12 +80,6 @@ void	Server::setAccept(void)
 
 void	Server::setAddress(void)
 {
-	/* memset(): Init the struct sockaddr_in to 0
-	AF_INET: IPv4 Internet protocols (man 7 ip)
-	htonl(INADDR_ANY): converts the unsigned integer INADDR_ANY from host byte
-	order to network byte order.
-	htons(_port): converts the unsigned short integer _port from host byte 
-	order to network byte order.*/
 	memset(reinterpret_cast<char*>(&_address), 0, sizeof(sockaddr_in));
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -113,14 +125,6 @@ void Server::run() {
 	_socket_fd = socket(2, 1, 0);
 	if (_socket_fd == -1)
 		throw "Failed to create socket.";
-	/* int setsockopt(int sockfd, int level, int optname,
-	                  const void *optval, socklen_t optlen);
-	_socket_fd: manipulate options for the socket referred.
-	SOL_SOCKET: To manipulate options at the sockets API level.
-	SO_REUSEADDR: Reuse of local addresses is supported.
-	SO_REUSEPORT: Allows multiple sockets to bind to the same address and port.
-	irc.getPtrOpt(): Are used to access option values.
-	sizeof(int): Type of optval.*/
 	if (setsockopt(_socket_fd, SOL_SOCKET,
 	SO_REUSEADDR | SO_REUSEPORT, &_opt, sizeof(int)))
 		throw "Failed to set options on sockets.";
@@ -143,13 +147,13 @@ void Server::removeClient(Client *client) {
 	}
 }
 
-void Server::addChannel(Channel channel) {
+void Server::addChannel(Channel *channel) {
 	_channels.push_back(channel);
 }
 
-void Server::removeChannel(Channel channel) {
-	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); it++) {
-		if (it->getName() == channel.getName()) {
+void Server::removeChannel(Channel *channel) {
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++) {
+		if ((*it)->getName() == channel->getName()) {
 			_channels.erase(it);
 			break;
 		}
@@ -160,6 +164,111 @@ std::vector<Client *> Server::getClients() {
 	return _clients;
 }
 
-std::vector<Channel> Server::getChannels() {
+std::vector<Channel *> Server::getChannels() {
 	return _channels;
 }
+
+void	Server::commandHandler(std::string command, Client *client)
+{
+	std::cout << "----------------------------------------" << std::endl;
+	std::cout << "Received a command from " << client->getUsername() << std::endl;
+	std::cout << "----------------------------------------" << std::endl;
+	std::cout << YELLOW << command << ENDL;
+	std::cout << "----------------------------------------" << std::endl;
+	std::stringstream ss(command);
+	std::string		item;
+	std::vector<std::string> tokens;
+
+	while (std::getline(ss, item, '\n'))
+		tokens.push_back(item);
+
+	for (size_t i = 0; i < tokens.size(); i++)
+		if (tokens[i].at(tokens[i].size() - 1) == '\r')
+			tokens[i].erase(tokens[i].size() - 1);
+
+	for (size_t i = 0; i < tokens.size(); i++)
+	{
+		if (startwith("NICK", tokens[i]))
+			std::cout << "NICK" << std::endl;
+		else if (startwith("USER", tokens[i]))
+			std::cout << "USER" << std::endl;
+		else if (startwith("PING", tokens[i]))
+			std::cout << "PING" << std::endl;
+		else if (startwith("PASS", tokens[i]))
+			std::cout << "PASS" << std::endl;
+		// Ajouter les autres commandes ici
+	}
+}
+
+void	Server::welcome(Client *client)
+{
+	std::cout << "WELCOME" << std::endl;
+	std::string buffer = ": serverserver 001 ";
+	buffer.append(client->getUsername());
+	buffer.append(" :coucou\r\n");
+	write(client->getSocket(), buffer.c_str(), buffer.size());
+	client->setWelcomed(0);
+}
+
+// TODO: Implement all the commands here :
+
+// void	Server::nick(std::string command, Client *client)
+// {
+// 	std::cout << "NICK" << std::endl;
+// }
+
+// void	Server::user(std::string command, Client *client)
+// {
+// 	std::cout << "USER" << std::endl;
+// }
+
+// void	Server::ping(std::string command, Client *client)
+// {
+// 	std::cout << "PING" << std::endl;
+// }
+
+// void	Server::pass(std::string command, Client *client)
+// {
+// 	std::cout << "PASS" << std::endl;
+// }
+
+// void	Server::join(std::string command, Client *client)
+// {
+// 	std::cout << "JOIN" << std::endl;
+// }
+
+// void	Server::part(std::string command, Client *client)
+// {
+// 	std::cout << "PART" << std::endl;
+// }
+
+// void	Server::privmsg(std::string command, Client *client)
+// {
+// 	std::cout << "PRIVMSG" << std::endl;
+// }
+
+// void	Server::quit(std::string command, Client *client)
+// {
+// 	std::cout << "QUIT" << std::endl;
+// }
+
+// void	Server::who(std::string command, Client *client)
+// {
+// 	std::cout << "WHO" << std::endl;
+// }
+
+// void	Server::whois(std::string command, Client *client)
+// {
+// 	std::cout << "WHOIS" << std::endl;
+// }
+
+// void	Server::whowas(std::string command, Client *client)
+// {
+// 	std::cout << "WHOWAS" << std::endl;
+// }
+
+// void	Server::list(std::string command, Client *client)
+// {
+// 	std::cout << "LIST" << std::endl;
+// }
+
