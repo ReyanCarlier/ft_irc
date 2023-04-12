@@ -113,6 +113,17 @@ void Server::run() {
 	_socket_fd = socket(2, 1, 0);
 	if (_socket_fd == -1)
 		throw "Failed to create socket.";
+	/* int setsockopt(int sockfd, int level, int optname,
+	                  const void *optval, socklen_t optlen);
+	_socket_fd: manipulate options for the socket referred.
+	SOL_SOCKET: To manipulate options at the sockets API level.
+	SO_REUSEADDR: Reuse of local addresses is supported.
+	SO_REUSEPORT: Allows multiple sockets to bind to the same address and port.
+	irc.getPtrOpt(): Are used to access option values.
+	sizeof(int): Type of optval.*/
+	if (setsockopt(_socket_fd, SOL_SOCKET,
+	SO_REUSEADDR | SO_REUSEPORT, &_opt, sizeof(int)))
+		throw "Failed to set options on sockets.";
 }
 
 int Server::getPort() {
