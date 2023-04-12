@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#pragma once
 
 #include <header.hpp>
 #include <vector>
@@ -22,23 +21,18 @@
 class Server
 {
 	private:
-		int					_addrlen;
-		int					_accept_fd;
-		int					_max_clients;
-		int					_opt;
-		
-		char				*_password;
-		char				_buffer[1024];
-		
-		
+		int						_addrlen;
+		int						_accept_fd;
+		int						_max_clients;
+		int						_opt;
+		char					*_password;
+		char					_buffer[1024];
 		std::vector<Channel>	_channels;
-		std::vector<Client>	_clients;
-		sockaddr_in			_address;
-		int					_port;
-		int					_socket_fd;
-
-		//std::vector<Message>	_messages;
-
+		std::vector<Client>		_clients;
+		sockaddr_in				_address;
+		int						_port;
+		int						_socket_fd;
+		// std::vector<Message>	_messages;
 	public:
 		/* Constructor & Destructor ***************************************** */
 		Server();
@@ -61,7 +55,7 @@ class Server
 		void	removeClient(Client client);
 		void	removeChannel(Channel channel);
 
-		std::vector<Client>	getClients(void);
+		std::vector<Client>		getClients(void);
 		std::vector<Channel>	getChannels(void);
 
 		/* Function ********************************************************* */
@@ -72,5 +66,3 @@ class Server
 		void		listen(void);
 		void		run(void);
 };
-
-#endif

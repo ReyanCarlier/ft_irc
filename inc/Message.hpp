@@ -9,7 +9,6 @@
  * Message can either be sent from Server nor a Client.
  * 
  * Message can either be sent to the Server nor Client(s).
- * 
  */
 class Message {
     public:

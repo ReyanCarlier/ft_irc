@@ -11,11 +11,11 @@
 /* ************************************************************************** */
 
 #pragma once
+
 #include <header.hpp>
 
 /**
  * Representation of a client.
- * 
  */
 class Client
 {
@@ -30,21 +30,21 @@ class Client
 
 		/* Getter *********************************************************** */
 		int			getSocket(void);
-		std::string	GetMessage(void);
+		std::string	getMessage(void);
 		std::string getUserName(void);
 		int			getok(void);
 		int			getbvn(void);
 		int			getId();
 
 		/* Setter *********************************************************** */
-		void		SetNick(std::string nickname);
+		void		setNick(std::string nickname);
 		void		setSocket(int socket);
-		void		SetMessage(std::string	messageentrant);
-		void		SetUserName(std::string name);
-		void		SetHostName(std::string name);
-		void		SetRealName(std::string name);
-		void		SetHost(std::string name);
-		void		Setok(int ok);
+		void		setMessage(std::string	messageentrant);
+		void		setUserName(std::string name);
+		void		setHostName(std::string name);
+		void		setRealName(std::string name);
+		void		setHost(std::string name);
+		void		setOk(int ok);
 		void		setbvn(int bvn);
 		void		setId(int id);
 

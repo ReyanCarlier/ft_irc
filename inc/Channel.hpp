@@ -7,7 +7,6 @@
 
 /**
  * Representation of a channel in the server.
- * 
  */
 class Channel {
 
@@ -21,12 +20,12 @@ class Channel {
 
         int                 getId() const;
         std::string         getName() const;
-        std::vector<Client>   getClients() const;
-        std::vector<Client>   getOperators() const;
-        std::vector<Client>   getAdmins() const;
-        std::vector<Client>   getOwners() const;
-        std::vector<Client>   getBanned() const;
-        std::vector<Client>   getMuted() const;
+        std::vector<Client> getClients() const;
+        std::vector<Client> getOperators() const;
+        std::vector<Client> getAdmins() const;
+        std::vector<Client> getOwners() const;
+        std::vector<Client> getBanned() const;
+        std::vector<Client> getMuted() const;
 
         void setId(const int id);
         void setName(const std::string name);

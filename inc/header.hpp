@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HEADER_HPP
-#define HEADER_HPP
+#pragma once
 
 #include <iostream>
 #include <sys/socket.h>	// socket setsockopt getsockname bind
@@ -40,5 +39,3 @@
 #define MAX_TCP_PORT	65535
 #define MAX_REQUESTS	8
 #define MAX_CLIENT		42
-
-#endif

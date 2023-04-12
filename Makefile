@@ -16,7 +16,6 @@ SRC			=	main.cpp \
 				Client.cpp \
 				Channel.cpp \
 				Message.cpp
-				
 CPP			=	c++
 CPPFLAGS	=	-Wall -Wextra -Werror -std=c++98 -MMD -g3
 RM			=	rm -rf
