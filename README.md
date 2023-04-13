@@ -128,6 +128,15 @@ This flag is typically set by the server upon connection for administrative reas
 While the restrictions imposed are left up to the implementation, it is typical that a restricted user not be allowed to change nicknames, nor make use of the channel operator status on channels.
 
 The flag 's' is obsolete but MAY still be used.
+
+The available modes are as follows:
+	a - user is flagged as away;
+	i - marks a users as invisible;
+	w - user receives wallops;
+	r - restricted user connection;
+	o - operator flag;
+	O - local operator flag;
+	s - marks a user for receipt of server notices.
 ```
 Numeric replies :
 ```
