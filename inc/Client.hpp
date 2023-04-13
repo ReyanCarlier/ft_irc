@@ -6,7 +6,7 @@
 /*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 12:11:19 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/13 14:11:29 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,15 @@ class Client
 		std::string getUsername(void);
 		std::string getHostname(void);
 		std::string getRealName(void);
+		std::string getNickname(void);
 		int			isReady(void);
 		int			isWelcomed(void);
-		int			getId();
 		int			getPass();
+		int			getId(void);
+		int			getMode(void);
 
 		/* Setter *********************************************************** */
-		void		setNick(std::string nickname);
+		void		setNickname(std::string nickname);
 		void		setSocket(int socket);
 		void		setMessage(std::string	messageentrant);
 		void		setUsername(std::string name);
@@ -52,10 +54,12 @@ class Client
 		void		setWelcomed(int bvn);
 		void		setId(int id);
 		void		setPass(int id);
+		void		setMode(int mode);
 
 		/* Function ********************************************************* */
 	private:
 		int			_id;
+		int			_mode;
 		std::string _nickname;
 		std::string _username;
 		std::string _hostname;

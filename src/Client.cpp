@@ -6,7 +6,7 @@
 /*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 13:41:06 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/13 14:10:37 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,11 @@ std::string	Client::getRealName(void)
 	return (_realname);
 }
 
+std::string	Client::getNickname(void)
+{
+	return (_nickname);
+}
+
 void		Client::setId(int id)
 {
 	_id = id;
@@ -93,7 +98,7 @@ void		Client::setMessage(std::string	messageentrant)
 	_messageentrant = messageentrant;
 }
 
-void		Client::setNick(std::string nickname)
+void		Client::setNickname(std::string nickname)
 {
 	_nickname = nickname;
 }
@@ -111,6 +116,11 @@ void		Client::setHostname(std::string name)
 void		Client::setHost(std::string name)
 {
 	_host = name;
+}
+
+void		Client::setMode(int mode)
+{
+	_mode = mode;
 }
 
 void		Client::setRealName(std::string name)

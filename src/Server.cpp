@@ -170,10 +170,7 @@ std::vector<Channel *> Server::getChannels() {
 
 void	Server::sendToClient(std::string message, Client *client)
 {
-	std::cout << "----------------------------------------" << std::endl;
-	std::cout << "Sending a message to " << client->getUsername() << std::endl;
-	std::cout << "----------------------------------------" << std::endl;
-	std::cout << YELLOW << message << ENDL;
+	std::cout << GREEN << "[SERVER => CLIENT (" << client->getSocket() << ")]\n" << YELLOW << message << ENDL;
 	std::cout << "----------------------------------------" << std::endl;
 	message.append("\r\n");
 	send(client->getSocket(), message.c_str(), message.length(), 0);
@@ -181,10 +178,7 @@ void	Server::sendToClient(std::string message, Client *client)
 
 void	Server::commandHandler(std::string command, Client *client)
 {
-	std::cout << "----------------------------------------" << std::endl;
-	std::cout << "Received a command from " << client->getUsername() << std::endl;
-	std::cout << "----------------------------------------" << std::endl;
-	std::cout << YELLOW << command << ENDL;
+	std::cout << CYAN << "[CLIENT (" << client->getSocket() << ") => SERVER]\n" << YELLOW << command << ENDL;
 	std::cout << "----------------------------------------" << std::endl;
 	std::stringstream ss(command);
 	std::string		item;
@@ -207,6 +201,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			ping(client);
 		else if (startwith("PASS", tokens[i]))
 			pass(tokens[i], client);
+		else if (startwith("MODE", tokens[i]))
+			mode(tokens[i], client);
 		// Ajouter les autres commandes ici
 	}
 }
@@ -230,26 +226,31 @@ std::string	Server::getPassword(void)
 
 void	Server::nick(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream 			ss(command);
+	std::string					item;
+	std::vector<std::string> 	tokens;
+	std::string					old_nickname;
 
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
 
 	if (tokens.size() < 2)
 	{
-		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		std::cout << RED << "Invalid command sent by " << client->getNickname() << " : " << YELLOW << command << ENDL;
 		sendToClient(": serverserver " + Errors::ERR_NONICKNAMEGIVEN + " * :No nickname given", client);
 		return ;
 	}
 	if (tokens.size() > 2)
 	{
-		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		std::cout << RED << "Invalid command sent by " << client->getNickname() << " : " << YELLOW << command << ENDL;
 		sendToClient(": serverserver " + Errors::ERR_ERRONEUSNICKNAME + " * :Erroneous nickname", client);
 		return ;
 	}
+	old_nickname = client->getNickname();
+	client->setNickname(tokens[1]);
 	client->setUsername(tokens[1]);
+	if (client->isWelcomed() == 0)
+		sendToClient(":" + old_nickname + " NICK :" + client->getNickname(), client);
 }
 
 void	Server::pass(std::string command, Client *client)
@@ -281,13 +282,41 @@ void	Server::user(std::string command, Client *client)
 	client->setRealName(name);
 	client->setOk(1);
 }
-
 void	Server::ping(Client *client)
 {
-	std::string test = ":serverserver PONG serverserver :";
-	test.append(client->getUsername());
-	test.append("\r\n");
-	write(client->getSocket(), test.c_str(), test.size());
+	std::string buffer;
+	buffer = ":serverserver PONG serverserver :" + client->getUsername() + "\r\n";
+	sendToClient(buffer, client);
+}
+
+void	Server::mode(std::string command, Client *client)
+{
+	std::stringstream ss(command);
+	std::string		item;
+	std::vector<std::string> tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+	
+	if (tokens.size() < 3)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+	if (tokens[2] == "+i")
+		client->setMode(1);
+	else if (tokens[2] == "-i")
+		client->setMode(0);
+	else
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_UMODEUNKNOWNFLAG + " * :Unknown MODE flag", client);
+		return ;
+	}
+
+	sendToClient(":serverserver MODE " + client->getUsername() + " " + tokens[2], client);
 }
 
 // void	Server::join(std::string command, Client *client)

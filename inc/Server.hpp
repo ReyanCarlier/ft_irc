@@ -68,4 +68,5 @@ class Server
 		void		pass(std::string command, Client *client);
 		void		user(std::string command, Client *client);
 		void		ping(Client *client);
+		void		mode(std::string command, Client *client);
 };
