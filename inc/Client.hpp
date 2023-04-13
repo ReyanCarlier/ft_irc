@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 12:25:30 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/13 13:47:53 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,8 @@ class Client
 		std::string getNickname(void);
 		int			isReady(void);
 		int			isWelcomed(void);
-		int			getId();
+		int			getId(void);
+		int			getMode(void);
 
 		/* Setter *********************************************************** */
 		void		setNickname(std::string nickname);
@@ -51,10 +52,12 @@ class Client
 		void		setOk(int ok);
 		void		setWelcomed(int bvn);
 		void		setId(int id);
+		void		setMode(int mode);
 
 		/* Function ********************************************************* */
 	private:
 		int			_id;
+		int			_mode;
 		std::string _nickname;
 		std::string _username;
 		std::string _hostname;

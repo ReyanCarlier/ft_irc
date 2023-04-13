@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 12:25:40 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/13 13:47:25 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,11 @@ void		Client::setHostname(std::string name)
 void		Client::setHost(std::string name)
 {
 	_host = name;
+}
+
+void		Client::setMode(int mode)
+{
+	_mode = mode;
 }
 
 void		Client::setRealName(std::string name)
