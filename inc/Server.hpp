@@ -36,6 +36,7 @@ class Server
 		int		getPort(void);
 		char	*getBuffer(void);
 		Client	*getClient(int fd);
+		Client	*getClientFromNick(std::string nick);
 		int		getHighestFd(fd_set*, fd_set*);
 		std::string	getPassword(void);
 
@@ -69,4 +70,6 @@ class Server
 		void		user(std::string command, Client *client);
 		void		ping(Client *client);
 		void		mode(std::string command, Client *client);
+		void		privmsg(std::string command, Client *client);
+
 };
