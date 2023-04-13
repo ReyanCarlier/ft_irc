@@ -26,11 +26,17 @@ Server::Server(char **av)
 	_clients = std::vector<Client *>();
 	_channels = std::vector<Channel *>();
 	bzero(_buffer, 1024);
+	_die = false;
 }
 
 Server::~Server()
 {
 	close(_socket_fd);
+	while (_clients.size())
+	{
+		delete (_clients.back());
+		_clients.pop_back();
+	}
 }
 
 int		Server::getSocketFd(void)
@@ -84,6 +90,11 @@ void	Server::setAddress(void)
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(_port);
+}
+
+void	Server::setDie(void)
+{
+	_die = true;
 }
 
 int			*Server::getPtrOpt(void)
@@ -203,7 +214,12 @@ void	Server::commandHandler(std::string command, Client *client)
 			pass(tokens[i], client);
 		else if (startwith("MODE", tokens[i]))
 			mode(tokens[i], client);
+		else if (startwith("die", tokens[i]))// Ajouter le if (client == admin)
+			setDie();
 		// Ajouter les autres commandes ici
+		// Debug
+		else
+			std::cout << BLUE << "DEBUG TOKENS: " << tokens[i] << ENDL;
 	}
 }
 
@@ -220,6 +236,11 @@ void	Server::welcome(Client *client)
 std::string	Server::getPassword(void)
 {
 	return(_password);
+}
+
+bool		Server::getDie(void)
+{
+	return (_die);
 }
 
 // TODO: Implement all the commands here :
@@ -282,6 +303,7 @@ void	Server::user(std::string command, Client *client)
 	client->setRealName(name);
 	client->setOk(1);
 }
+
 void	Server::ping(Client *client)
 {
 	std::string buffer;

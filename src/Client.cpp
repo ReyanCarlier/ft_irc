@@ -21,7 +21,10 @@ Client::Client(const Client &src)
 	*this = src;
 }
 
-Client::~Client() {}
+Client::~Client()
+{
+	close(_socket);
+}
 
 Client&		Client::operator=(Client const &rhs)
 {

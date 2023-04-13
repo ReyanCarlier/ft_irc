@@ -54,7 +54,7 @@ run:${NAME}
 
 debug:${NAME}
 	clear
-	valgrind --track-fds=yes ./${NAME} ${PORT} ${PASSWORD}
+	valgrind --track-fds=yes --leak-check=full ./${NAME} ${PORT} ${PASSWORD}
 	${RM} ${OBJ_PATH} ${NAME} ${GARBAGE}
 
 ${OBJ_PATH}%.o:${SRC_PATH}%.cpp

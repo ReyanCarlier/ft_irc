@@ -26,7 +26,7 @@ class Server
 		sockaddr_in				_address;
 		int						_port;
 		int						_socket_fd;
-
+		bool					_die;
 	public:
 		Server(char **av);
 		~Server();
@@ -38,10 +38,11 @@ class Server
 		Client	*getClient(int fd);
 		int		getHighestFd(fd_set*, fd_set*);
 		std::string	getPassword(void);
+		bool		getDie(void);
 
 		void	setAccept(void);
 		void	setAddress(void);
-		void	setPort(int port);
+		void	setDie(void);
 
 		void	addClient(Client *client);
 		void	addChannel(Channel *channel);
