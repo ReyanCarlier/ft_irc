@@ -328,7 +328,6 @@ void	Server::nick(std::string command, Client *client)
 	}
 	old_nickname = client->getNickname();
 	client->setNickname(tokens[1]);
-	client->setUsername(tokens[1]);
 	if (client->isWelcomed() == 0)
 		sendToClient(":" + old_nickname + " NICK :" + client->getNickname(), client);
 }
@@ -560,6 +559,12 @@ void	Server::join(std::string command, Client *client)
 	}
 	sendToClient(":serverserver 353 " + client->getNickname() + " = " + channel_name + " :" + buffer, client);
 	sendToClient(":serverserver 366 " + client->getNickname() + " " + channel_name + " :End of /NAMES list.", client);
+	
+	for (size_t i = 0; i < getChannel(channel_name)->getClients().size(); i++)
+	{
+		if (getChannel(channel_name)->getClients()[i] != client)
+			sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN #" + channel_name, getChannel(channel_name)->getClients()[i]);
+	}
 }
 
 void	Server::part(std::string command, Client *client)
@@ -599,7 +604,11 @@ void	Server::part(std::string command, Client *client)
 			}
 			else
 			{
-				// TODO : send to all clients in channel that client has left
+				for (size_t i = 0; i < channel->getClients().size(); i++)
+				{
+					if (channel->getClients()[i] != client)
+						sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
+				}
 			}
 			return ;
 		}
