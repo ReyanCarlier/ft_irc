@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 11:43:29 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/13 12:07:50 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,9 +93,9 @@ int	main(int ac, char **av)
 
 			for (size_t i = 0; i < server.getClients().size(); i++)
 			{
-				if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
-					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed())
-						server.welcome(server.getClients().at(i));
+				//if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
+				//	if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed())
+				//		server.welcome(server.getClients().at(i));
 				if (FD_ISSET(server.getClients().at(i)->getSocket(), &readfds))
 				{
 					valread = read(server.getClients().at(i)->getSocket(), server.getBuffer(), 1024);

@@ -50,7 +50,7 @@ class Server
 		void	commandHandler(std::string command, Client *client);
 
 		// COMMANDS
-		void	welcome(Client *client);
+		void	welcome(std::string command, Client *client);
 
 		std::vector<Client *>	getClients(void);
 		std::vector<Channel *>	getChannels(void);

@@ -191,10 +191,8 @@ void	Server::commandHandler(std::string command, Client *client)
 	std::vector<std::string> tokens;
 
 	if (client->isWelcomed())
-	{
-		welcome(client);
-		return ;
-	}
+		return welcome(command, client);
+
 	while (std::getline(ss, item, '\n'))
 		tokens.push_back(item);
 
@@ -216,10 +214,37 @@ void	Server::commandHandler(std::string command, Client *client)
 	}
 }
 
-void	Server::welcome(Client *client)
+void	Server::welcome(std::string command, Client *client)
 {
-	std::cout << "WELCOME" << std::endl;
-	std::string buffer = ": serverserver 001 ";
+	std::string buffer;
+
+	std::cout << "----------------------------------------" << std::endl;
+	std::cout << "Welcoming " << client->getUsername() << std::endl;
+	std::cout << "----------------------------------------" << std::endl;
+
+	client->setMessage(command);
+	buffer = client->getMessage();
+
+	if (startwith("CAP LS\r\n", buffer))
+		buffer.erase(0, 8);
+	if (startwith("NICK ", buffer))
+	{
+		std::string nickname = buffer;
+		nickname.erase(0, 5);
+		nickname.erase(nickname.size() - 2, 2);
+		client->setNick(nickname);
+		nickname.erase(0, nickname.length() + 2);
+		buffer = nickname;
+	}
+	if (startwith("USER ", buffer))
+	{
+		std::string username = buffer;
+		username.erase(0, 5);
+		username.erase(username.size() - 2, 2);
+		client->setUsername(username);
+	}
+
+	buffer = ": serverserver 001 ";
 	buffer.append(client->getUsername());
 	buffer.append(" :coucou\r\n");
 	write(client->getSocket(), buffer.c_str(), buffer.size());
