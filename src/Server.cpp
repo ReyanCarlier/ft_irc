@@ -211,9 +211,64 @@ void	Server::commandHandler(std::string command, Client *client)
 			join(tokens[i], client);
 		else if (startwith("WHO", tokens[i]))
 			who(tokens[i], client);
+		else if (startwith("TOPIC", tokens[i]))
+			topic(tokens[i], client);
 	}
 }
 
+void	Server::topic(std::string command, Client *client)
+{
+	std::stringstream ss(command);
+	std::string		item;
+	std::vector<std::string> tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() < 2)
+	{
+		sendToClient(":serverserver 461 TOPIC :Not enough parameters", client);
+		return;
+	}
+
+	tokens[1][tokens[1].size()] = '\0';
+	tokens[1].erase(0, 1);
+	Channel *channel = getChannel(tokens[1]);
+	if (channel == NULL)
+	{
+		sendToClient(":serverserver 403 " + client->getUsername() + " " + tokens[1] + " :No such channel", client);
+		return;
+	}
+
+	if (channel->getOperators().size() > 0 && !channel->isOperator(client))
+	{
+		sendToClient(":serverserver 482 " + client->getUsername() + " " + tokens[1] + " :You're not channel operator", client);
+		return;
+	}
+
+	if (tokens.size() == 2)
+	{
+		if (channel->getTopic() == "")
+			sendToClient(":serverserver 331 " + client->getUsername() + " #" + tokens[1] + " No topic is set", client);
+		else
+			sendToClient(":serverserver 332 " + client->getUsername() + " #" + tokens[1] + " " + channel->getTopic(), client);
+	}
+	else
+	{
+		std::string topic = "";
+		for (size_t i = 2; i < tokens.size(); i++)
+			topic.append(tokens[i] + " ");
+		channel->setTopic(topic);
+		sendToClient(":serverserver 332 " + client->getUsername() + " #" + tokens[1] + " " + channel->getTopic(), client);
+	}
+}
+
+/**
+ * @brief Sends a welcome message to the client.
+ * 
+ * @param client 
+ */
 void	Server::welcome(Client *client)
 {
 	std::cout << "WELCOME" << std::endl;
@@ -450,7 +505,7 @@ void	Server::join(std::string command, Client *client)
 	std::string channel_name;
 
 	command.erase(0, 5);
-	
+	bool added = false;
 	if (command[0] == '#')
 	{
 		channel_name = command;
@@ -469,6 +524,7 @@ void	Server::join(std::string command, Client *client)
 		Channel *channel = new Channel(channel_name);
 		addChannel(channel);
 		channel->addClient(client);
+		added = true;
 		channel->addOperator(client);
 	}
 
@@ -485,7 +541,9 @@ void	Server::join(std::string command, Client *client)
 		return ;
 	}
 
-	getChannel(channel_name)->addClient(client);
+	if (not added)
+		getChannel(channel_name)->addClient(client);
+
 	sendToClient(":serverserver 332 " + client->getNickname() + " " + channel_name + " :" + getChannel(channel_name)->getTopic(), client);
 	
 	std::string buffer;

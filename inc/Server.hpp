@@ -74,4 +74,5 @@ class Server
 		void					mode(std::string command, Client *client);
 		void					join(std::string command, Client *client);
 		void					who(std::string command, Client *client);
+		void					topic(std::string command, Client *client);
 };

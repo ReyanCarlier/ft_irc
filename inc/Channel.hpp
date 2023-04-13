@@ -50,6 +50,8 @@ class Channel {
         void unmuteClient(Client *client);
         bool isBanned(Client *client);
         bool isInvited(Client *client);
+        bool isMuted(Client *client);
+        bool isOperator(Client *client);
         
     private:
         int                     _id;

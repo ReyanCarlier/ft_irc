@@ -25,9 +25,10 @@ Channel::Channel(const std::string name) {
     this->_name = name;
     this->_topic = "No topic yet";
     this->_inviteOnly = false;
+    std::cout << "Channel " << this->_name << " created." << std::endl;
 }
 
-Channel::~Channel() {}
+Channel::~Channel() { std::cout << "Channel " << this->_name << " deleted." << std::endl;}
 
 Channel& Channel::operator=(const Channel& other) {
     if (this == &other)
@@ -233,6 +234,24 @@ void Channel::unmuteClient(Client *client) {
 
 bool Channel::isBanned(Client *client) {
     for (std::vector<Client *>::iterator it = this->_banned.begin(); it != this->_banned.end(); it++) {
+        if ((*it)->getSocket() == client->getSocket()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Channel::isMuted(Client *client) {
+    for (std::vector<Client *>::iterator it = this->_muted.begin(); it != this->_muted.end(); it++) {
+        if ((*it)->getSocket() == client->getSocket()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Channel::isOperator(Client *client) {
+    for (std::vector<Client *>::iterator it = this->_operators.begin(); it != this->_operators.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             return true;
         }
