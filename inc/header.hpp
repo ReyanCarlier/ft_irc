@@ -40,4 +40,3 @@
 #define MAX_REQUESTS	8
 #define MAX_CLIENT		42
 #define SERVER_NAME     "ft_irc"
-

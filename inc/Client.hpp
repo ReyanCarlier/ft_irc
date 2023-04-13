@@ -55,8 +55,6 @@ class Client
 		void		setId(int id);
 		void		setPass(int id);
 		void		setMode(int mode);
-
-		/* Function ********************************************************* */
 	private:
 		int			_id;
 		int			_mode;

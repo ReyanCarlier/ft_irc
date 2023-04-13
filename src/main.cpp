@@ -40,8 +40,8 @@ int	main(int ac, char **av)
 	}
 
 	Server	server(av);
-	fd_set readfds;
-	fd_set writefds;
+	fd_set	readfds;
+	fd_set	writefds;
 
 	try
 	{
@@ -56,14 +56,14 @@ int	main(int ac, char **av)
 		int			valread;
 		std::string	buffer, name;
 
-		while (42)
+		while (server.getDie() == false)
 		{
 			FD_ZERO(&readfds);
 			FD_ZERO(&writefds);
 			FD_SET(server.getSocketFd(), &readfds);
 			FD_SET(server.getSocketFd(), &writefds);
 
-			if ((select(server.getHighestFd(&readfds, &writefds) + 1, &readfds, &writefds, NULL, NULL) < 0) && (errno != EINTR))
+			if (select(server.getHighestFd(&readfds, &writefds) + 1, &readfds, &writefds, NULL, NULL) < 0 && errno != EINTR)
 				std::cerr << "select error" << std::endl;
 
 			if (FD_ISSET(server.getSocketFd(), &readfds))

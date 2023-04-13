@@ -15,7 +15,6 @@ class Message {
         Message();
         Message(const Message& other);
         Message(const std::string message, Client *target);
-
         ~Message();
 
         Message& operator=(const Message& other);
