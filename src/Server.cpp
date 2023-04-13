@@ -190,6 +190,11 @@ void	Server::commandHandler(std::string command, Client *client)
 	std::string		item;
 	std::vector<std::string> tokens;
 
+	if (client->isWelcomed())
+	{
+		welcome(client);
+		return ;
+	}
 	while (std::getline(ss, item, '\n'))
 		tokens.push_back(item);
 
