@@ -15,9 +15,9 @@ To deploy this project run
 git clone https://github.com/LolinEagle/ft_irc && cd ft_irc && make run
 ```
 
-## Cheat Sheet
+# Cheat Sheet
 
-### PASS <password>
+## PASS <password>
 
 Example :
 ```
@@ -29,7 +29,7 @@ Replies :
 - ERR_ALREADYREGISTRED (numeric)
 ```
 
-### NICK
+## NICK
 Parameters :
 ```
 <password>
@@ -58,7 +58,7 @@ __Server reply :__
 	=> Server tells that bob changed his nickname to rcrlr
 ```
 
-### USER
+## USER
 
 Parameters :
 ```
@@ -85,7 +85,7 @@ Examples :
 	=> User register itself with a username "guest" and realname "Reyan Carlier", and asking to be invisible
 ```
 
-### OPER
+## OPER
 
 Parameters :
 ```
@@ -110,7 +110,7 @@ Example :
 	=> Attempt to register as an operator using a username of "rcrl" and "secretpwd" as the password.
 ```
 
-### MODE
+## MODE
 
 Parameters :
 ```
