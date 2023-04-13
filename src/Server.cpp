@@ -170,10 +170,7 @@ std::vector<Channel *> Server::getChannels() {
 
 void	Server::sendToClient(std::string message, Client *client)
 {
-	std::cout << "----------------------------------------" << std::endl;
-	std::cout << "Sending a message to " << client->getUsername() << std::endl;
-	std::cout << "----------------------------------------" << std::endl;
-	std::cout << YELLOW << message << ENDL;
+	std::cout << GREEN << "[SERVER => CLIENT (" << client->getSocket() << ")]\n" << YELLOW << message << ENDL;
 	std::cout << "----------------------------------------" << std::endl;
 	message.append("\r\n");
 	send(client->getSocket(), message.c_str(), message.length(), 0);
@@ -181,10 +178,7 @@ void	Server::sendToClient(std::string message, Client *client)
 
 void	Server::commandHandler(std::string command, Client *client)
 {
-	std::cout << "----------------------------------------" << std::endl;
-	std::cout << "Received a command from " << client->getUsername() << std::endl;
-	std::cout << "----------------------------------------" << std::endl;
-	std::cout << YELLOW << command << ENDL;
+	std::cout << CYAN << "[CLIENT (" << client->getSocket() << ") => SERVER]\n" << YELLOW << command << ENDL;
 	std::cout << "----------------------------------------" << std::endl;
 	std::stringstream ss(command);
 	std::string		item;
@@ -207,7 +201,7 @@ void	Server::commandHandler(std::string command, Client *client)
 		else if (startwith("USER", tokens[i]))
 			std::cout << "USER" << std::endl;
 		else if (startwith("PING", tokens[i]))
-			std::cout << "PING" << std::endl;
+			ping(client);
 		else if (startwith("PASS", tokens[i]))
 			std::cout << "PASS" << std::endl;
 		// Ajouter les autres commandes ici
@@ -222,31 +216,43 @@ void	Server::welcome(std::string command, Client *client)
 	std::cout << "Welcoming " << client->getUsername() << std::endl;
 	std::cout << "----------------------------------------" << std::endl;
 
+	command[command.size() - 1] = '\0';
 	client->setMessage(command);
 	buffer = client->getMessage();
-
 	if (startwith("CAP LS\r\n", buffer))
 		buffer.erase(0, 8);
 	if (startwith("NICK ", buffer))
 	{
 		std::string nickname = buffer;
 		nickname.erase(0, 5);
-		nickname.erase(nickname.size() - 2, 2);
-		client->setNick(nickname);
-		nickname.erase(0, nickname.length() + 2);
-		buffer = nickname;
+		nickname.erase(nickname.find("\r\n"));
+		client->setNickname(nickname);
+		buffer.erase(0, 5 + nickname.size() + 2);
 	}
 	if (startwith("USER ", buffer))
 	{
-		std::string username = buffer;
-		username.erase(0, 5);
-		username.erase(username.size() - 2, 2);
-		client->setUsername(username);
+		std::string tmp;
+
+		buffer.erase(0,5);
+		tmp = buffer;
+		tmp.erase(tmp.find(" "));
+		client->setUsername(tmp);
+		
+		tmp = buffer;
+		tmp.erase(tmp.find(" "));
+		client->setHostname(tmp);
+
+		tmp = buffer;
+		tmp.erase(tmp.find(" "));
+		client->setHost(tmp);
+
+		tmp = buffer;
+		tmp.erase(tmp.find(" "));
+		client->setRealName(tmp);
+		client->setOk(1);
 	}
 
-	buffer = ": serverserver 001 ";
-	buffer.append(client->getUsername());
-	buffer.append(" :coucou\r\n");
+	buffer = ":serverserver 001 " + client->getUsername() + " :coucou " + client->getUsername() + "\r\n";
 	write(client->getSocket(), buffer.c_str(), buffer.size());
 	client->setWelcomed(0);
 }
@@ -284,10 +290,13 @@ void	Server::nick(std::string command, Client *client)
 // 	std::cout << "USER" << std::endl;
 // }
 
-// void	Server::ping(std::string command, Client *client)
-// {
-// 	std::cout << "PING" << std::endl;
-// }
+void	Server::ping(Client *client)
+{
+	std::string buffer;
+
+	buffer = ":serverserver PONG serverserver :" + client->getUsername() + "\r\n";
+	sendToClient(buffer, client);
+}
 
 // void	Server::pass(std::string command, Client *client)
 // {

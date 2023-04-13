@@ -64,4 +64,5 @@ class Server
 
 		void		sendToClient(std::string message, Client *client);
 		void		nick(std::string command, Client *client);
+		void		ping(Client *client);
 };

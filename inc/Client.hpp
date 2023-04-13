@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 18:39:54 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/13 12:25:30 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,13 @@ class Client
 		std::string getUsername(void);
 		std::string getHostname(void);
 		std::string getRealName(void);
+		std::string getNickname(void);
 		int			isReady(void);
 		int			isWelcomed(void);
 		int			getId();
 
 		/* Setter *********************************************************** */
-		void		setNick(std::string nickname);
+		void		setNickname(std::string nickname);
 		void		setSocket(int socket);
 		void		setMessage(std::string	messageentrant);
 		void		setUsername(std::string name);
