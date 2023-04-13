@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 14:11:29 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/13 15:44:47 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Client
 		std::string getHostname(void);
 		std::string getRealName(void);
 		std::string getNickname(void);
+		std::string getHost(void);
 		int			isReady(void);
 		int			isWelcomed(void);
 		int			getPass();

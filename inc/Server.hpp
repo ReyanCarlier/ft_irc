@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 
 #include "Client.hpp"
 #include "Channel.hpp"
@@ -31,42 +32,46 @@ class Server
 		Server(char **av);
 		~Server();
 
-		int		getSocketFd(void);
-		int		getAccept(void);
-		int		getPort(void);
-		char	*getBuffer(void);
-		Client	*getClient(int fd);
-		int		getHighestFd(fd_set*, fd_set*);
-		std::string	getPassword(void);
+		int						getSocketFd(void);
+		int						getAccept(void);
+		int						getPort(void);
+		char					*getBuffer(void);
+		Client					*getClient(int fd);
+		int						getHighestFd(fd_set*, fd_set*);
+		std::string				getPassword(void);
 
-		void	setAccept(void);
-		void	setAddress(void);
-		void	setPort(int port);
+		void					setAccept(void);
+		void					setAddress(void);
+		void					setPort(int port);
 
-		void	addClient(Client *client);
-		void	addChannel(Channel *channel);
-		void	removeClient(Client *client);
-		void	removeChannel(Channel *channel);
+		void					addClient(Client *client);
+		void					addChannel(Channel *channel);
+		void					removeClient(Client *client);
+		void					removeChannel(Channel *channel);
 
-		void	commandHandler(std::string command, Client *client);
+		void					commandHandler(std::string command, Client *client);
 
 		// COMMANDS
-		void	welcome(Client *client);
+		void					welcome(Client *client);
 
 		std::vector<Client *>	getClients(void);
 		std::vector<Channel *>	getChannels(void);
+		Channel					*getChannel(std::string channel_name);
 
-		int			*getPtrOpt(void);
-		sockaddr	*getCastAddress(void);
+		int						*getPtrOpt(void);
+		sockaddr				*getCastAddress(void);
 
-		void		bind(int port);
-		void		listen(void);
-		void		run(void);
+		void					bind(int port);
+		void					listen(void);
+		void					run(void);
 
-		void		sendToClient(std::string message, Client *client);
-		void		nick(std::string command, Client *client);
-		void		pass(std::string command, Client *client);
-		void		user(std::string command, Client *client);
-		void		ping(Client *client);
-		void		mode(std::string command, Client *client);
+		bool					channelExists(std::string channel_name);
+		void					sendToClient(std::string message, Client *client);
+		void					nick(std::string command, Client *client);
+		void					pass(std::string command, Client *client);
+		void					user(std::string command, Client *client);
+		void					ping(Client *client);
+		void					mode(std::string command, Client *client);
+		void					join(std::string command, Client *client);
+		void					who(std::string command, Client *client);
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 14:10:37 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/13 15:44:55 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,11 @@ std::string	Client::getRealName(void)
 std::string	Client::getNickname(void)
 {
 	return (_nickname);
+}
+
+std::string	Client::getHost(void)
+{
+	return (_host);
 }
 
 void		Client::setId(int id)
