@@ -245,7 +245,8 @@ void	Server::nick(std::string command, Client *client)
 		return ;
 	}
 	client->setUsername(tokens[1]);
-	sendToClient("NICK : " + tokens[1], client);
+	if (client->isWelcomed() == 0)
+		sendToClient("NICK : " + tokens[1], client);
 }
 
 // void	Server::user(std::string command, Client *client)
