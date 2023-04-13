@@ -17,76 +17,102 @@ git clone https://github.com/LolinEagle/ft_irc && cd ft_irc && make run
 
 ## Cheat Sheet
 
-- `PASS <password>`
-Example : PASS passwordhere
-Replies :
-	- ERR_NEEDMOREPARAMS (numeric)
-	- ERR_ALREADYREGISTRED (numeric)
+### PASS <password>
+__Example :__
+```
+PASS passwordhere
+```
+__Replies :__
+```
+- ERR_NEEDMOREPARAMS (numeric)
+- ERR_ALREADYREGISTRED (numeric)
+```
 
-
-- `NICK`
-Parameters :
-	- `<password>`
-Description :
+### NICK
+__Parameters :__
+```
+<password>
+```
+__Description :__
 ```
 NICK command is used to give user a nickname or change the existing one.
 ```
-Example : NICK rclr
-Numeric replies :
-	- ERR_NONICKNAMEGIVEN
-	- ERR_NICKNAMEINUSE
-	- ERR_UNAVAILRESOURCE
-	- ERR_ERRONESNICKNAME
-	- ERR_NICKCOLLISION
-	- ERR_RESTRICTED
+__Example :__
+```
+NICK rclr
+```
+__Numeric replies :__
+```
+- ERR_NONICKNAMEGIVEN
+- ERR_NICKNAMEINUSE
+- ERR_UNAVAILRESOURCE
+- ERR_ERRONESNICKNAME
+- ERR_NICKCOLLISION
+- ERR_RESTRICTED
+```
 
-Server reply :
-	- :bob!<...>@<hostname> rclr
-		=> Server tells that bob changed his nickname to rcrlr
+__Server reply :__
+```
+- :bob!<...>@<hostname> rclr
+	=> Server tells that bob changed his nickname to rcrlr
+```
 
-- `USER`
-Parameters :
-	- `<user> <mode> <unused> <realname>`
-Description :
+### USER
+__Parameters :__
+```
+<user> <mode> <unused> <realname>
+```
+__Description :__
 ```
 The USER command is used at the beginning of connection to specify the username, hostname and realname of a new user.
 The <realname> parameter may contain space characters.
 The <mode> parameter should be a numeric, and can be used to automatically set user modes when registering with the server.
 This parameter is a bitmask, with only 2 bits having any signification.
 ```
-Masks :
-	- bit 2 : user mode 'w' will be set
-	- bit 3 : user mode 'i' will be set
+__Masks :__
+```
+- bit 2 : user mode 'w' will be set
+- bit 3 : user mode 'i' will be set
+```
 
-Example :
-	- USER guest 0 * :Reyan Carlier
-		=> User register itself with a username "guest" and realname "Reyan Carlier"
-	- User guest 8 * :Reyan Carlier
-		=> User register itself with a username "guest" and realname "Reyan Carlier", and asking to be invisible
+__Examples :__
+```
+- USER guest 0 * :Reyan Carlier
+	=> User register itself with a username "guest" and realname "Reyan Carlier"
+- User guest 8 * :Reyan Carlier
+	=> User register itself with a username "guest" and realname "Reyan Carlier", and asking to be invisible
+```
 
-- `OPER`
-Parameters :
-	- `<name> <password>`
-Description :
+### OPER
+__Parameters :__
+```
+<name> <password>
+```
+__Description :__
 ```
 A normal user uses the OPER command to obtain operator privileges.
 The combination of <name> and <password> are required to gain Operator privileges.
 Upon success, the user will receive a MODE message, indicating the new user modes.
 ```
-Numeric replies :
-	- ERR_NEEDMOREPARAMS
-	- ERR_NOOPERHOST
-	- RPL_YOUREOPER (success)
-	- ERR_PASSWDMISMATCH (incorrect password)
-Example :
-	- OPER rcrl secretpwd
-		=> Attempt to register as an operator using a username of "rcrl" and "secretpwd" as the password.
+__Numeric replies :__
+```
+- ERR_NEEDMOREPARAMS
+- ERR_NOOPERHOST
+- RPL_YOUREOPER (success)
+- ERR_PASSWDMISMATCH (incorrect password)
+```
+__Example :__
+```
+- OPER rcrl secretpwd
+	=> Attempt to register as an operator using a username of "rcrl" and "secretpwd" as the password.
+```
 
-- `MODE`
-Parameters :
-	- `<nickname> -/+[a | i | w | r | o | O | s]`
-
-Description :
+### MODE
+__Parameters :__
+```
+<nickname> -/+[a | i | w | r | o | O | s]
+```
+__Description :__
 ```
 The flag 'a' SHALL NOT be toggled by the user using the MODE command, instead use of the AWAY command is REQUIRED.
 If a user attempts to make themselves an operator using the "+o" or "+O" flag, the attempt SHOULD be ignored as users could bypass the authentication mechanisms of the OPER command.
@@ -99,15 +125,19 @@ While the restrictions imposed are left up to the implementation, it is typical 
 
 The flag 's' is obsolete but MAY still be used.
 ```
-Numeric replies :
-	- ERR_NEEDMOREPARAMS
-	- ERR_UMODEUNKNOWNFLAG (incorrect flag)
-	- ERR_USERSDONTMATCH (user in the command isn't the user that sent it)
-	- RPL_UMODEIS (success)
-Examples :
-	- MODE rcrl -w
-		=> Command by rcrl to turn off reception of WALLOPS messages.
-	- MODE rcrl +i
-		=> Command by rcrl to make itself invisible.
-	- MODE rcrl -o
-		=> Command by rcrl to 'deop' rcrl (removing operator status).
+__Numeric replies :__
+```
+- ERR_NEEDMOREPARAMS
+- ERR_UMODEUNKNOWNFLAG (incorrect flag)
+- ERR_USERSDONTMATCH (user in the command isn't the user that sent it)
+- RPL_UMODEIS (success)
+```
+__Examples :__
+```
+- MODE rcrl -w
+	=> Command by rcrl to turn off reception of WALLOPS messages.
+- MODE rcrl +i
+	=> Command by rcrl to make itself invisible.
+- MODE rcrl -o
+	=> Command by rcrl to 'deop' rcrl (removing operator status).
+```
