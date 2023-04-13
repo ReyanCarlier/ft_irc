@@ -10,7 +10,7 @@ between connected machines. It is always interesting to know what kind of thing.
 - [Reyan Carlier](https://github.com/ReyanCarlier)
 
 ## Useful links
-- [IRC/2 Numeric List](https://www.alien.net.au/irc/irc2numerics.html) (RFC2812 only)
+- [IRC/2 Numeric List](https://www.alien.net.au/irc/irc2numerics.html) (RFC2812 priority / RFC1459)
 
 ## Deployment
 To deploy this project run
