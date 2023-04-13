@@ -18,30 +18,31 @@ git clone https://github.com/LolinEagle/ft_irc && cd ft_irc && make run
 ## Cheat Sheet
 
 ### PASS <password>
-__Example :__
+
+Example :
 ```
 PASS passwordhere
 ```
-__Replies :__
+Replies :
 ```
 - ERR_NEEDMOREPARAMS (numeric)
 - ERR_ALREADYREGISTRED (numeric)
 ```
 
 ### NICK
-__Parameters :__
+Parameters :
 ```
 <password>
 ```
-__Description :__
+Description :
 ```
 NICK command is used to give user a nickname or change the existing one.
 ```
-__Example :__
+Example :
 ```
 NICK rclr
 ```
-__Numeric replies :__
+Numeric replies :
 ```
 - ERR_NONICKNAMEGIVEN
 - ERR_NICKNAMEINUSE
@@ -58,24 +59,25 @@ __Server reply :__
 ```
 
 ### USER
-__Parameters :__
+
+Parameters :
 ```
 <user> <mode> <unused> <realname>
 ```
-__Description :__
+Description :
 ```
 The USER command is used at the beginning of connection to specify the username, hostname and realname of a new user.
 The <realname> parameter may contain space characters.
 The <mode> parameter should be a numeric, and can be used to automatically set user modes when registering with the server.
 This parameter is a bitmask, with only 2 bits having any signification.
 ```
-__Masks :__
+Masks :
 ```
 - bit 2 : user mode 'w' will be set
 - bit 3 : user mode 'i' will be set
 ```
 
-__Examples :__
+Examples :
 ```
 - USER guest 0 * :Reyan Carlier
 	=> User register itself with a username "guest" and realname "Reyan Carlier"
@@ -84,35 +86,37 @@ __Examples :__
 ```
 
 ### OPER
-__Parameters :__
+
+Parameters :
 ```
 <name> <password>
 ```
-__Description :__
+Description :
 ```
 A normal user uses the OPER command to obtain operator privileges.
 The combination of <name> and <password> are required to gain Operator privileges.
 Upon success, the user will receive a MODE message, indicating the new user modes.
 ```
-__Numeric replies :__
+Numeric replies :
 ```
 - ERR_NEEDMOREPARAMS
 - ERR_NOOPERHOST
 - RPL_YOUREOPER (success)
 - ERR_PASSWDMISMATCH (incorrect password)
 ```
-__Example :__
+Example :
 ```
 - OPER rcrl secretpwd
 	=> Attempt to register as an operator using a username of "rcrl" and "secretpwd" as the password.
 ```
 
 ### MODE
-__Parameters :__
+
+Parameters :
 ```
 <nickname> -/+[a | i | w | r | o | O | s]
 ```
-__Description :__
+Description :
 ```
 The flag 'a' SHALL NOT be toggled by the user using the MODE command, instead use of the AWAY command is REQUIRED.
 If a user attempts to make themselves an operator using the "+o" or "+O" flag, the attempt SHOULD be ignored as users could bypass the authentication mechanisms of the OPER command.
@@ -125,14 +129,14 @@ While the restrictions imposed are left up to the implementation, it is typical 
 
 The flag 's' is obsolete but MAY still be used.
 ```
-__Numeric replies :__
+Numeric replies :
 ```
 - ERR_NEEDMOREPARAMS
 - ERR_UMODEUNKNOWNFLAG (incorrect flag)
 - ERR_USERSDONTMATCH (user in the command isn't the user that sent it)
 - RPL_UMODEIS (success)
 ```
-__Examples :__
+Examples :
 ```
 - MODE rcrl -w
 	=> Command by rcrl to turn off reception of WALLOPS messages.
