@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 11:43:29 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/13 13:46:05 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int	main(int ac, char **av)
 		return (0);
 	}
 
-	Server	server;
+	Server	server(av);
 	fd_set readfds;
 	fd_set writefds;
 
@@ -94,8 +94,36 @@ int	main(int ac, char **av)
 			for (size_t i = 0; i < server.getClients().size(); i++)
 			{
 				if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
-					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed())
+				{
+					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed() && (server.getClients().at(i)->getPass() == 1 || server.getPassword().empty()))
+					{
 						server.welcome(server.getClients().at(i));
+					}
+					else if (server.getClients().at(i)->getPass() == 0)
+					{
+						std::string test = ":serverserver 464 ";
+						test.append(server.getClients().at(i)->getUsername());
+						test.append(" :Password incorrect\r\n");
+						std::cout << "DEBUG bad pass message : " << test << "    " <<
+						server.getClients().at(i)->getSocket() << std::endl;
+						write(server.getClients().at(i)->getSocket(), test.c_str(),test.size());
+						close(server.getClients().at(i)->getSocket());
+						server.removeClient(server.getClients().at(i));
+						continue ;
+					}
+					else if (server.getClients().at(i)->isReady() == 1 && server.getClients().at(i)->isWelcomed() && server.getClients().at(i)->getPass() == 2)
+					{
+						std::string test = ":serverserver 461 ";
+						test.append(server.getClients().at(i)->getUsername());
+						test.append(" PASS :Not enough parameters\r\n");
+						std::cout << "DEBUG bad pass message : " << test << "    " <<
+						server.getClients().at(i)->getSocket() << std::endl;
+						write(server.getClients().at(i)->getSocket(), test.c_str(),test.size());
+						close(server.getClients().at(i)->getSocket());
+						server.removeClient(server.getClients().at(i));
+						continue ;
+					}
+				}
 				if (FD_ISSET(server.getClients().at(i)->getSocket(), &readfds))
 				{
 					valread = read(server.getClients().at(i)->getSocket(), server.getBuffer(), 1024);

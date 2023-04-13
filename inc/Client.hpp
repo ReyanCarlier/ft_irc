@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 18:39:54 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/13 12:11:19 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class Client
 		int			isReady(void);
 		int			isWelcomed(void);
 		int			getId();
+		int			getPass();
 
 		/* Setter *********************************************************** */
 		void		setNick(std::string nickname);
@@ -50,6 +51,7 @@ class Client
 		void		setOk(int ok);
 		void		setWelcomed(int bvn);
 		void		setId(int id);
+		void		setPass(int id);
 
 		/* Function ********************************************************* */
 	private:
@@ -63,4 +65,5 @@ class Client
 		std::string	_messageentrant;
 		int			_isok;
 		int			_bvn;
+		int			_pass;
 };

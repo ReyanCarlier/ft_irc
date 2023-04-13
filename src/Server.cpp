@@ -15,11 +15,11 @@ bool	startwith(std::string prefix, std::string str)
 	return (true);
 }
 
-Server::Server()
+Server::Server(char **av)
 {
 	_socket_fd = 0;
 	_port = 0;
-	_password = NULL;
+	_password = av[2];
 	_accept_fd = 0;
 	_opt = 1;
 	_max_clients = MAX_CLIENT;
@@ -202,11 +202,11 @@ void	Server::commandHandler(std::string command, Client *client)
 		if (startwith("NICK", tokens[i]))
 			nick(tokens[i], client);
 		else if (startwith("USER", tokens[i]))
-			std::cout << "USER" << std::endl;
+			user(tokens[i], client);
 		else if (startwith("PING", tokens[i]))
-			std::cout << "PING" << std::endl;
+			ping(client);
 		else if (startwith("PASS", tokens[i]))
-			std::cout << "PASS" << std::endl;
+			pass(tokens[i], client);
 		// Ajouter les autres commandes ici
 	}
 }
@@ -214,11 +214,16 @@ void	Server::commandHandler(std::string command, Client *client)
 void	Server::welcome(Client *client)
 {
 	std::cout << "WELCOME" << std::endl;
-	std::string buffer = ": serverserver 001 ";
+	std::string buffer = ":serverserver 001 ";
 	buffer.append(client->getUsername());
 	buffer.append(" :coucou\r\n");
 	write(client->getSocket(), buffer.c_str(), buffer.size());
 	client->setWelcomed(0);
+}
+
+std::string	Server::getPassword(void)
+{
+	return(_password);
 }
 
 // TODO: Implement all the commands here :
@@ -245,23 +250,45 @@ void	Server::nick(std::string command, Client *client)
 		return ;
 	}
 	client->setUsername(tokens[1]);
-	sendToClient("NICK : " + tokens[1], client);
 }
 
-// void	Server::user(std::string command, Client *client)
-// {
-// 	std::cout << "USER" << std::endl;
-// }
+void	Server::pass(std::string command, Client *client)
+{
+	command.erase(0, 5);
+	if (command != this->getPassword())
+	{
+		std::cout << "TU DEGAGE SINON JE TEN COLE UNE !" << ENDL;
+		client->setPass(0);
+	}
+	else
+		client->setPass(1);
+}
 
-// void	Server::ping(std::string command, Client *client)
-// {
-// 	std::cout << "PING" << std::endl;
-// }
+void	Server::user(std::string command, Client *client)
+{
+	command.erase(0, 5);
+	std::string	name = command;
+	name.erase(name.find(" "));
+	client->setUsername(name);
+	name = command;
+	name.erase(name.find(" "));
+	client->setHostname(name);
+	name = command;
+	name.erase(name.find(" "));
+	client->setHost(name);
+	name = command;
+	name.erase(name.find(" :"));
+	client->setRealName(name);
+	client->setOk(1);
+}
 
-// void	Server::pass(std::string command, Client *client)
-// {
-// 	std::cout << "PASS" << std::endl;
-// }
+void	Server::ping(Client *client)
+{
+	std::string test = ":serverserver PONG serverserver :";
+	test.append(client->getUsername());
+	test.append("\r\n");
+	write(client->getSocket(), test.c_str(), test.size());
+}
 
 // void	Server::join(std::string command, Client *client)
 // {

@@ -19,7 +19,7 @@ class Server
 		int						_accept_fd;
 		int						_max_clients;
 		int						_opt;
-		char					*_password;
+		std::string				_password;
 		char					_buffer[1024];
 		std::vector<Channel *>	_channels;
 		std::vector<Client *>	_clients;
@@ -28,7 +28,7 @@ class Server
 		int						_socket_fd;
 
 	public:
-		Server();
+		Server(char **av);
 		~Server();
 
 		int		getSocketFd(void);
@@ -37,6 +37,7 @@ class Server
 		char	*getBuffer(void);
 		Client	*getClient(int fd);
 		int		getHighestFd(fd_set*, fd_set*);
+		std::string	getPassword(void);
 
 		void	setAccept(void);
 		void	setAddress(void);
@@ -64,4 +65,7 @@ class Server
 
 		void		sendToClient(std::string message, Client *client);
 		void		nick(std::string command, Client *client);
+		void		pass(std::string command, Client *client);
+		void		user(std::string command, Client *client);
+		void		ping(Client *client);
 };

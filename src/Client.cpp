@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 18:51:24 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/13 13:41:06 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
 
-Client::Client() : _socket(0), _isok(0), _bvn(1) {}
+Client::Client() : _socket(0), _isok(0), _bvn(1), _pass(2) {}
 
-Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1) {}
+Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1), _pass(2)  {}
 
 Client::Client(const Client &src)
 {
@@ -61,6 +61,11 @@ int			Client::isWelcomed(void)
 int			Client::getId(void)
 {
 	return (_id);
+}
+
+int			Client::getPass(void)
+{
+	return (_pass);
 }
 
 std::string	Client::getHostname(void)
@@ -121,4 +126,9 @@ void		Client::setOk(int ok)
 void		Client::setWelcomed(int bvn)
 {
 	_bvn = bvn;
+}
+
+void		Client::setPass(int status)
+{
+	_pass = status;
 }
