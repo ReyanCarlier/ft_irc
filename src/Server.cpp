@@ -213,6 +213,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			who(tokens[i], client);
 		else if (startwith("TOPIC", tokens[i]))
 			topic(tokens[i], client);
+		else if (startwith("PART", tokens[i]))
+			part(tokens[i], client);
 	}
 }
 
@@ -558,6 +560,52 @@ void	Server::join(std::string command, Client *client)
 	}
 	sendToClient(":serverserver 353 " + client->getNickname() + " = " + channel_name + " :" + buffer, client);
 	sendToClient(":serverserver 366 " + client->getNickname() + " " + channel_name + " :End of /NAMES list.", client);
+}
+
+void	Server::part(std::string command, Client *client)
+{
+	std::string channel_name;
+
+	command.erase(0, 5);
+	if (command[0] == '#')
+	{
+		channel_name = command;
+		channel_name.erase(0, 1);
+	}
+	else
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	if (not channelExists(channel_name))
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+	Channel *channel = getChannel(channel_name);
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i] == client)
+		{
+			channel->removeClient(client);
+			sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", client);
+			if (channel->getClients().size() == 0)
+			{
+				removeChannel(channel);
+				delete channel;
+			}
+			else
+			{
+				// TODO : send to all clients in channel that client has left
+			}
+			return ;
+		}
+	}
+	
+	sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 }
 
 // void	Server::part(std::string command, Client *client)

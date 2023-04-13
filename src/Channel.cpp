@@ -119,7 +119,7 @@ void Channel::setName(const std::string name) {
 }
 
 /**
- * @brief Adds a Client to the _clients list of a Channel.
+ * Adds a Client to the _clients list of a Channel.
  * When a message is sent to a Channel, each Client receives it.
  * Also, the list of Client of a Channel is this list.
  * 
