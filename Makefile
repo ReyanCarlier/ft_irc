@@ -6,7 +6,7 @@
 #    By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/22 11:58:06 by frrusso           #+#    #+#              #
-#    Updated: 2023/04/12 18:51:28 by recarlie         ###   ########.fr        #
+#    Updated: 2023/04/13 11:42:37 by recarlie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,8 @@ SRC			=	main.cpp \
 				Server.cpp \
 				Client.cpp \
 				Channel.cpp \
-				Message.cpp
+				Message.cpp \
+				Errors.cpp
 CPP			=	c++
 CPPFLAGS	=	-Wall -Wextra -Werror -MMD -g3 -std=c++98
 RM			=	rm -rf

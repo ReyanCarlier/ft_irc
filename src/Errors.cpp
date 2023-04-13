@@ -1,0 +1,30 @@
+#include "Errors.hpp"
+
+const std::string Errors::ERR_NOSUCHNICK = "401";
+const std::string Errors::ERR_NOSUCHCHANNEL = "403";
+const std::string Errors::ERR_CANNOTSENDTOCHAN = "404";
+const std::string Errors::ERR_NORECIPIENT = "411";
+const std::string Errors::ERR_NOTEXTTOSEND = "412";
+const std::string Errors::ERR_UNKNOWNCOMMAND = "421";
+const std::string Errors::ERR_NOMOTD = "422";
+const std::string Errors::ERR_NONICKNAMEGIVEN = "431";
+const std::string Errors::ERR_ERRONEUSNICKNAME = "432";
+const std::string Errors::ERR_NICKNAMEINUSE = "433";
+const std::string Errors::ERR_NOTONCHANNEL = "442";
+const std::string Errors::ERR_USERNOTINCHANNEL = "441";
+const std::string Errors::ERR_NOTREGISTERED = "451";
+const std::string Errors::ERR_NEEDMOREPARAMS = "461";
+const std::string Errors::ERR_ALREADYREGISTRED = "462";
+const std::string Errors::ERR_PASSWDMISMATCH = "464";
+const std::string Errors::ERR_YOUREBANNEDCREEP = "465";
+const std::string Errors::ERR_KEYSET = "467";
+const std::string Errors::ERR_CHANNELISFULL = "471";
+const std::string Errors::ERR_UNKNOWNMODE = "472";
+const std::string Errors::ERR_INVITEONLYCHAN = "473";
+const std::string Errors::ERR_BANNEDFROMCHAN = "474";
+const std::string Errors::ERR_BADCHANNELKEY = "475";
+const std::string Errors::ERR_NOPRIVILEGES = "481";
+const std::string Errors::ERR_CHANOPRIVSNEEDED = "482";
+const std::string Errors::ERR_NOOPERHOST = "491";
+const std::string Errors::ERR_UMODEUNKNOWNFLAG = "501";
+const std::string Errors::ERR_USERSDONTMATCH = "502";

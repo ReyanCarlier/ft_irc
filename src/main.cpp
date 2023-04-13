@@ -6,12 +6,11 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/12 19:15:53 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/13 11:43:29 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
-#include <Client.hpp>
 
 bool	isport(char *av)
 {
@@ -54,9 +53,8 @@ int	main(int ac, char **av)
 		std::cout << GREEN << "✅ Server listening on 127.0.0.1:" <<
 		server.getPort() << "." << ENDL;
 
-		int			sd, valread;
+		int			valread;
 		std::string	buffer, name;
-		Client		*currentClient = NULL;
 
 		while (42)
 		{
@@ -84,13 +82,12 @@ int	main(int ac, char **av)
 				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << "." << ENDL;
 				try
 				{
-					currentClient = server.getClient(new_socket);
+					server.getClient(new_socket);
 				}
 				catch (const char *e)
 				{
 					Client *newClient = new Client(new_socket);
 					server.addClient(newClient);
-					currentClient = newClient;
 				}
 			}
 

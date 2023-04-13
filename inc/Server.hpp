@@ -2,12 +2,15 @@
 
 #include <header.hpp>
 #include <vector>
-#include "Client.hpp"
-#include "Channel.hpp"
-#include "Message.hpp"
 #include <ostream>
 #include <string>
 #include <sstream>
+#include <iostream>
+
+#include "Client.hpp"
+#include "Channel.hpp"
+#include "Message.hpp"
+#include "Errors.hpp"
 
 class Server
 {
@@ -58,4 +61,7 @@ class Server
 		void		bind(int port);
 		void		listen(void);
 		void		run(void);
+
+		void		sendToClient(std::string message, Client *client);
+		void		nick(std::string command, Client *client);
 };
