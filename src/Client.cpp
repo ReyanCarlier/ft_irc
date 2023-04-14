@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 14:10:37 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/13 18:07:51 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
 
-Client::Client() : _socket(0), _isok(0), _bvn(1), _pass(2) {}
+Client::Client() : _socket(0), _isok(0), _bvn(1), _pass(2) { std::cout << "Client created" << std::endl;}
 
-Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1), _pass(2)  {}
+Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1), _pass(2)  { std::cout << "Client created" << std::endl; }
 
 Client::Client(const Client &src)
 {
@@ -23,6 +23,7 @@ Client::Client(const Client &src)
 
 Client::~Client()
 {
+	std::cout << "Client destroyed" << std::endl;
 	close(_socket);
 }
 
@@ -84,6 +85,11 @@ std::string	Client::getRealName(void)
 std::string	Client::getNickname(void)
 {
 	return (_nickname);
+}
+
+std::string	Client::getHost(void)
+{
+	return (_host);
 }
 
 void		Client::setId(int id)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 14:10:25 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/13 18:06:12 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,8 +86,7 @@ int	main(int ac, char **av)
 				}
 				catch (const char *e)
 				{
-					Client *newClient = new Client(new_socket);
-					server.addClient(newClient);
+					server.addClient(new Client(new_socket));
 				}
 			}
 
@@ -131,7 +130,29 @@ int	main(int ac, char **av)
 					{
 						std::cerr << RED << "Client " << server.getClients().at(i)->getSocket() << " disconnected." << ENDL;
 						close(server.getClients().at(i)->getSocket());
+
+						std::vector<Channel*> channels = server.getChannels();
+						for (size_t j = 0; j < channels.size(); j++)
+						{
+							std::vector<Client*> clients = channels.at(j)->getClients();
+							for (size_t k = 0; k < clients.size(); k++)
+							{
+								if (clients.at(k)->getSocket() == server.getClients().at(i)->getSocket())
+								{
+									channels.at(j)->removeClient(server.getClients().at(i));
+									break ;
+								}
+							}
+							if (channels.at(j)->getClients().size() == 0)
+							{
+								std::cout << RED << "Channel " << channels.at(j)->getName() << " deleted." << ENDL;
+								server.removeChannel(channels.at(j));
+								delete channels.at(j);
+							}
+						}
+						Client *client = server.getClients().at(i);
 						server.removeClient(server.getClients().at(i));
+						delete client;
 					}
 					else
 					{
