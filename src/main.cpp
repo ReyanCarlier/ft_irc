@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/14 13:30:14 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/14 14:18:55 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,11 +89,7 @@ int	main(int ac, char **av)
 			{
 				if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
 				{
-					if (
-						server.getClients().at(i)->isReady() &&
-						server.getClients().at(i)->isWelcomed() &&
-						(server.getClients().at(i)->getPass() == 1 || server.getPassword().empty())
-					)
+					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed() && !server.getClients().at(i)->getNickname().empty() && (server.getClients().at(i)->getPass() == 1 || server.getPassword().empty()))
 					{
 						server.welcome(server.getClients().at(i));
 					}
