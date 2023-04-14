@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 18:06:12 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/14 13:30:14 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ int	main(int ac, char **av)
 					{
 						server.welcome(server.getClients().at(i));
 					}
-					else if (server.getClients().at(i)->getPass() == 0)
+					else if (server.getClients().at(i)->getPass() == 0 && !server.getPassword().empty())
 					{
 						std::string test = ":serverserver 464 ";
 						test.append(server.getClients().at(i)->getUsername());
@@ -110,7 +110,7 @@ int	main(int ac, char **av)
 						server.removeClient(server.getClients().at(i));
 						continue ;
 					}
-					else if (server.getClients().at(i)->isReady() == 1 && server.getClients().at(i)->isWelcomed() && server.getClients().at(i)->getPass() == 2)
+					else if (server.getClients().at(i)->isReady() == 1 && server.getClients().at(i)->isWelcomed() && server.getClients().at(i)->getPass() == 2 && !server.getPassword().empty())
 					{
 						std::string test = ":serverserver 461 ";
 						test.append(server.getClients().at(i)->getUsername());

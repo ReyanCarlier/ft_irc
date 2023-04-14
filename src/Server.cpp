@@ -111,6 +111,16 @@ Client	*Server::getClient(int fd)
 	throw "Client not found.";
 }
 
+Client	*Server::getClientFromNick(std::string nick)
+{
+	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if ((*it)->getNickname() == nick)
+			return (*it);
+	}
+	return (NULL);
+}
+
 sockaddr	*Server::getCastAddress(void)
 {
 	return (reinterpret_cast<sockaddr*>(&_address));
@@ -213,6 +223,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			pass(tokens[i], client);
 		else if (startwith("MODE", tokens[i]))
 			mode(tokens[i], client);
+		else if (startwith("PRIVMSG", tokens[i]))
+			privmsg(tokens[i], client);
 		else if (startwith("JOIN", tokens[i]))
 			join(tokens[i], client);
 		else if (startwith("WHO", tokens[i]))
@@ -635,10 +647,36 @@ void	Server::part(std::string command, Client *client)
 // 	std::cout << "PART" << std::endl;
 // }
 
-// void	Server::privmsg(std::string command, Client *client)
-// {
-// 	std::cout << "PRIVMSG" << std::endl;
-// }
+void	Server::privmsg(std::string command, Client *client)
+{
+	std::vector<std::string> 	tokens;
+	std::stringstream 			ss(command);
+	std::string					item;
+	std::string					message;
+
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+	if(tokens[0][0] == '#')
+		std::cout << "message to channel" << ENDL;
+	else
+	{
+		Client *target;
+
+		std::cout << "get tokens " << tokens[1] << ENDL;
+		target = getClientFromNick(tokens[1]);
+		message = tokens[2];
+		for (size_t i = 3; i < tokens.size(); i++)
+		{
+			message.append(" ");
+			message.append(tokens[i]);
+		}
+		message.append("\r\n");
+		if(target != NULL)
+			sendToClient(":" + client->getNickname() + " PRIVMSG " + target->getNickname() + " " + message, target);
+		else
+			sendToClient(":serverserver 401 " + client->getUsername() +  " " + tokens[1] + " :No such nick/channel\r\n", client);
+	}
+}
 
 // void	Server::quit(std::string command, Client *client)
 // {
