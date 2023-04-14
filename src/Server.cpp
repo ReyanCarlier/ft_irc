@@ -701,6 +701,15 @@ void	Server::kick(std::string command, Client *client)
 		return ;
 	}
 
+	if (tokens[1][0] != '#')
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	tokens[1].erase(0, 1);
+
 	if (not channelExists(tokens[1]))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
@@ -827,6 +836,15 @@ void	Server::ban(std::string command, Client *client)
 		return ;
 	}
 
+	if (tokens[1][0] != '#')
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	tokens[1].erase(0, 1);
+	
 	if (not channelExists(tokens[1]))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
@@ -952,6 +970,15 @@ void	Server::mute(std::string command, Client *client)
 		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
+
+	if (tokens[1][0] != '#')
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	tokens[1].erase(0, 1);
 
 	if (not channelExists(tokens[1]))
 	{
@@ -1080,6 +1107,15 @@ void	Server::unmute(std::string command, Client *client)
 		return ;
 	}
 
+	if (tokens[1][0] != '#')
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	tokens[1].erase(0, 1);
+
 	if (not channelExists(tokens[1]))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
@@ -1206,6 +1242,15 @@ void	Server::unban(std::string command, Client *client)
 		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
+
+	if (tokens[1][0] != '#')
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	tokens[1].erase(0, 1);
 
 	if (not channelExists(tokens[1]))
 	{
