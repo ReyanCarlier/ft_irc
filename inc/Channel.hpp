@@ -9,7 +9,6 @@
  * Representation of a channel in the server.
  */
 class Channel {
-
     public:
         Channel();
         Channel(const Channel& other);
@@ -34,6 +33,7 @@ class Channel {
         void setName(std::string name);
         void setTopic(std::string topic);
         void setInviteOnly(bool inviteOnly);
+
         void addClient(Client *client);
         void addInvited(Client *client);
         void addOperator(Client *client);
@@ -52,7 +52,6 @@ class Channel {
         bool isInvited(Client *client);
         bool isMuted(Client *client);
         bool isOperator(Client *client);
-        
     private:
         int                     _id;
         std::string             _name;

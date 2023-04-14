@@ -424,7 +424,8 @@ void	Server::who(std::string command, Client *client)
 			std::vector<Client *> clients = channel->getClients();
 			for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); it++)
 			{
-				std::string buffer = ":serverserver 352 " + client->getUsername() + " " + channel->getName() + " " + (*it)->getUsername() + " " + (*it)->getHostname() + " " + (*it)->getHost() + " " + (*it)->getUsername() + " H :0 " + (*it)->getRealName();
+				std::string	buffer = ":serverserver 352 " + client->getUsername() + " " + channel->getName() + " " + (*it)->getUsername()
+				+ " " + (*it)->getHostname() + " " + (*it)->getHost() + " " + (*it)->getUsername() + " H :0 " + (*it)->getRealName();
 				sendToClient(buffer, client);
 			}
 			std::string buffer = ":serverserver 315 " + client->getUsername() + " " + channel->getName() + " :End of /WHO list.";
@@ -588,7 +589,8 @@ void	Server::join(std::string command, Client *client)
 	for (size_t i = 0; i < getChannel(channel_name)->getClients().size(); i++)
 	{
 		if (getChannel(channel_name)->getClients()[i] != client)
-			sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN #" + channel_name, getChannel(channel_name)->getClients()[i]);
+			sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN #"
+			+ channel_name, getChannel(channel_name)->getClients()[i]);
 	}
 }
 
@@ -621,7 +623,8 @@ void	Server::part(std::string command, Client *client)
 		if (channel->getClients()[i] == client)
 		{
 			channel->removeClient(client);
-			sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", client);
+			sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #"
+			+ channel_name + " :Leaving channel", client);
 			if (channel->getClients().size() == 0)
 			{
 				removeChannel(channel);
@@ -632,7 +635,8 @@ void	Server::part(std::string command, Client *client)
 				for (size_t i = 0; i < channel->getClients().size(); i++)
 				{
 					if (channel->getClients()[i] != client)
-						sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
+						sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #"
+						+ channel_name + " :Leaving channel", channel->getClients()[i]);
 				}
 			}
 			return ;
@@ -702,4 +706,3 @@ void	Server::privmsg(std::string command, Client *client)
 // {
 // 	std::cout << "LIST" << std::endl;
 // }
-
