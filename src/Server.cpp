@@ -26,6 +26,7 @@ Server::Server(char **av)
 	_clients = std::vector<Client *>();
 	_channels = std::vector<Channel *>();
 	bzero(_buffer, 1024);
+	_die = false;
 }
 
 Server::~Server()
@@ -88,6 +89,11 @@ void	Server::setAddress(void)
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(_port);
+}
+
+void	Server::setDie(void)
+{
+	_die = true;
 }
 
 int			*Server::getPtrOpt(void)
@@ -215,6 +221,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			topic(tokens[i], client);
 		else if (startwith("PART", tokens[i]))
 			part(tokens[i], client);
+		else if (startwith("die", tokens[i]))// Ajouter le if (client == admin)
+			setDie();
 	}
 }
 
@@ -292,6 +300,10 @@ Channel *Server::getChannel(std::string name) {
 			return (*it);
 	}
 	return NULL;
+
+bool		Server::getDie(void)
+{
+	return (_die);
 }
 
 // TODO: Implement all the commands here :

@@ -21,7 +21,11 @@ Client::Client(const Client &src)
 	*this = src;
 }
 
-Client::~Client() { std::cout << "Client destroyed" << std::endl; }
+Client::~Client()
+{
+	std::cout << "Client destroyed" << std::endl;
+	close(_socket);
+}
 
 Client&		Client::operator=(Client const &rhs)
 {
