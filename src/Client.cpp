@@ -12,9 +12,15 @@
 
 #include <Client.hpp>
 
-Client::Client() : _socket(0), _isok(0), _bvn(1), _pass(2) { std::cout << "Client created" << std::endl;}
+Client::Client() : _socket(0), _isok(0), _bvn(1), _pass(2)
+{
+	std::cout << "Client created" << std::endl;
+}
 
-Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1), _pass(2)  { std::cout << "Client created" << std::endl; }
+Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1), _pass(2) 
+{
+	std::cout << "Client created" << std::endl;
+}
 
 Client::Client(const Client &src)
 {

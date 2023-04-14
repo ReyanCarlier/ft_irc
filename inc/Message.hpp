@@ -28,7 +28,6 @@ class Message {
         void setSender(Client *sender);
 
         bool send();
-
     private:
         std::string m_message;
         Client      *m_target;

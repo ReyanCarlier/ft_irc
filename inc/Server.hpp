@@ -37,7 +37,7 @@ class Server
 		int						getPort(void);
 		char					*getBuffer(void);
 		Client					*getClient(int fd);
-    Client					*getClientFromNick(std::string nick);
+    	Client					*getClientFromNick(std::string nick);
 		int						getHighestFd(fd_set*, fd_set*);
 		std::string				getPassword(void);
 		bool					getDie(void);
@@ -54,7 +54,6 @@ class Server
 
 		void					commandHandler(std::string command, Client *client);
 
-		// COMMANDS
 		void					welcome(Client *client);
 
 		std::vector<Client *>	getClients(void);
@@ -74,7 +73,7 @@ class Server
 		void					pass(std::string command, Client *client);
 		void					user(std::string command, Client *client);
 		void					ping(Client *client);
-    void					privmsg(std::string command, Client *client);
+    	void					privmsg(std::string command, Client *client);
 		void					mode(std::string command, Client *client);
 		void					join(std::string command, Client *client);
 		void					who(std::string command, Client *client);
