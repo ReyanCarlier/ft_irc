@@ -368,7 +368,7 @@ void	Server::privmsg(std::string command, Client *client)
 		if(target != NULL)
 			sendToClient(":" + client->getNickname() + " PRIVMSG " + target->getNickname() + " " + message, target);
 		else
-			sendToClient("401 " + client->getUsername() + "!" + client->getRealName() + "@localhost" + " " + tokens[1] + ":No such nick/channel\r\n", client);
+			sendToClient(":serverserver 401 " + client->getUsername() +  " " + tokens[1] + " :No such nick/channel\r\n", client);
 	}
 }
 
