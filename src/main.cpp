@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
 /*   Updated: 2023/04/14 13:30:14 by nfelsemb         ###   ########.fr       */
@@ -40,8 +40,8 @@ int	main(int ac, char **av)
 	}
 
 	Server	server(av);
-	fd_set readfds;
-	fd_set writefds;
+	fd_set	readfds;
+	fd_set	writefds;
 
 	try
 	{
@@ -56,14 +56,14 @@ int	main(int ac, char **av)
 		int			valread;
 		std::string	buffer, name;
 
-		while (42)
+		while (server.getDie() == false)
 		{
 			FD_ZERO(&readfds);
 			FD_ZERO(&writefds);
 			FD_SET(server.getSocketFd(), &readfds);
 			FD_SET(server.getSocketFd(), &writefds);
 
-			if ((select(server.getHighestFd(&readfds, &writefds) + 1, &readfds, &writefds, NULL, NULL) < 0) && (errno != EINTR))
+			if (select(server.getHighestFd(&readfds, &writefds) + 1, &readfds, &writefds, NULL, NULL) < 0 && errno != EINTR)
 				std::cerr << "select error" << std::endl;
 
 			if (FD_ISSET(server.getSocketFd(), &readfds))
@@ -86,8 +86,7 @@ int	main(int ac, char **av)
 				}
 				catch (const char *e)
 				{
-					Client *newClient = new Client(new_socket);
-					server.addClient(newClient);
+					server.addClient(new Client(new_socket));
 				}
 			}
 
@@ -131,7 +130,29 @@ int	main(int ac, char **av)
 					{
 						std::cerr << RED << "Client " << server.getClients().at(i)->getSocket() << " disconnected." << ENDL;
 						close(server.getClients().at(i)->getSocket());
+
+						std::vector<Channel*> channels = server.getChannels();
+						for (size_t j = 0; j < channels.size(); j++)
+						{
+							std::vector<Client*> clients = channels.at(j)->getClients();
+							for (size_t k = 0; k < clients.size(); k++)
+							{
+								if (clients.at(k)->getSocket() == server.getClients().at(i)->getSocket())
+								{
+									channels.at(j)->removeClient(server.getClients().at(i));
+									break ;
+								}
+							}
+							if (channels.at(j)->getClients().size() == 0)
+							{
+								std::cout << RED << "Channel " << channels.at(j)->getName() << " deleted." << ENDL;
+								server.removeChannel(channels.at(j));
+								delete channels.at(j);
+							}
+						}
+						Client *client = server.getClients().at(i);
 						server.removeClient(server.getClients().at(i));
+						delete client;
 					}
 					else
 					{
