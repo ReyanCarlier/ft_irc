@@ -223,6 +223,16 @@ void	Server::commandHandler(std::string command, Client *client)
 			part(tokens[i], client);
 		else if (startwith("die", tokens[i]))// Ajouter le if (client == admin)
 			setDie();
+		else if (startwith("KICK", tokens[i]))
+			kick(tokens[i], client);
+		else if (startwith("BAN", tokens[i]))
+			ban(tokens[i], client);
+		else if (startwith("UNBAN", tokens[i]))
+			unban(tokens[i], client);
+		else if (startwith("MUTE", tokens[i]))
+			mute(tokens[i], client);
+		else if (startwith("UNMUTE", tokens[i]))
+			unmute(tokens[i], client);
 	}
 }
 
