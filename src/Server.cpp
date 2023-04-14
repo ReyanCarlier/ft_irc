@@ -585,8 +585,7 @@ void	Server::join(std::string command, Client *client)
 	
 	for (size_t i = 0; i < getChannel(channel_name)->getClients().size(); i++)
 	{
-		if (getChannel(channel_name)->getClients()[i] != client)
-			sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN #" + channel_name, getChannel(channel_name)->getClients()[i]);
+		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN #" + channel_name, getChannel(channel_name)->getClients()[i]);
 	}
 }
 
