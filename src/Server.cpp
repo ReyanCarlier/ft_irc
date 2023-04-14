@@ -631,29 +631,32 @@ void	Server::part(std::string command, Client *client)
 				if (channel->isOperator(client))
 				{
 					channel->removeOperator(client);
-					for (size_t i = 0; i < channel->getClients().size(); i++)
-					{
-						if (channel->getClients()[i] != client)
-							sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel_name + " -o " + client->getNickname(), channel->getClients()[i]);
-					}
-
-					Client *new_op = NULL;
-
-					for (size_t i = 0; i < channel->getClients().size(); i++)
-					{
-						if (channel->getClients()[i] != client and not channel->isOperator(channel->getClients()[i]))
-						{
-							new_op = channel->getClients()[i];
-							break ;
-						}
-					}
-					
-					if (new_op != NULL)
+					if (channel->getOperators().size() == 0)
 					{
 						for (size_t i = 0; i < channel->getClients().size(); i++)
 						{
 							if (channel->getClients()[i] != client)
-								sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel_name + " +o " + new_op->getNickname(), channel->getClients()[i]);
+								sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel_name + " -o " + client->getNickname(), channel->getClients()[i]);
+						}
+
+						Client *new_op = NULL;
+
+						for (size_t i = 0; i < channel->getClients().size(); i++)
+						{
+							if (channel->getClients()[i] != client and not channel->isOperator(channel->getClients()[i]))
+							{
+								new_op = channel->getClients()[i];
+								break ;
+							}
+						}
+						
+						if (new_op != NULL)
+						{
+							for (size_t i = 0; i < channel->getClients().size(); i++)
+							{
+								if (channel->getClients()[i] != client)
+									sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel_name + " +o " + new_op->getNickname(), channel->getClients()[i]);
+							}
 						}
 					}
 				}
