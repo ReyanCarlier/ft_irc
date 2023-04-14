@@ -295,7 +295,7 @@ void	Server::welcome(Client *client)
 {
 	std::cout << "WELCOME" << std::endl;
 	std::string buffer = ":serverserver 001 ";
-	buffer.append(client->getUsername());
+	buffer.append(client->getNickname());
 	buffer.append(" :coucou\r\n");
 	write(client->getSocket(), buffer.c_str(), buffer.size());
 	client->setWelcomed(0);
@@ -352,6 +352,11 @@ void	Server::nick(std::string command, Client *client)
 		return ;
 	}
 	old_nickname = client->getNickname();
+	if (this->getClientFromNick(tokens[1]) != NULL)
+	{
+		sendToClient(":serverserver " + Errors::ERR_NICKNAMEINUSE + " * " + tokens[1] + " :Nickname is already in use.", client);
+		return ;
+	}
 	client->setNickname(tokens[1]);
 	if (client->isWelcomed() == 0)
 		sendToClient(":" + old_nickname + " NICK :" + client->getNickname(), client);
@@ -361,10 +366,7 @@ void	Server::pass(std::string command, Client *client)
 {
 	command.erase(0, 5);
 	if (command != this->getPassword())
-	{
-		std::cout << "TU DEGAGE SINON JE TEN COLE UNE !" << ENDL;
 		client->setPass(0);
-	}
 	else
 		client->setPass(1);
 }
