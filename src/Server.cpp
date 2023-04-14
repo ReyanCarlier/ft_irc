@@ -300,6 +300,7 @@ Channel *Server::getChannel(std::string name) {
 			return (*it);
 	}
 	return NULL;
+}
 
 bool		Server::getDie(void)
 {
