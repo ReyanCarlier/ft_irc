@@ -31,11 +31,13 @@ Server::Server(char **av)
 
 Server::~Server()
 {
+	for (std::vector<Client*>::iterator it = _clients.begin();
+	it != _clients.end(); it++)
+		delete (*it);
+	for (std::vector<Channel*>::iterator it = _channels.begin();
+	it != _channels.end(); it++)
+		delete (*it);
 	close(_socket_fd);
-	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
-		delete (*it);
-	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
-		delete (*it);
 }
 
 int		Server::getSocketFd(void)
@@ -131,7 +133,6 @@ void Server::bind(int port) {
 	_address.sin_addr.s_addr = INADDR_ANY;
 	_address.sin_port = htons(port);
 	_port = port;
-
 	if (::bind(_socket_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
 		throw "Failed to bind socket.";
 }
@@ -200,17 +201,16 @@ void	Server::commandHandler(std::string command, Client *client)
 {
 	std::cout << CYAN << "[CLIENT (" << client->getSocket() << ") => SERVER]\n" << YELLOW << command << ENDL;
 	std::cout << "----------------------------------------" << std::endl;
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	while (std::getline(ss, item, '\n'))
 		tokens.push_back(item);
-
 	for (size_t i = 0; i < tokens.size(); i++)
 		if (tokens[i].at(tokens[i].size() - 1) == '\r')
 			tokens[i].erase(tokens[i].size() - 1);
-
 	for (size_t i = 0; i < tokens.size(); i++)
 	{
 		if (startwith("NICK", tokens[i]))
@@ -240,35 +240,31 @@ void	Server::commandHandler(std::string command, Client *client)
 
 void	Server::topic(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
-
 	if (tokens.size() < 2)
 	{
 		sendToClient(":serverserver 461 TOPIC :Not enough parameters", client);
-		return;
+		return ;
 	}
-
 	tokens[1][tokens[1].size()] = '\0';
 	tokens[1].erase(0, 1);
-	Channel *channel = getChannel(tokens[1]);
+	Channel	*channel = getChannel(tokens[1]);
 	if (channel == NULL)
 	{
 		sendToClient(":serverserver 403 " + client->getUsername() + " " + tokens[1] + " :No such channel", client);
-		return;
+		return ;
 	}
-
 	if (channel->getOperators().size() > 0 && !channel->isOperator(client))
 	{
 		sendToClient(":serverserver 482 " + client->getUsername() + " " + tokens[1] + " :You're not channel operator", client);
-		return;
+		return ;
 	}
-
 	if (tokens.size() == 2)
 	{
 		if (channel->getTopic() == "")
@@ -278,7 +274,7 @@ void	Server::topic(std::string command, Client *client)
 	}
 	else
 	{
-		std::string topic = "";
+		std::string	topic = "";
 		for (size_t i = 2; i < tokens.size(); i++)
 			topic.append(tokens[i] + " ");
 		channel->setTopic(topic);
@@ -338,7 +334,6 @@ void	Server::nick(std::string command, Client *client)
 
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
-
 	if (tokens.size() < 2)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getNickname() << " : " << YELLOW << command << ENDL;
@@ -394,21 +389,20 @@ void	Server::user(std::string command, Client *client)
  */
 void	Server::ping(Client *client)
 {
-	std::string buffer;
+	std::string	buffer;
 	buffer = ":serverserver PONG serverserver :" + client->getUsername() + "\r\n";
 	sendToClient(buffer, client);
 }
 
 void	Server::who(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
-
 	if (tokens.size() >= 2 and tokens[1].at(0) == '#')
 	{
 		tokens[1].erase(0, 1);
@@ -443,14 +437,13 @@ void	Server::who(std::string command, Client *client)
 
 void	Server::mode(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
-	
 	if (tokens.size() >= 2 and startwith("#", tokens[1]))
 	{
 		tokens[1].erase(0, 1);
@@ -529,7 +522,7 @@ bool	Server::channelExists(std::string channel_name)
  */
 void	Server::join(std::string command, Client *client)
 {
-	std::string channel_name;
+	std::string	channel_name;
 
 	command.erase(0, 5);
 	bool added = false;
@@ -596,7 +589,7 @@ void	Server::join(std::string command, Client *client)
 
 void	Server::part(std::string command, Client *client)
 {
-	std::string channel_name;
+	std::string	channel_name;
 
 	command.erase(0, 5);
 	if (command[0] == '#')
@@ -610,7 +603,6 @@ void	Server::part(std::string command, Client *client)
 		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
-
 	if (not channelExists(channel_name))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
@@ -642,7 +634,6 @@ void	Server::part(std::string command, Client *client)
 			return ;
 		}
 	}
-	
 	sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 }
 
@@ -664,7 +655,7 @@ void	Server::privmsg(std::string command, Client *client)
 		std::cout << "message to channel" << ENDL;
 	else
 	{
-		Client *target;
+		Client	*target;
 
 		std::cout << "get tokens " << tokens[1] << ENDL;
 		target = getClientFromNick(tokens[1]);
