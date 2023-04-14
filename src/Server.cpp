@@ -624,54 +624,25 @@ void	Server::part(std::string command, Client *client)
 	{
 		if (channel->getClients()[i] == client)
 		{
-			channel->removeClient(client);
-			sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", client);
-			if (channel->getClients().size() == 0)
+			if (channel->isOperator(client))
+				channel->removeOperator(client);
+			
+			for (size_t i = 0; i < channel->getClients().size(); i++)
 			{
+				if (channel->getClients()[i] != client)
+					sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
+			}
+
+			if (channel->getClients().size() == 1)
+			{
+				channel->removeClient(client);
 				removeChannel(channel);
 				delete channel;
 			}
 			else
 			{
-				for (size_t i = 0; i < channel->getClients().size(); i++)
-				{
-					if (channel->getClients()[i] != client)
-						sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
-				}
-				if (channel->isOperator(client))
-				{
-					channel->removeOperator(client);
-					if (channel->getOperators().size() == 0)
-					{
-						for (size_t i = 0; i < channel->getClients().size(); i++)
-						{
-							if (channel->getClients()[i] != client)
-								sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel_name + " -o " + client->getNickname(), channel->getClients()[i]);
-						}
-
-						Client *new_op = NULL;
-
-						for (size_t i = 0; i < channel->getClients().size(); i++)
-						{
-							if (channel->getClients()[i] != client and not channel->isOperator(channel->getClients()[i]))
-							{
-								new_op = channel->getClients()[i];
-								break ;
-							}
-						}
-						
-						if (new_op != NULL)
-						{
-							for (size_t i = 0; i < channel->getClients().size(); i++)
-							{
-								if (channel->getClients()[i] != client)
-									sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel_name + " +o " + new_op->getNickname(), channel->getClients()[i]);
-							}
-						}
-					}
-				}
+				channel->removeClient(client);
 			}
-			return ;
 		}
 	}
 	
@@ -795,7 +766,6 @@ void	Server::kick(std::string command, Client *client)
 		if (channel->getClients()[i]->getNickname() == tokens[2])
 		{
 			client_to_kick = channel->getClients()[i];
-			channel->removeClient(client_to_kick);
 			break ;
 		}
 	}
@@ -803,6 +773,7 @@ void	Server::kick(std::string command, Client *client)
 	std::string reason = "No reason.";
 	if (tokens.size() > 3)
 	{
+		reason = "";
 		for (size_t i = 3; i < tokens.size(); i++)
 			reason += tokens[i] + " ";
 	}
@@ -811,6 +782,8 @@ void	Server::kick(std::string command, Client *client)
 	{
 		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason, channel->getClients()[i]);
 	}
+
+	channel->removeClient(client_to_kick);
 }
 
 /**
@@ -930,7 +903,6 @@ void	Server::ban(std::string command, Client *client)
 		if (channel->getClients()[i]->getNickname() == tokens[2])
 		{
 			client_to_ban = channel->getClients()[i];
-			channel->removeClient(client_to_ban);
 			break ;
 		}
 	}
@@ -938,6 +910,7 @@ void	Server::ban(std::string command, Client *client)
 	std::string reason = "No reason.";
 	if (tokens.size() > 3)
 	{
+		reason = "";
 		for (size_t i = 3; i < tokens.size(); i++)
 			reason += tokens[i] + " ";
 	}
@@ -946,6 +919,8 @@ void	Server::ban(std::string command, Client *client)
 	{
 		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel->getName() + " +m " + client_to_ban->getNickname() + " :" + reason, channel->getClients()[i]);
 	}
+
+	channel->addBanned(client_to_ban);
 }
 
 /**
@@ -1072,6 +1047,7 @@ void	Server::mute(std::string command, Client *client)
 	std::string reason = "No reason.";
 	if (tokens.size() > 3)
 	{
+		reason = "";
 		for (size_t i = 3; i < tokens.size(); i++)
 			reason += tokens[i] + " ";
 	}
@@ -1208,6 +1184,7 @@ void	Server::unmute(std::string command, Client *client)
 	std::string reason = "No reason.";
 	if (tokens.size() > 3)
 	{
+		reason = "";
 		for (size_t i = 3; i < tokens.size(); i++)
 			reason += tokens[i] + " ";
 	}
@@ -1320,6 +1297,7 @@ void	Server::unban(std::string command, Client *client)
 	std::string reason = "No reason.";
 	if (tokens.size() > 3)
 	{
+		reason = "";
 		for (size_t i = 3; i < tokens.size(); i++)
 			reason += tokens[i] + " ";
 	}
