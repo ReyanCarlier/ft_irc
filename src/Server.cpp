@@ -650,15 +650,9 @@ void	Server::part(std::string command, Client *client)
 			}
 
 			if (channel->getClients().size() == 1)
-			{
-				channel->removeClient(client);
 				removeChannel(channel);
-				delete channel;
-			}
 			else
-			{
 				channel->removeClient(client);
-			}
 		}
 	}
 }
