@@ -597,20 +597,25 @@ void	Server::join(std::string command, Client *client)
  */
 void	Server::part(std::string command, Client *client)
 {
+	std::stringstream ss(command);
+	std::string		item;
+	std::vector<std::string> tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
 	std::string channel_name;
 
-	command.erase(0, 5);
-	if (command[0] == '#')
-	{
-		channel_name = command;
-		channel_name.erase(0, 1);
-	}
-	else
+	if (tokens.size() == 1)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
+
+	channel_name = tokens[1];
+	channel_name.erase(0, 1);
 
 	if (not channelExists(channel_name))
 	{
@@ -645,9 +650,7 @@ void	Server::part(std::string command, Client *client)
 				channel->removeOperator(client);
 			
 			for (size_t i = 0; i < channel->getClients().size(); i++)
-			{
 				sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
-			}
 
 			if (channel->getClients().size() == 1)
 				removeChannel(channel);
@@ -781,17 +784,20 @@ void	Server::kick(std::string command, Client *client)
 	std::string reason = "No reason.";
 	if (tokens.size() > 3)
 	{
-		reason = "";
-		for (size_t i = 3; i < tokens.size(); i++)
-			reason += tokens[i] + " ";
+		tokens[3].erase(0, 1);
+		if (tokens[3].size() > 0)
+			for (size_t i = 3; i < tokens.size(); i++)
+				reason += tokens[i] + " ";
 	}
+
+	if (reason == "No reason.")
+		reason = "Kicked by " + client->getNickname() + ".";
+	part("PART #" + channel->getName() + " :" + reason, client_to_kick);
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
-	{
 		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason, channel->getClients()[i]);
-	}
 
-	channel->removeClient(client_to_kick);
+	sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason, client_to_kick);
 }
 
 /**
