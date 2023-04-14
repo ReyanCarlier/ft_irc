@@ -580,6 +580,12 @@ void	Server::join(std::string command, Client *client)
 	}
 }
 
+/**
+ * @brief Allows a client to leave a channel.
+ * 
+ * @param command 
+ * @param client 
+ */
 void	Server::part(std::string command, Client *client)
 {
 	std::string channel_name;
@@ -622,6 +628,35 @@ void	Server::part(std::string command, Client *client)
 					if (channel->getClients()[i] != client)
 						sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
 				}
+				if (channel->isOperator(client))
+				{
+					channel->removeOperator(client);
+					for (size_t i = 0; i < channel->getClients().size(); i++)
+					{
+						if (channel->getClients()[i] != client)
+							sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel_name + " -o " + client->getNickname(), channel->getClients()[i]);
+					}
+
+					Client *new_op = NULL;
+
+					for (size_t i = 0; i < channel->getClients().size(); i++)
+					{
+						if (channel->getClients()[i] != client and not channel->isOperator(channel->getClients()[i]))
+						{
+							new_op = channel->getClients()[i];
+							break ;
+						}
+					}
+					
+					if (new_op != NULL)
+					{
+						for (size_t i = 0; i < channel->getClients().size(); i++)
+						{
+							if (channel->getClients()[i] != client)
+								sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel_name + " +o " + new_op->getNickname(), channel->getClients()[i]);
+						}
+					}
+				}
 			}
 			return ;
 		}
@@ -630,38 +665,611 @@ void	Server::part(std::string command, Client *client)
 	sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 }
 
-// void	Server::part(std::string command, Client *client)
-// {
-// 	std::cout << "PART" << std::endl;
-// }
+/**
+ * @brief Kick a client from a channel. He can rejoin it if he wants.
+ * 
+ * @param command 
+ * @param client 
+ */
+void	Server::kick(std::string command, Client *client)
+{
+	std::stringstream ss(command);
+	std::string		item;
+	std::vector<std::string> tokens;
 
-// void	Server::privmsg(std::string command, Client *client)
-// {
-// 	std::cout << "PRIVMSG" << std::endl;
-// }
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
 
-// void	Server::quit(std::string command, Client *client)
-// {
-// 	std::cout << "QUIT" << std::endl;
-// }
+	if (tokens.size() < 3)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
 
-// void	Server::who(std::string command, Client *client)
-// {
-// 	std::cout << "WHO" << std::endl;
-// }
+	if (not channelExists(tokens[1]))
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
 
-// void	Server::whois(std::string command, Client *client)
-// {
-// 	std::cout << "WHOIS" << std::endl;
-// }
+	Channel *channel = getChannel(tokens[1]);
+	bool found = false;
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
 
-// void	Server::whowas(std::string command, Client *client)
-// {
-// 	std::cout << "WHOWAS" << std::endl;
-// }
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		return ;
+	}
 
-// void	Server::list(std::string command, Client *client)
-// {
-// 	std::cout << "LIST" << std::endl;
-// }
+	found = false;
+	std::vector<Client *> op = channel->getOperators();
+	for (size_t i = 0; i < op.size(); i++)
+	{
+		if (op[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
 
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+		return ;
+	}
+
+	found = false;
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i]->getNickname() == tokens[2])
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
+		return ;
+	}
+
+	found = false;
+	for (size_t i = 0; i < op.size(); i++)
+	{
+		if (op[i]->getNickname() == tokens[2])
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't kick an operator", client);
+		return ;
+	}
+
+	Client *client_to_kick;
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i]->getNickname() == tokens[2])
+		{
+			client_to_kick = channel->getClients()[i];
+			channel->removeClient(client_to_kick);
+			break ;
+		}
+	}
+
+	std::string reason = "No reason.";
+	if (tokens.size() > 3)
+	{
+		for (size_t i = 3; i < tokens.size(); i++)
+			reason += tokens[i] + " ";
+	}
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason, channel->getClients()[i]);
+	}
+}
+
+/**
+ * @brief Ban a user from a channel. He can't rejoin it unless he's unbanned.
+ * 
+ * @param command 
+ * @param client 
+ */
+void	Server::ban(std::string command, Client *client)
+{
+	std::stringstream ss(command);
+	std::string		item;
+	std::vector<std::string> tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() < 3)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	if (not channelExists(tokens[1]))
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	Channel *channel = getChannel(tokens[1]);
+	bool found = false;
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		return ;
+	}
+
+	found = false;
+	std::vector<Client *> op = channel->getOperators();
+	for (size_t i = 0; i < op.size(); i++)
+	{
+		if (op[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+		return ;
+	}
+
+	found = false;
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i]->getNickname() == tokens[2])
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
+		return ;
+	}
+
+	found = false;
+	for (size_t i = 0; i < op.size(); i++)
+	{
+		if (op[i]->getNickname() == tokens[2])
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't ban an operator", client);
+		return ;
+	}
+
+	Client *client_to_ban;
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i]->getNickname() == tokens[2])
+		{
+			client_to_ban = channel->getClients()[i];
+			channel->removeClient(client_to_ban);
+			break ;
+		}
+	}
+
+	std::string reason = "No reason.";
+	if (tokens.size() > 3)
+	{
+		for (size_t i = 3; i < tokens.size(); i++)
+			reason += tokens[i] + " ";
+	}
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel->getName() + " +m " + client_to_ban->getNickname() + " :" + reason, channel->getClients()[i]);
+	}
+}
+
+/**
+ * @brief Mute a user in a channel.
+ * 
+ * @param command 
+ * @param client 
+ */
+void	Server::mute(std::string command, Client *client)
+{
+	std::stringstream ss(command);
+	std::string		item;
+	std::vector<std::string> tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() < 3)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	if (not channelExists(tokens[1]))
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	Channel *channel = getChannel(tokens[1]);
+	bool found = false;
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		return ;
+	}
+
+	found = false;
+	std::vector<Client *> op = channel->getOperators();
+	for (size_t i = 0; i < op.size(); i++)
+	{
+		if (op[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+		return ;
+	}
+
+	found = false;
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i]->getNickname() == tokens[2])
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
+		return ;
+	}
+
+	found = false;
+	for (size_t i = 0; i < op.size(); i++)
+	{
+		if (op[i]->getNickname() == tokens[2])
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't mute an operator", client);
+		return ;
+	}
+
+	Client *client_to_mute;
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i]->getNickname() == tokens[2])
+		{
+			client_to_mute = channel->getClients()[i];
+			break ;
+		}
+	}
+
+	std::string reason = "No reason.";
+	if (tokens.size() > 3)
+	{
+		for (size_t i = 3; i < tokens.size(); i++)
+			reason += tokens[i] + " ";
+	}
+
+	channel->addMuted(client_to_mute);
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MUTE #" + channel->getName() + " +m " + client_to_mute->getNickname() + " :" + reason, channel->getClients()[i]);
+	}
+}
+
+/**
+ * @brief Unmute a user in a channel.
+ * 
+ * @param command 
+ * @param client 
+ */
+void	Server::unmute(std::string command, Client *client)
+{
+	std::stringstream ss(command);
+	std::string		item;
+	std::vector<std::string> tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() < 3)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	if (not channelExists(tokens[1]))
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	Channel *channel = getChannel(tokens[1]);
+	bool found = false;
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		return ;
+	}
+
+	found = false;
+	std::vector<Client *> op = channel->getOperators();
+	for (size_t i = 0; i < op.size(); i++)
+	{
+		if (op[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+		return ;
+	}
+
+	found = false;
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i]->getNickname() == tokens[2])
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
+		return ;
+	}
+
+	found = false;
+	for (size_t i = 0; i < op.size(); i++)
+	{
+		if (op[i]->getNickname() == tokens[2])
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't unmute an operator", client);
+		return ;
+	}
+
+	Client *client_to_unmute;
+	
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i]->getNickname() == tokens[2])
+		{
+			client_to_unmute = channel->getClients()[i];
+			break ;
+		}
+	}
+
+	std::string reason = "No reason.";
+	if (tokens.size() > 3)
+	{
+		for (size_t i = 3; i < tokens.size(); i++)
+			reason += tokens[i] + " ";
+	}
+
+	channel->unmuteClient(client_to_unmute);
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MUTE #" + channel->getName() + " -m " + client_to_unmute->getNickname() + " :" + reason, channel->getClients()[i]);
+	}
+}
+
+/**
+ * @brief Unban a user from a channel.
+ * 
+ * @param command 
+ * @param client 
+ */
+void	Server::unban(std::string command, Client *client)
+{
+	std::stringstream ss(command);
+	std::string		item;
+	std::vector<std::string> tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() < 3)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	if (not channelExists(tokens[1]))
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		return ;
+	}
+
+	Channel *channel = getChannel(tokens[1]);
+	bool found = false;
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		if (channel->getClients()[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		return ;
+	}
+
+	found = false;
+
+	std::vector<Client *> op = channel->getOperators();
+
+	for (size_t i = 0; i < op.size(); i++)
+	{
+		if (op[i] == client)
+		{
+			found = true;
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+		return ;
+	}
+
+	found = false;
+
+	Client *client_to_unban;
+	for (size_t i = 0; i < channel->getBanned().size(); i++)
+	{
+		if (channel->getClients()[i]->getNickname() == tokens[2])
+		{
+			client_to_unban = channel->getClients()[i];
+			break ;
+		}
+	}
+
+	if (not found)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not banned from that channel", client);
+		return ;
+	}
+
+	std::string reason = "No reason.";
+	if (tokens.size() > 3)
+	{
+		for (size_t i = 3; i < tokens.size(); i++)
+			reason += tokens[i] + " ";
+	}
+
+	channel->unbanClient(client_to_unban);
+
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MUTE #" + channel->getName() + " -b " + client_to_unban->getNickname() + " :" + reason, channel->getClients()[i]);
+	}
+}

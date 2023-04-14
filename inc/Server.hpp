@@ -78,4 +78,14 @@ class Server
 		void					who(std::string command, Client *client);
 		void					topic(std::string command, Client *client);
 		void					part(std::string command, Client *client);
+		void					quit(std::string command, Client *client);
+		void					privmsg(std::string command, Client *client);
+		void					kick(std::string command, Client *client);
+		void					ban(std::string command, Client *client);
+		void					unban(std::string command, Client *client);
+		void					invite(std::string command, Client *client);
+		void					oper(std::string command, Client *client);
+		void					kill(std::string command, Client *client);
+		void					mute(std::string command, Client *client);
+		void					unmute(std::string command, Client *client);
 };
