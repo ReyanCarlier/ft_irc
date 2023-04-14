@@ -645,8 +645,6 @@ void	Server::part(std::string command, Client *client)
 			}
 		}
 	}
-	
-	sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 }
 
 /**
