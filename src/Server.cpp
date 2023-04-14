@@ -619,6 +619,24 @@ void	Server::part(std::string command, Client *client)
 		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
+
+	bool isInChannel = false;
+	for (size_t i = 0; i < getChannel(channel_name)->getClients().size(); i++)
+	{
+		if (getChannel(channel_name)->getClients()[i] == client)
+		{
+			isInChannel = true;
+			break ;
+		}
+	}
+
+	if (not isInChannel)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		return ;
+	}
+
 	Channel *channel = getChannel(channel_name);
 	for (size_t i = 0; i < channel->getClients().size(); i++)
 	{
@@ -629,8 +647,7 @@ void	Server::part(std::string command, Client *client)
 			
 			for (size_t i = 0; i < channel->getClients().size(); i++)
 			{
-				if (channel->getClients()[i] != client)
-					sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
+				sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
 			}
 
 			if (channel->getClients().size() == 1)
