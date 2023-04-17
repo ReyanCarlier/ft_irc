@@ -783,8 +783,65 @@ void	Server::privmsg(std::string command, Client *client)
 
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
-	if(tokens[0][0] == '#')
-		std::cout << "message to channel" << ENDL;
+
+	if (tokens.size() < 3)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	if(tokens[1][0] == '#')
+	{
+		// CHECK IF CHANNEL EXISTS
+		Channel *channel = getChannel(tokens[1].substr(1, tokens[1].size() - 1));
+		if (channel == NULL)
+		{
+			sendToClient(":serverserver 403 " + client->getUsername() + " " + tokens[1] + " :No such channel\r\n", client);
+			return ;
+		}
+
+		message = tokens[2];
+		if (message[0] == ':')
+			message.erase(0, 1);
+		for (size_t i = 3; i < tokens.size(); i++)
+		{
+			message.append(" ");
+			message.append(tokens[i]);
+		}
+
+		// CHECK IF USER IS IN CHANNEL
+		bool isInChannel = false;
+		for (size_t i = 0; i < channel->getClients().size(); i++)
+		{
+			if (channel->getClients()[i] == client)
+			{
+				isInChannel = true;
+				break ;
+			}
+		}
+
+		if (not isInChannel)
+		{
+			std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+			sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+			return ;
+		}
+
+		// CHECK IF USER IS MUTED
+		if (channel->isMuted(client))
+		{
+			std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+			sendToClient(": serverserver " + Errors::ERR_CANNOTSENDTOCHAN + " * :Cannot send to channel", client);
+			return ;
+		}
+
+		for (size_t i = 0; i < channel->getClients().size(); i++)
+		{
+			if (channel->getClients()[i] != client)
+				sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + tokens[1] + " :" + message, channel->getClients()[i]);
+		}
+	}
 	else
 	{
 		Client	*target;
@@ -801,7 +858,7 @@ void	Server::privmsg(std::string command, Client *client)
 		if(target != NULL)
 			sendToClient(":" + client->getNickname() + " PRIVMSG " + target->getNickname() + " " + message, target);
 		else
-			sendToClient(":serverserver 401 " + client->getUsername() +  " " + tokens[1] + " :No such nick/channel\r\n", client);
+			sendToClient(":serverserver 401 " + client->getUsername() +  " " + tokens[1] + " :No such nick/channel", client);
 	}
 }
 
