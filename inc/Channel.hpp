@@ -24,8 +24,6 @@ class Channel {
         std::vector<Client *>   getClients();
         std::vector<Client *>   getInvited();
         std::vector<Client *>   getOperators();
-        std::vector<Client *>   getAdmins();
-        std::vector<Client *>   getOwners();
         std::vector<Client *>   getBanned();
         std::vector<Client *>   getMuted();
 
@@ -37,15 +35,11 @@ class Channel {
         void addClient(Client *client);
         void addInvited(Client *client);
         void addOperator(Client *client);
-        void addAdmin(Client *client);
-        void addOwner(Client *client);
         void addBanned(Client *client);
         void addMuted(Client *client);
         void removeClient(Client *client);
         void removeInvited(Client *client);
         void removeOperator(Client *client);
-        void removeAdmin(Client *client);
-        void disownClient(Client *client);
         void unbanClient(Client *client);
         void unmuteClient(Client *client);
         bool isBanned(Client *client);
@@ -62,8 +56,6 @@ class Channel {
         std::vector<Client *>   _clients;
         std::vector<Client *>   _invited;
         std::vector<Client *>   _operators;
-        std::vector<Client *>   _admins;
-        std::vector<Client *>   _owners;
         std::vector<Client *>  _banned;
         std::vector<Client *>   _muted;
 };
