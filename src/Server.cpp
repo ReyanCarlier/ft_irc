@@ -371,6 +371,25 @@ void	Server::nick(std::string command, Client *client)
 	client->setNickname(tokens[1]);
 	if (client->isWelcomed() == 0)
 		sendToClient(":" + old_nickname + " NICK :" + client->getNickname(), client);
+	
+	// Send NICK message to all the clients in the same channels as the client.
+	std::vector<Channel *> channels;
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++) {
+		if ((*it)->isInChannel(client)) {
+			channels.push_back((*it));
+		}
+	}
+
+	if (channels.size() > 0)
+	{
+		for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); it++) {
+			std::vector<Client *> clients = (*it)->getClients();
+			for (std::vector<Client *>::iterator it2 = clients.begin(); it2 != clients.end(); it2++) {
+				if ((*it2) != client)
+					sendToClient(":" + old_nickname + " NICK :" + client->getNickname(), (*it2));
+			}
+		}
+	}
 }
 
 void	Server::pass(std::string command, Client *client)
@@ -848,7 +867,6 @@ void	Server::privmsg(std::string command, Client *client)
 	{
 		Client	*target;
 
-		std::cout << "get tokens " << tokens[1] << ENDL;
 		target = getClientFromNick(tokens[1]);
 		message = tokens[2];
 		for (size_t i = 3; i < tokens.size(); i++)
@@ -856,11 +874,10 @@ void	Server::privmsg(std::string command, Client *client)
 			message.append(" ");
 			message.append(tokens[i]);
 		}
-		message.append("\r\n");
 		if(target != NULL)
 			sendToClient(":" + client->getNickname() + " PRIVMSG " + target->getNickname() + " " + message, target);
 		else
-			sendToClient(":serverserver 401 " + client->getUsername() +  " " + tokens[1] + " :No such nick/channel", client);
+			sendToClient(":serverserver 401 " + client->getUsername() +  " " + tokens[1] + " :No user with this nickname.", client);
 	}
 }
 
