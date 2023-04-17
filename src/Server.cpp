@@ -245,6 +245,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			mute(tokens[i], client);
 		else if (startwith("UNMUTE", tokens[i]))
 			unmute(tokens[i], client);
+		else if (startwith("QUIT", tokens[i]))
+			quit(tokens[i], client);
 	}
 }
 
@@ -1523,4 +1525,18 @@ void	Server::unban(std::string command, Client *client)
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
 		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel->getName() + " -b " + client_to_unban->getNickname(), channel->getClients()[i]);
+}
+
+void	Server::quit(std::string command, Client *client)
+{
+	std::string raison;
+
+	raison = command.substr(command.find(':') + 1);
+	std::vector<Channel *> listchan = this->getChannels();
+	for(size_t i = 0; i < listchan.size(); i++)
+	{
+		Channel *tmp = listchan.at(i);
+		if(tmp->isInChannel(client))
+			part("PART #" + tmp->getName() + " :" + raison, client);
+	}
 }
