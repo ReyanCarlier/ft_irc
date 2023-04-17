@@ -1536,6 +1536,10 @@ void	Server::quit(std::string command, Client *client)
 	for(size_t i = 0; i < listchan.size(); i++)
 	{
 		Channel *tmp = listchan.at(i);
+		if (tmp->isBanned(client))
+			tmp->unbanClient(client);
+		if (tmp->isMuted(client))
+			tmp->unmuteClient(client);
 		if(tmp->isInChannel(client))
 			part("PART #" + tmp->getName() + " :" + raison, client);
 	}
