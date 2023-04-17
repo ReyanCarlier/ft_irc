@@ -397,6 +397,13 @@ void	Server::ping(Client *client)
 	sendToClient(buffer, client);
 }
 
+/**
+ * @brief Reaction to "WHO" command.
+ * It sends a list of users on a channel.
+ * 
+ * @param command 
+ * @param client 
+ */
 void	Server::who(std::string command, Client *client)
 {
 	std::stringstream ss(command);
@@ -422,16 +429,11 @@ void	Server::who(std::string command, Client *client)
 			std::vector<Client *> clients = channel->getClients();
 			for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); it++)
 			{
-				std::string buffer = ":serverserver 352 " + client->getUsername() + " " + channel->getName() + " " + (*it)->getUsername() + " " + (*it)->getHostname() + " " + (*it)->getHost() + " " + (*it)->getUsername() + " H :0 " + (*it)->getRealName();
+				std::string buffer = ":serverserver 352 " + client->getNickname() + " " + channel->getName() + " " + (*it)->getUsername() + " " + (*it)->getHostname() + " " + (*it)->getHost() + " " + (*it)->getUsername() + " H :0 " + (*it)->getRealName();
 				sendToClient(buffer, client);
 			}
-			std::string buffer = ":serverserver 315 " + client->getUsername() + " " + channel->getName() + " :End of /WHO list.";
-		}
-		else
-		{
-			// TODO: Implement the mode command for channels
-			std::cout << CYAN << "Mode command for channels not implemented yet" << ENDL;
-			return ;
+			std::string buffer = ":serverserver 315 " + client->getNickname() + " " + channel->getName() + " :End of /WHO list.";
+			sendToClient(buffer, client);
 		}
 	}
 
@@ -472,9 +474,110 @@ void	Server::mode(std::string command, Client *client)
 		}
 		else
 		{
-			// TODO: Implement the mode command for channels
-			std::cout << CYAN << "Mode command for channels not implemented yet" << ENDL;
-			return ;
+			// Verify if the user is in the channel
+			if (channel->isInChannel(client) == false)
+			{
+				std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+				sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+				return ;
+			}
+
+			// Verify if the user is an operator of the channel
+			if (channel->isOperator(client) == false)
+			{
+				std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+				sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not channel operator", client);
+				return ;
+			}
+
+			// BAN COMMAND
+			if (tokens[2] == "+b")
+			{
+				if (tokens.size() < 4)
+				{
+					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+					sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+					return ;
+				}
+				Client *target = NULL;
+				std::string username = tokens[3];
+				username.erase(0, 3);
+				username = username.substr(0, username.find('@'));
+				for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+				{
+					if ((*it)->getUsername() == username and (*it)->getNickname() != client->getNickname())
+					{
+						target = (*it);
+						break ;
+					}
+				}
+				if (target == NULL)
+				{
+					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+					sendToClient(": serverserver " + Errors::ERR_NOSUCHNICK + " * :No such nick", client);
+					return ;
+				}
+
+				std::string reason = "";
+				if (tokens.size() > 4)
+				{
+					for (size_t i = 4; i < tokens.size(); i++)
+						reason += tokens[i] + " ";
+					reason = reason.substr(0, reason.size() - 1);
+				}
+				else
+					reason = "Banned by " + client->getUsername();
+
+				std::vector<Client *> clients = channel->getClients();
+				for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); it++)
+				{
+					sendToClient(":serverserver MODE #" + channel->getName() + " +b !" + target->getNickname() + "@*", (*it));
+					if ((*it)->getNickname() != target->getNickname())
+						sendToClient(":serverserver KICK #" + channel->getName() + " " + target->getNickname() + " :" + reason, (*it));
+				}
+				part("PART #" + channel->getName() + " :" + reason, target);
+				channel->addBanned(target);
+				who("WHO #" + channel->getName(), client);
+				return ;
+			}
+			// UNBAN COMMAND
+			else if (tokens[2] == "-b")
+			{
+				if (tokens.size() < 4)
+				{
+					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+					sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+					return ;
+				}
+
+				Client *target = NULL;
+				std::vector<Client *> banned = channel->getBanned();
+				std::string nickname = tokens[3];
+				nickname.erase(0, 1);
+				nickname = nickname.substr(0, nickname.find('@'));
+
+				for (std::vector<Client *>::iterator it = banned.begin(); it != banned.end(); it++)
+				{
+					if ((*it)->getNickname() == nickname)
+					{
+						target = (*it);
+						break ;
+					}
+				}
+
+				if (target == NULL)
+				{
+					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
+					sendToClient(": serverserver " + Errors::ERR_NOSUCHNICK + " * :Target isn't in blacklist of #" + channel->getName(), client);
+					return ;
+				}
+
+				channel->unbanClient(target);
+				std::vector<Client *> clients = channel->getClients();
+				for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); it++)
+					sendToClient(":serverserver MODE #" + channel->getName() + " -b !" + target->getNickname() + "@*", (*it));
+				return ;
+			}
 		}
 	}
 
@@ -555,7 +658,7 @@ void	Server::join(std::string command, Client *client)
 	if (getChannel(channel_name)->isBanned(client))
 	{
 		std::cout << RED << "Client " << client->getUsername() << " cannot join " << channel_name << " because banned." << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_BANNEDFROMCHAN + " * :Cannot join channel (+b)", client);
+		sendToClient(":serverserver " + Errors::ERR_BANNEDFROMCHAN + " * :Cannot join channel " + channel_name + " because you're banned.", client);
 		return ;
 	}
 	if (getChannel(channel_name)->isInviteOnly() && not getChannel(channel_name)->isInvited(client))
@@ -924,16 +1027,23 @@ void	Server::ban(std::string command, Client *client)
 	std::string reason = "No reason.";
 	if (tokens.size() > 3)
 	{
-		reason = "";
-		for (size_t i = 3; i < tokens.size(); i++)
-			reason += tokens[i] + " ";
+		tokens[3].erase(0, 1);
+		if (tokens[3].size() > 0)
+			for (size_t i = 3; i < tokens.size(); i++)
+				reason += tokens[i] + " ";
 	}
 
-	for (size_t i = 0; i < channel->getClients().size(); i++)
-	{
-		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel->getName() + " +m " + client_to_ban->getNickname() + " :" + reason, channel->getClients()[i]);
-	}
+	if (reason == "No reason.")
+		reason = "Banned by " + client->getNickname() + ".";
+	
+	std::vector<Client *> clients = channel->getClients();
 
+	for (size_t i = 0; i < clients.size(); i++)
+		sendToClient(":serverserver MODE #" + channel->getName() + " +b !" + client_to_ban->getNickname() + "@*", clients[i]);
+	
+	// Send a PART message to every client in the channel
+	
+	kick("KICK #" + channel->getName() + " " + client_to_ban->getNickname() + " :" + reason, client);
 	channel->addBanned(client_to_ban);
 }
 
@@ -1308,18 +1418,8 @@ void	Server::unban(std::string command, Client *client)
 		return ;
 	}
 
-	std::string reason = "No reason.";
-	if (tokens.size() > 3)
-	{
-		reason = "";
-		for (size_t i = 3; i < tokens.size(); i++)
-			reason += tokens[i] + " ";
-	}
-
 	channel->unbanClient(client_to_unban);
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
-	{
-		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MUTE #" + channel->getName() + " -b " + client_to_unban->getNickname() + " :" + reason, channel->getClients()[i]);
-	}
+		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel->getName() + " -b " + client_to_unban->getNickname(), channel->getClients()[i]);
 }

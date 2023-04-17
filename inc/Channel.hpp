@@ -52,6 +52,7 @@ class Channel {
         bool isInvited(Client *client);
         bool isMuted(Client *client);
         bool isOperator(Client *client);
+        bool isInChannel(Client *client);
         
     private:
         int                     _id;

@@ -308,3 +308,19 @@ void Channel::setTopic(const std::string topic) {
 std::string Channel::getTopic() const {
     return this->_topic;
 }
+
+/**
+ * @brief Checks if a Client is in a Channel.
+ * 
+ * @param client 
+ * @return true 
+ * @return false 
+ */
+bool Channel::isInChannel(Client *client) {
+    for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
+        if ((*it)->getSocket() == client->getSocket()) {
+            return true;
+        }
+    }
+    return false;
+}
