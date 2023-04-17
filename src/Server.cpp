@@ -292,7 +292,9 @@ void	Server::topic(std::string command, Client *client)
 			topic.append(tokens[i] + " ");
 		}
 		channel->setTopic(topic);
-		sendToClient(":serverserver 332 " + client->getUsername() + " #" + tokens[1] + " :" + channel->getTopic(), client);
+		std::vector<Client *> clients = channel->getClients();
+		for (size_t i = 0; i < clients.size(); i++)
+			sendToClient(":serverserver 332 " + client->getUsername() + " #" + tokens[1] + " :" + channel->getTopic(), clients[i]);
 	}
 }
 
