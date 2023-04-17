@@ -88,4 +88,5 @@ class Server
 		void					kill(std::string command, Client *client);
 		void					mute(std::string command, Client *client);
 		void					unmute(std::string command, Client *client);
+		void					list(std::string command, Client *client);
 };
