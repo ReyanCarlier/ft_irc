@@ -247,6 +247,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			unmute(tokens[i], client);
 		else if (startwith("LIST", tokens[i]))
 			list(tokens[i], client);
+		else if (startwith("QUIT", tokens[i]))
+			quit(tokens[i], client);
 	}
 }
 
@@ -1552,5 +1554,21 @@ void	Server::list(std::string command, Client *client) {
 			str = ss.str();
 			sendToClient(str, client);
 		}
+
+void	Server::quit(std::string command, Client *client)
+{
+	std::string raison;
+
+	raison = command.substr(command.find(':') + 1);
+	std::vector<Channel *> listchan = this->getChannels();
+	for(size_t i = 0; i < listchan.size(); i++)
+	{
+		Channel *tmp = listchan.at(i);
+		if (tmp->isBanned(client))
+			tmp->unbanClient(client);
+		if (tmp->isMuted(client))
+			tmp->unmuteClient(client);
+		if(tmp->isInChannel(client))
+			part("PART #" + tmp->getName() + " :" + raison, client);
 	}
 }
