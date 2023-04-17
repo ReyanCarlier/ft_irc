@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 18:06:12 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/14 14:18:55 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,23 +62,19 @@ int	main(int ac, char **av)
 			FD_ZERO(&writefds);
 			FD_SET(server.getSocketFd(), &readfds);
 			FD_SET(server.getSocketFd(), &writefds);
-
 			if (select(server.getHighestFd(&readfds, &writefds) + 1, &readfds, &writefds, NULL, NULL) < 0 && errno != EINTR)
 				std::cerr << "select error" << std::endl;
-
 			if (FD_ISSET(server.getSocketFd(), &readfds))
 			{
-				struct sockaddr_in address;
-				int addrlen = sizeof(address);
-				
-				int new_socket = accept(
+				sockaddr_in	address;
+				int			addrlen = sizeof(address);
+				int			new_socket = accept(
 					server.getSocketFd(),
 					reinterpret_cast<sockaddr*>(&address),
 					reinterpret_cast<socklen_t*>(&addrlen)
 				);
 				if (new_socket < 0)
 					throw "Failed to accept connection.";
-
 				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << "." << ENDL;
 				try
 				{
@@ -89,16 +85,15 @@ int	main(int ac, char **av)
 					server.addClient(new Client(new_socket));
 				}
 			}
-
 			for (size_t i = 0; i < server.getClients().size(); i++)
 			{
 				if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
 				{
-					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed() && (server.getClients().at(i)->getPass() == 1 || server.getPassword().empty()))
+					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed() && !server.getClients().at(i)->getNickname().empty() && (server.getClients().at(i)->getPass() == 1 || server.getPassword().empty()))
 					{
 						server.welcome(server.getClients().at(i));
 					}
-					else if (server.getClients().at(i)->getPass() == 0)
+					else if (server.getClients().at(i)->getPass() == 0 && !server.getPassword().empty())
 					{
 						std::string test = ":serverserver 464 ";
 						test.append(server.getClients().at(i)->getUsername());
@@ -110,7 +105,12 @@ int	main(int ac, char **av)
 						server.removeClient(server.getClients().at(i));
 						continue ;
 					}
-					else if (server.getClients().at(i)->isReady() == 1 && server.getClients().at(i)->isWelcomed() && server.getClients().at(i)->getPass() == 2)
+					else if (
+						server.getClients().at(i)->isReady() == 1 &&
+						server.getClients().at(i)->isWelcomed() &&
+						server.getClients().at(i)->getPass() == 2 &&
+						!server.getPassword().empty()
+					)
 					{
 						std::string test = ":serverserver 461 ";
 						test.append(server.getClients().at(i)->getUsername());
@@ -131,7 +131,8 @@ int	main(int ac, char **av)
 						std::cerr << RED << "Client " << server.getClients().at(i)->getSocket() << " disconnected." << ENDL;
 						close(server.getClients().at(i)->getSocket());
 
-						std::vector<Channel*> channels = server.getChannels();
+						std::vector<Channel*>	channels = server.getChannels();
+
 						for (size_t j = 0; j < channels.size(); j++)
 						{
 							std::vector<Client*> clients = channels.at(j)->getClients();

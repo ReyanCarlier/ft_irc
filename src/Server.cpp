@@ -31,11 +31,13 @@ Server::Server(char **av)
 
 Server::~Server()
 {
+	for (std::vector<Client*>::iterator it = _clients.begin();
+	it != _clients.end(); it++)
+		delete (*it);
+	for (std::vector<Channel*>::iterator it = _channels.begin();
+	it != _channels.end(); it++)
+		delete (*it);
 	close(_socket_fd);
-	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
-		delete (*it);
-	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
-		delete (*it);
 }
 
 int		Server::getSocketFd(void)
@@ -111,6 +113,16 @@ Client	*Server::getClient(int fd)
 	throw "Client not found.";
 }
 
+Client	*Server::getClientFromNick(std::string nick)
+{
+	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		if ((*it)->getNickname() == nick)
+			return (*it);
+	}
+	return (NULL);
+}
+
 sockaddr	*Server::getCastAddress(void)
 {
 	return (reinterpret_cast<sockaddr*>(&_address));
@@ -121,7 +133,6 @@ void Server::bind(int port) {
 	_address.sin_addr.s_addr = INADDR_ANY;
 	_address.sin_port = htons(port);
 	_port = port;
-
 	if (::bind(_socket_fd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
 		throw "Failed to bind socket.";
 }
@@ -190,17 +201,16 @@ void	Server::commandHandler(std::string command, Client *client)
 {
 	std::cout << CYAN << "[CLIENT (" << client->getSocket() << ") => SERVER]\n" << YELLOW << command << ENDL;
 	std::cout << "----------------------------------------" << std::endl;
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	while (std::getline(ss, item, '\n'))
 		tokens.push_back(item);
-
 	for (size_t i = 0; i < tokens.size(); i++)
 		if (tokens[i].at(tokens[i].size() - 1) == '\r')
 			tokens[i].erase(tokens[i].size() - 1);
-
 	for (size_t i = 0; i < tokens.size(); i++)
 	{
 		if (startwith("NICK", tokens[i]))
@@ -213,6 +223,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			pass(tokens[i], client);
 		else if (startwith("MODE", tokens[i]))
 			mode(tokens[i], client);
+		else if (startwith("PRIVMSG", tokens[i]))
+			privmsg(tokens[i], client);
 		else if (startwith("JOIN", tokens[i]))
 			join(tokens[i], client);
 		else if (startwith("WHO", tokens[i]))
@@ -238,35 +250,31 @@ void	Server::commandHandler(std::string command, Client *client)
 
 void	Server::topic(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
-
 	if (tokens.size() < 2)
 	{
 		sendToClient(":serverserver 461 TOPIC :Not enough parameters", client);
-		return;
+		return ;
 	}
-
 	tokens[1][tokens[1].size()] = '\0';
 	tokens[1].erase(0, 1);
-	Channel *channel = getChannel(tokens[1]);
+	Channel	*channel = getChannel(tokens[1]);
 	if (channel == NULL)
 	{
 		sendToClient(":serverserver 403 " + client->getUsername() + " " + tokens[1] + " :No such channel", client);
-		return;
+		return ;
 	}
-
 	if (channel->getOperators().size() > 0 && !channel->isOperator(client))
 	{
 		sendToClient(":serverserver 482 " + client->getUsername() + " " + tokens[1] + " :You're not channel operator", client);
-		return;
+		return ;
 	}
-
 	if (tokens.size() == 2)
 	{
 		if (channel->getTopic() == "")
@@ -276,7 +284,7 @@ void	Server::topic(std::string command, Client *client)
 	}
 	else
 	{
-		std::string topic = "";
+		std::string	topic = "";
 		for (size_t i = 2; i < tokens.size(); i++)
 		{
 			if (i == 2 and tokens[2][0] == ':')
@@ -295,7 +303,11 @@ void	Server::topic(std::string command, Client *client)
  */
 void	Server::welcome(Client *client)
 {
-	sendToClient(":serverserver 001 " + client->getUsername() + " :coucou", client);
+	std::cout << "WELCOME" << std::endl;
+	std::string buffer = ":serverserver 001 ";
+	buffer.append(client->getNickname());
+	buffer.append(" :coucou\r\n");
+	write(client->getSocket(), buffer.c_str(), buffer.size());
 	client->setWelcomed(0);
 }
 
@@ -336,7 +348,6 @@ void	Server::nick(std::string command, Client *client)
 
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
-
 	if (tokens.size() < 2)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getNickname() << " : " << YELLOW << command << ENDL;
@@ -350,6 +361,11 @@ void	Server::nick(std::string command, Client *client)
 		return ;
 	}
 	old_nickname = client->getNickname();
+	if (this->getClientFromNick(tokens[1]) != NULL)
+	{
+		sendToClient(":serverserver " + Errors::ERR_NICKNAMEINUSE + " * " + tokens[1] + " :Nickname is already in use.", client);
+		return ;
+	}
 	client->setNickname(tokens[1]);
 	if (client->isWelcomed() == 0)
 		sendToClient(":" + old_nickname + " NICK :" + client->getNickname(), client);
@@ -359,10 +375,7 @@ void	Server::pass(std::string command, Client *client)
 {
 	command.erase(0, 5);
 	if (command != this->getPassword())
-	{
-		std::cout << "TU DEGAGE SINON JE TEN COLE UNE !" << ENDL;
 		client->setPass(0);
-	}
 	else
 		client->setPass(1);
 }
@@ -392,8 +405,8 @@ void	Server::user(std::string command, Client *client)
  */
 void	Server::ping(Client *client)
 {
-	std::string buffer;
-	buffer = ":serverserver PONG serverserver :" + client->getUsername();
+	std::string	buffer;
+	buffer = ":serverserver PONG serverserver :" + client->getUsername() + "\r\n";
 	sendToClient(buffer, client);
 }
 
@@ -406,14 +419,13 @@ void	Server::ping(Client *client)
  */
 void	Server::who(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
-
 	if (tokens.size() >= 2 and tokens[1].at(0) == '#')
 	{
 		tokens[1].erase(0, 1);
@@ -442,14 +454,13 @@ void	Server::who(std::string command, Client *client)
 
 void	Server::mode(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
-	
 	if (tokens.size() >= 2 and startwith("#", tokens[1]))
 	{
 		tokens[1].erase(0, 1);
@@ -629,7 +640,7 @@ bool	Server::channelExists(std::string channel_name)
  */
 void	Server::join(std::string command, Client *client)
 {
-	std::string channel_name;
+	std::string	channel_name;
 
 	command.erase(0, 5);
 	bool added = false;
@@ -700,9 +711,9 @@ void	Server::join(std::string command, Client *client)
  */
 void	Server::part(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
@@ -760,6 +771,37 @@ void	Server::part(std::string command, Client *client)
 			else
 				channel->removeClient(client);
 		}
+	}
+}
+
+void	Server::privmsg(std::string command, Client *client)
+{
+	std::vector<std::string> 	tokens;
+	std::stringstream 			ss(command);
+	std::string					item;
+	std::string					message;
+
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+	if(tokens[0][0] == '#')
+		std::cout << "message to channel" << ENDL;
+	else
+	{
+		Client	*target;
+
+		std::cout << "get tokens " << tokens[1] << ENDL;
+		target = getClientFromNick(tokens[1]);
+		message = tokens[2];
+		for (size_t i = 3; i < tokens.size(); i++)
+		{
+			message.append(" ");
+			message.append(tokens[i]);
+		}
+		message.append("\r\n");
+		if(target != NULL)
+			sendToClient(":" + client->getNickname() + " PRIVMSG " + target->getNickname() + " " + message, target);
+		else
+			sendToClient(":serverserver 401 " + client->getUsername() +  " " + tokens[1] + " :No such nick/channel\r\n", client);
 	}
 }
 

@@ -13,18 +13,16 @@
 #pragma once
 
 #include <iostream>
-#include <sys/socket.h>	// socket setsockopt getsockname bind
-						// connect listen accept send recv
-#include <netdb.h>		// getprotobyname gethostbyname getaddrinfo freeaddrinfo
-#include <arpa/inet.h>	// htons htonl ntohs ntohl inet_addr inet_ntoa
-#include <csignal>		// signal
-#include <unistd.h>		// lseek
-#include <sys/stat.h>	// fstat
-#include <fcntl.h>		// fcntl
-#include <poll.h>		// poll
-#include <cstring>		// strlen
-#include <cstdlib>		// atoi
-#include <cerrno>		// errno
+#include <sys/socket.h>	/* socket setsockopt getsockname bind connect listen accept send recv */
+#include <netdb.h>		/* getprotobyname gethostbyname getaddrinfo freeaddrinfo */
+#include <arpa/inet.h>	/* htons htonl ntohs ntohl inet_addr inet_ntoa */
+#include <csignal>		/* signal */
+#include <unistd.h>		/* lseek */
+#include <sys/stat.h>	/* fstat */
+#include <fcntl.h>		/* fcntl */
+#include <cstring>		/* strlen */
+#include <cstdlib>		/* atoi */
+#include <cerrno>		/* errno */
 
 #define RESET			"\33[00m"
 #define BLACK			"\33[30m"
