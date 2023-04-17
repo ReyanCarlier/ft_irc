@@ -783,7 +783,10 @@ void	Server::part(std::string command, Client *client)
 		{
 			if (channel->isOperator(client))
 				channel->removeOperator(client);
-			
+
+			if (channel->isInvited(client))
+				channel->removeInvited(client);
+
 			for (size_t i = 0; i < channel->getClients().size(); i++)
 				sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
 
