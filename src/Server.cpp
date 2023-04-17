@@ -245,6 +245,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			mute(tokens[i], client);
 		else if (startwith("UNMUTE", tokens[i]))
 			unmute(tokens[i], client);
+		else if (startwith("LIST", tokens[i]))
+			list(tokens[i], client);
 		else if (startwith("QUIT", tokens[i]))
 			quit(tokens[i], client);
 	}
@@ -291,7 +293,6 @@ void	Server::topic(std::string command, Client *client)
 		{
 			if (i == 2 and tokens[2][0] == ':')
 				tokens[2].erase(0, 1);
-			topic.append(tokens[i] + " ");
 		}
 		channel->setTopic(topic);
 		std::vector<Client *> clients = channel->getClients();
@@ -332,8 +333,6 @@ bool		Server::getDie(void)
 {
 	return (_die);
 }
-
-// TODO: Implement all the commands here :
 
 /**
  * Changes the nickname of the client.
@@ -1158,9 +1157,9 @@ void	Server::ban(std::string command, Client *client)
  */
 void	Server::mute(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
@@ -1295,9 +1294,9 @@ void	Server::mute(std::string command, Client *client)
  */
 void	Server::unmute(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
@@ -1432,9 +1431,9 @@ void	Server::unmute(std::string command, Client *client)
  */
 void	Server::unban(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
@@ -1526,6 +1525,35 @@ void	Server::unban(std::string command, Client *client)
 	for (size_t i = 0; i < channel->getClients().size(); i++)
 		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel->getName() + " -b " + client_to_unban->getNickname(), channel->getClients()[i]);
 }
+
+void	Server::list(std::string command, Client *client) {
+	std::string	str;
+
+	if (command.find('#') == std::string::npos) {
+		for (std::vector<Channel*>::iterator it = _channels.begin();
+		it != _channels.end(); it++) {
+			std::stringstream ss;
+
+			ss << '#' << (*it)->getName() << ' ' << (*it)->getClients().size()
+			<< ' ' << (*it)->getTopic();
+			str = ss.str();
+			sendToClient(str, client);
+		}
+	} else {
+		std::string	channel = command.substr(command.find('#') + 1);
+
+		for (std::vector<Channel*>::iterator it = _channels.begin();
+		it != _channels.end(); it++) {
+			if (channel != (*it)->getTopic())
+				break ;
+
+			std::stringstream ss;
+			
+			ss << '#' << (*it)->getName() << ' ' << (*it)->getClients().size()
+			<< ' ' << (*it)->getTopic();
+			str = ss.str();
+			sendToClient(str, client);
+		}
 
 void	Server::quit(std::string command, Client *client)
 {
