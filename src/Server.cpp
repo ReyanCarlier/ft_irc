@@ -278,9 +278,13 @@ void	Server::topic(std::string command, Client *client)
 	{
 		std::string topic = "";
 		for (size_t i = 2; i < tokens.size(); i++)
+		{
+			if (i == 2 and tokens[2][0] == ':')
+				tokens[2].erase(0, 1);
 			topic.append(tokens[i] + " ");
+		}
 		channel->setTopic(topic);
-		sendToClient(":serverserver 332 " + client->getUsername() + " #" + tokens[1] + " " + channel->getTopic(), client);
+		sendToClient(":serverserver 332 " + client->getUsername() + " #" + tokens[1] + " :" + channel->getTopic(), client);
 	}
 }
 
@@ -291,11 +295,7 @@ void	Server::topic(std::string command, Client *client)
  */
 void	Server::welcome(Client *client)
 {
-	std::cout << "WELCOME" << std::endl;
-	std::string buffer = ":serverserver 001 ";
-	buffer.append(client->getUsername());
-	buffer.append(" :coucou");
-	write(client->getSocket(), buffer.c_str(), buffer.size());
+	sendToClient(":serverserver 001 " + client->getUsername() + " :coucou", client);
 	client->setWelcomed(0);
 }
 
