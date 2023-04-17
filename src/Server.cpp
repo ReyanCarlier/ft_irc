@@ -31,11 +31,9 @@ Server::Server(char **av)
 
 Server::~Server()
 {
-	for (std::vector<Client*>::iterator it = _clients.begin();
-	it != _clients.end(); it++)
+	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 		delete (*it);
-	for (std::vector<Channel*>::iterator it = _channels.begin();
-	it != _channels.end(); it++)
+	for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); it++)
 		delete (*it);
 	close(_socket_fd);
 }
@@ -778,6 +776,7 @@ void	Server::part(std::string command, Client *client)
 	}
 
 	Channel *channel = getChannel(channel_name);
+	bool	removed_channel = false;
 	for (size_t i = 0; i < channel->getClients().size(); i++)
 	{
 		if (channel->getClients()[i] == client)
@@ -792,11 +791,16 @@ void	Server::part(std::string command, Client *client)
 				sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
 
 			if (channel->getClients().size() == 1)
+			{
 				removeChannel(channel);
+				removed_channel = true;
+			}
 			else
 				channel->removeClient(client);
 		}
 	}
+	if (removed_channel)
+		delete channel;
 }
 
 void	Server::privmsg(std::string command, Client *client)
@@ -1550,45 +1554,51 @@ void	Server::list(std::string command, Client *client) {
 	std::string	str;
 
 	if (command.find('#') == std::string::npos) {
-		for (std::vector<Channel*>::iterator it = _channels.begin();
-		it != _channels.end(); it++) {
+		for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); it++) {
 			std::stringstream ss;
 
-			ss << '#' << (*it)->getName() << ' ' << (*it)->getClients().size()
-			<< ' ' << (*it)->getTopic();
+			ss << '#' << (*it)->getName() << ' ' << (*it)->getClients().size() << ' ' << (*it)->getTopic();
 			str = ss.str();
 			sendToClient(str, client);
 		}
 	} else {
 		std::string	channel = command.substr(command.find('#') + 1);
 
-		for (std::vector<Channel*>::iterator it = _channels.begin();
-		it != _channels.end(); it++) {
+		for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); it++) {
 			if (channel != (*it)->getTopic())
 				break ;
 
 			std::stringstream ss;
 			
-			ss << '#' << (*it)->getName() << ' ' << (*it)->getClients().size()
-			<< ' ' << (*it)->getTopic();
+			ss << '#' << (*it)->getName() << ' ' << (*it)->getClients().size() << ' ' << (*it)->getTopic();
 			str = ss.str();
 			sendToClient(str, client);
 		}
 	}
 }
 
+/**
+ * @brief Exit the server properly. The Client is removed from all channels he's in.
+ * 
+ * @param command 
+ * @param client 
+ */
 void	Server::quit(std::string command, Client *client) {
-	std::string	raison;
+	std::string	reason;
 
-	raison = command.substr(command.find(':') + 1);
-	std::vector<Channel *> listchan = this->getChannels();
-	for (size_t i = 0; i < listchan.size(); i++) {
-		Channel *tmp = listchan.at(i);
-		if (tmp->isBanned(client))
-			tmp->unbanClient(client);
-		if (tmp->isMuted(client))
-			tmp->unmuteClient(client);
-		if (tmp->isInChannel(client))
-			part("PART #" + tmp->getName() + " :" + raison, client);
+	reason = command.substr(command.find(':') + 1);
+	
+	for (size_t i = 0; i < _channels.size(); i++) {
+		Channel *channel = _channels.at(i);
+		if (channel->isBanned(client))
+			channel->unbanClient(client);
+		if (channel->isMuted(client))
+			channel->unmuteClient(client);
+		if (channel->isInChannel(client))
+			part("PART #" + channel->getName() + " :" + reason, client);
 	}
+	std::cerr << RED << "Client " << client->getSocket() << " disconnected. Reason : " << reason << ENDL;
+	close(client->getSocket());
+	removeClient(client);
+	delete client;
 }

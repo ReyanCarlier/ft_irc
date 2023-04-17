@@ -27,7 +27,7 @@ Channel::Channel(const std::string name) {
 }
 
 Channel::~Channel() {
-    std::cout << "Channel " << this->_name << " deleted." << std::endl;
+    
 }
 
 Channel& Channel::operator=(const Channel& other) {

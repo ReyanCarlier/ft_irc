@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/14 14:18:55 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/17 18:44:42 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,12 +105,7 @@ int	main(int ac, char **av)
 						server.removeClient(server.getClients().at(i));
 						continue ;
 					}
-					else if (
-						server.getClients().at(i)->isReady() == 1 &&
-						server.getClients().at(i)->isWelcomed() &&
-						server.getClients().at(i)->getPass() == 2 &&
-						!server.getPassword().empty()
-					)
+					else if (server.getClients().at(i)->isReady() == 1 && server.getClients().at(i)->isWelcomed() && server.getClients().at(i)->getPass() == 2 && !server.getPassword().empty())
 					{
 						std::string test = ":serverserver 461 ";
 						test.append(server.getClients().at(i)->getUsername());
@@ -169,5 +164,6 @@ int	main(int ac, char **av)
 		std::cerr << RED << e << ENDL;
 		return (1);
 	}
+	
 	return (0);
 }
