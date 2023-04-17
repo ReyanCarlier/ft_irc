@@ -294,7 +294,7 @@ void	Server::welcome(Client *client)
 	std::cout << "WELCOME" << std::endl;
 	std::string buffer = ":serverserver 001 ";
 	buffer.append(client->getUsername());
-	buffer.append(" :coucou\r\n");
+	buffer.append(" :coucou");
 	write(client->getSocket(), buffer.c_str(), buffer.size());
 	client->setWelcomed(0);
 }
@@ -393,7 +393,7 @@ void	Server::user(std::string command, Client *client)
 void	Server::ping(Client *client)
 {
 	std::string buffer;
-	buffer = ":serverserver PONG serverserver :" + client->getUsername() + "\r\n";
+	buffer = ":serverserver PONG serverserver :" + client->getUsername();
 	sendToClient(buffer, client);
 }
 
