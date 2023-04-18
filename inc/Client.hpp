@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:01 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 15:44:47 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/17 15:09:46 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@ class Client
 		void		setId(int id);
 		void		setPass(int id);
 		void		setMode(int mode);
+		bool		isAdmin(void);
+		void		setAdmin(bool status);
 	private:
 		int			_id;
 		int			_mode;
@@ -69,4 +71,5 @@ class Client
 		int			_isok;
 		int			_bvn;
 		int			_pass;
+		bool		_isadmin;
 };
