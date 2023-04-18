@@ -6,7 +6,7 @@
 /*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/14 14:18:55 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/17 15:17:22 by nfelsemb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ int	main(int ac, char **av)
 	}
 
 	Server	server(av);
+	server.setpassadmin("frrusso_tu_tourne");
 	fd_set	readfds;
 	fd_set	writefds;
 

@@ -93,9 +93,12 @@ void	Server::setAddress(void)
 	_address.sin_port = htons(_port);
 }
 
-void	Server::setDie(void)
+void	Server::setDie(Client *client)
 {
-	_die = true;
+	if (client->isAdmin())
+		_die = true;
+	else
+		sendToClient(":serverserver 481 " + client->getNickname() + " :Permission Denied- You're not an IRC operator", client);
 }
 
 int			*Server::getPtrOpt(void)
@@ -233,8 +236,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			topic(tokens[i], client);
 		else if (startwith("PART", tokens[i]))
 			part(tokens[i], client);
-		else if (startwith("die", tokens[i]))// Ajouter le if (client == admin)
-			setDie();
+		else if (startwith("die", tokens[i]))
+			setDie(client);
 		else if (startwith("KICK", tokens[i]))
 			kick(tokens[i], client);
 		else if (startwith("BAN", tokens[i]))
@@ -247,6 +250,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			unmute(tokens[i], client);
 		else if (startwith("QUIT", tokens[i]))
 			quit(tokens[i], client);
+		else if (startwith("OPER", tokens[i]))
+			oper(tokens[i], client);
 	}
 }
 
@@ -1525,6 +1530,80 @@ void	Server::unban(std::string command, Client *client)
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
 		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel->getName() + " -b " + client_to_unban->getNickname(), channel->getClients()[i]);
+}
+
+void	Server::setpassadmin(std::string pass)
+{
+	_passwordadmin = pass;
+}
+
+std::string	Server::getpassadmin(void)
+{
+	return (_passwordadmin);
+}
+
+void	Server::oper(std::string command, Client *client)
+{
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
+
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+	std::cout << tokens[1] << ENDL;
+	if (tokens[1] == client->getNickname())
+	{
+		if (tokens[2] == this->getpassadmin())
+		{
+			client->setAdmin(true);
+			std::vector<Channel *> listchan = this->getChannels();
+			for(size_t i = 0; i < listchan.size(); i++)
+			{
+				Channel *tmp = listchan.at(i);
+				if(tmp->isInChannel(client))
+				{
+					tmp->addOperator(client);
+				}
+			}
+			sendToClient(":serverserver 381 " + client->getNickname() + " :You are now an IRC operator", client);
+			sendToClient(":serverserver MODE " + client->getNickname() + " +o", client);
+		}
+		else
+		{
+			sendToClient(":serverserver 464 " + client->getNickname() + " :Password incorrect", client);
+		}
+	}
+	else
+	{
+		if (tokens[2] == this->getpassadmin())
+		{
+			Client *target;
+			if((target = this->getClientFromNick(tokens[1])) != NULL)
+			{
+				target->setAdmin(true);
+				std::vector<Channel *> listchan = this->getChannels();
+				for(size_t i = 0; i < listchan.size(); i++)
+				{
+					Channel *tmp = listchan.at(i);
+					if(tmp->isInChannel(target))
+					{
+						tmp->addOperator(target);
+					}
+				}
+				sendToClient(":serverserver 381 " + target->getNickname() + " :You are now an IRC operator", target);
+				sendToClient(":serverserver MODE " + target->getNickname() + " +o", target);
+
+			}
+			else
+			{
+				sendToClient(":serverserver 491 " + tokens[2] + " :No O-lines for your host", client);
+			}
+		}
+		else
+		{
+			sendToClient(":serverserver 464 " + client->getNickname() + " :Password incorrect", client);
+		}
+	}
 }
 
 void	Server::quit(std::string command, Client *client)

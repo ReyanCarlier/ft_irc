@@ -21,6 +21,7 @@ class Server
 		int						_max_clients;
 		int						_opt;
 		std::string				_password;
+		std::string				_passwordadmin;
 		char					_buffer[1024];
 		std::vector<Channel *>	_channels;
 		std::vector<Client *>	_clients;
@@ -45,7 +46,7 @@ class Server
 		void					setAccept(void);
 		void					setAddress(void);
 		void					setPort(int port);
-		void					setDie(void);
+		void					setDie(Client *client);
 
 		void					addClient(Client *client);
 		void					addChannel(Channel *channel);
@@ -59,6 +60,8 @@ class Server
 		std::vector<Client *>	getClients(void);
 		std::vector<Channel *>	getChannels(void);
 		Channel					*getChannel(std::string channel_name);
+		std::string				getpassadmin(void);
+		void					setpassadmin(std::string pass);
 
 		int						*getPtrOpt(void);
 		sockaddr				*getCastAddress(void);
