@@ -12,8 +12,6 @@ Channel::Channel(const Channel& other) {
     this->_name = other._name;
     this->_clients = other._clients;
     this->_operators = other._operators;
-    this->_admins = other._admins;
-    this->_owners = other._owners;
     this->_banned = other._banned;
     this->_muted = other._muted;
     this->_topic = other._topic;
@@ -39,8 +37,6 @@ Channel& Channel::operator=(const Channel& other) {
     this->_name = other._name;
     this->_clients = other._clients;
     this->_operators = other._operators;
-    this->_admins = other._admins;
-    this->_owners = other._owners;
     this->_banned = other._banned;
     this->_muted = other._muted;
     return *this;
@@ -72,20 +68,6 @@ std::vector<Client *> Channel::getClients() {
 */
 std::vector<Client *> Channel::getOperators() {
     return this->_operators;
-}
-
-/**
- * Returns the list of Client that are in the Channel with admin privileges.
-*/
-std::vector<Client *> Channel::getAdmins() {
-    return this->_admins;
-}
-
-/**
- * Returns the list of Client that are in the Channel with ownership.
-*/
-std::vector<Client *> Channel::getOwners() {
-    return this->_owners;
 }
 
 /**
@@ -135,14 +117,6 @@ void Channel::addOperator(Client *client) {
     this->_operators.push_back(client);
 }
 
-void Channel::addAdmin(Client *client) {
-    this->_admins.push_back(client);
-}
-
-void Channel::addOwner(Client *client) {
-    this->_owners.push_back(client);
-}
-
 /**
  * @brief Adds a Client to the _banned list of the Channel.
  * A banned Client cannot join the Channel.
@@ -181,24 +155,6 @@ void Channel::removeOperator(Client *client) {
     for (std::vector<Client *>::iterator it = this->_operators.begin(); it != this->_operators.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             this->_operators.erase(it);
-            break;
-        }
-    }
-}
-
-void Channel::removeAdmin(Client *client) {
-    for (std::vector<Client *>::iterator it = this->_admins.begin(); it != this->_admins.end(); it++) {
-        if ((*it)->getSocket() == client->getSocket()) {
-            this->_admins.erase(it);
-            break;
-        }
-    }
-}
-
-void Channel::disownClient(Client *client) {
-    for (std::vector<Client *>::iterator it = this->_owners.begin(); it != this->_owners.end(); it++) {
-        if ((*it)->getSocket() == client->getSocket()) {
-            this->_owners.erase(it);
             break;
         }
     }
