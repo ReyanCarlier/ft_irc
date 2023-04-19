@@ -27,6 +27,7 @@ Server::Server(char **av)
 	_channels = std::vector<Channel *>();
 	bzero(_buffer, 1024);
 	_die = false;
+	_passwordadmin = OPER_PASSWORD;
 }
 
 Server::~Server()
@@ -166,7 +167,7 @@ void Server::removeClient(Client *client) {
 	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			_clients.erase(it);
-			break;
+			break ;
 		}
 	}
 }
@@ -179,7 +180,7 @@ void Server::removeChannel(Channel *channel) {
 	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++) {
 		if ((*it)->getName() == channel->getName()) {
 			_channels.erase(it);
-			break;
+			break ;
 		}
 	}
 }
@@ -468,7 +469,8 @@ void	Server::who(std::string command, Client *client)
 			std::vector<Client *> clients = channel->getClients();
 			for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); it++)
 			{
-				std::string buffer = ":serverserver 352 " + client->getNickname() + " " + channel->getName() + " " + (*it)->getUsername() + " " + (*it)->getHostname() + " " + (*it)->getHost() + " " + (*it)->getUsername() + " H :0 " + (*it)->getRealName();
+				std::string	buffer(":serverserver 352 " + client->getNickname() + " " + channel->getName() + " " + (*it)->getUsername() + " " +
+				(*it)->getHostname() + " " + (*it)->getHost() + " " + (*it)->getUsername() + " H :0 " + (*it)->getRealName());
 				sendToClient(buffer, client);
 			}
 			std::string buffer = ":serverserver 315 " + client->getNickname() + " " + channel->getName() + " :End of /WHO list.";
@@ -670,7 +672,7 @@ void	Server::join(std::string command, Client *client)
 	std::string	channel_name;
 
 	command.erase(0, 5);
-	bool added = false;
+	bool	added = false;
 	if (command[0] == '#')
 	{
 		channel_name = command;
@@ -682,7 +684,6 @@ void	Server::join(std::string command, Client *client)
 		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
-
 	if (not channelExists(channel_name))
 	{
 		std::cout << "Channel " << channel_name << " does not exist, creating it." << std::endl;
@@ -692,7 +693,6 @@ void	Server::join(std::string command, Client *client)
 		added = true;
 		channel->addOperator(client);
 	}
-
 	if (getChannel(channel_name)->isBanned(client))
 	{
 		std::cout << RED << "Client " << client->getUsername() << " cannot join " << channel_name << " because banned." << ENDL;
@@ -705,16 +705,13 @@ void	Server::join(std::string command, Client *client)
 		sendToClient(": serverserver " + Errors::ERR_INVITEONLYCHAN + " * :Cannot join channel (+i)", client);
 		return ;
 	}
-
 	if (not added)
 		getChannel(channel_name)->addClient(client);
-
 	sendToClient(":serverserver 332 " + client->getNickname() + " " + channel_name + " :" + getChannel(channel_name)->getTopic(), client);
-	
-	std::string buffer;
+	std::string	buffer;
 	for (size_t i = 0; i < getChannel(channel_name)->getClients().size(); i++)
 	{
-		std::vector<Client *> op = getChannel(channel_name)->getOperators();
+		std::vector<Client *>	op = getChannel(channel_name)->getOperators();
 		if (std::find(op.begin(), op.end(), getChannel(channel_name)->getClients()[i]) != op.end())
 			buffer += "@";
 		buffer += getChannel(channel_name)->getClients()[i]->getNickname();
@@ -723,10 +720,12 @@ void	Server::join(std::string command, Client *client)
 	}
 	sendToClient(":serverserver 353 " + client->getNickname() + " = " + channel_name + " :" + buffer, client);
 	sendToClient(":serverserver 366 " + client->getNickname() + " " + channel_name + " :End of /NAMES list.", client);
-	
 	for (size_t i = 0; i < getChannel(channel_name)->getClients().size(); i++)
 	{
-		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN #" + channel_name, getChannel(channel_name)->getClients()[i]);
+		sendToClient(
+			":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN #" + channel_name,
+			getChannel(channel_name)->getClients()[i]
+		);
 	}
 }
 
@@ -746,7 +745,7 @@ void	Server::part(std::string command, Client *client)
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
 
-	std::string channel_name;
+	std::string	channel_name;
 
 	if (tokens.size() == 1)
 	{
@@ -794,7 +793,12 @@ void	Server::part(std::string command, Client *client)
 				channel->removeInvited(client);
 
 			for (size_t i = 0; i < channel->getClients().size(); i++)
-				sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel", channel->getClients()[i]);
+			{
+				sendToClient(
+					":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel",
+					channel->getClients()[i]
+				);
+			}
 
 			if (channel->getClients().size() == 1)
 				removeChannel(channel);
@@ -821,7 +825,7 @@ void	Server::privmsg(std::string command, Client *client)
 		return ;
 	}
 
-	if(tokens[1][0] == '#')
+	if (tokens[1][0] == '#')
 	{
 		// CHECK IF CHANNEL EXISTS
 		Channel *channel = getChannel(tokens[1].substr(1, tokens[1].size() - 1));
@@ -841,7 +845,7 @@ void	Server::privmsg(std::string command, Client *client)
 		}
 
 		// CHECK IF USER IS IN CHANNEL
-		bool isInChannel = false;
+		bool	isInChannel = false;
 		for (size_t i = 0; i < channel->getClients().size(); i++)
 		{
 			if (channel->getClients()[i] == client)
@@ -869,7 +873,12 @@ void	Server::privmsg(std::string command, Client *client)
 		for (size_t i = 0; i < channel->getClients().size(); i++)
 		{
 			if (channel->getClients()[i] != client)
-				sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + tokens[1] + " :" + message, channel->getClients()[i]);
+			{
+				sendToClient(
+					":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + tokens[1] + " :" + message,
+					channel->getClients()[i]
+				);
+			}
 		}
 	}
 	else
@@ -883,7 +892,7 @@ void	Server::privmsg(std::string command, Client *client)
 			message.append(" ");
 			message.append(tokens[i]);
 		}
-		if(target != NULL)
+		if (target != NULL)
 			sendToClient(":" + client->getNickname() + " PRIVMSG " + target->getNickname() + " " + message, target);
 		else
 			sendToClient(":serverserver 401 " + client->getUsername() +  " " + tokens[1] + " :No user with this nickname.", client);
@@ -898,9 +907,9 @@ void	Server::privmsg(std::string command, Client *client)
  */
 void	Server::kick(std::string command, Client *client)
 {
-	std::stringstream ss(command);
-	std::string		item;
-	std::vector<std::string> tokens;
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
@@ -1025,9 +1034,18 @@ void	Server::kick(std::string command, Client *client)
 	part("PART #" + channel->getName() + " :" + reason, client_to_kick);
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
-		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason, channel->getClients()[i]);
-
-	sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason, client_to_kick);
+	{
+		sendToClient(
+			":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() +
+			" KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason,
+			channel->getClients()[i]
+		);
+	}
+	sendToClient(
+		":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() +
+		" KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason,
+		client_to_kick
+	);
 }
 
 /**
@@ -1307,7 +1325,11 @@ void	Server::mute(std::string command, Client *client)
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
 	{
-		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MUTE #" + channel->getName() + " +m " + client_to_mute->getNickname() + " :" + reason, channel->getClients()[i]);
+		sendToClient(
+			":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() +
+			" MUTE #" + channel->getName() + " +m " + client_to_mute->getNickname() + " :" + reason,
+			channel->getClients()[i]
+		);
 	}
 }
 
@@ -1444,7 +1466,11 @@ void	Server::unmute(std::string command, Client *client)
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
 	{
-		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MUTE #" + channel->getName() + " -m " + client_to_unmute->getNickname() + " :" + reason, channel->getClients()[i]);
+		sendToClient(
+			":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() +
+			" MUTE #" + channel->getName() + " -m " + client_to_unmute->getNickname() + " :" + reason,
+			channel->getClients()[i]
+		);
 	}
 }
 
@@ -1487,7 +1513,7 @@ void	Server::unban(std::string command, Client *client)
 		return ;
 	}
 
-	Channel *channel = getChannel(tokens[1]);
+	Channel	*channel = getChannel(tokens[1]);
 	bool found = false;
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
@@ -1508,7 +1534,7 @@ void	Server::unban(std::string command, Client *client)
 
 	found = false;
 
-	std::vector<Client *> op = channel->getOperators();
+	std::vector<Client *>	op = channel->getOperators();
 
 	for (size_t i = 0; i < op.size(); i++)
 	{
@@ -1548,7 +1574,13 @@ void	Server::unban(std::string command, Client *client)
 	channel->unbanClient(client_to_unban);
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
-		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " MODE #" + channel->getName() + " -b " + client_to_unban->getNickname(), channel->getClients()[i]);
+	{
+		sendToClient(
+			":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() +
+			" MODE #" + channel->getName() + " -b " + client_to_unban->getNickname(),
+			channel->getClients()[i]
+		);
+	}
 }
 
 void	Server::setpassadmin(std::string pass)
@@ -1576,10 +1608,10 @@ void	Server::oper(std::string command, Client *client)
 		{
 			client->setAdmin(true);
 			std::vector<Channel *> listchan = this->getChannels();
-			for(size_t i = 0; i < listchan.size(); i++)
+			for (size_t i = 0; i < listchan.size(); i++)
 			{
 				Channel *tmp = listchan.at(i);
-				if(tmp->isInChannel(client))
+				if (tmp->isInChannel(client))
 				{
 					tmp->addOperator(client);
 				}
@@ -1597,14 +1629,14 @@ void	Server::oper(std::string command, Client *client)
 		if (tokens[2] == this->getpassadmin())
 		{
 			Client *target;
-			if((target = this->getClientFromNick(tokens[1])) != NULL)
+			if ((target = this->getClientFromNick(tokens[1])) != NULL)
 			{
 				target->setAdmin(true);
 				std::vector<Channel *> listchan = this->getChannels();
-				for(size_t i = 0; i < listchan.size(); i++)
+				for (size_t i = 0; i < listchan.size(); i++)
 				{
 					Channel *tmp = listchan.at(i);
-					if(tmp->isInChannel(target))
+					if (tmp->isInChannel(target))
 					{
 						tmp->addOperator(target);
 					}

@@ -40,7 +40,6 @@ int	main(int ac, char **av)
 	}
 
 	Server	server(av);
-	server.setpassadmin(OPER_PASSWORD);
 	fd_set	readfds;
 	fd_set	writefds;
 
@@ -90,8 +89,12 @@ int	main(int ac, char **av)
 			{
 				if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
 				{
-					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed() && !server.getClients().at(i)->getNickname().empty() && (server.getClients().at(i)->getPass() == 1 || server.getPassword().empty()))
-					{
+					if (
+						server.getClients().at(i)->isReady() &&
+						server.getClients().at(i)->isWelcomed() &&
+						!server.getClients().at(i)->getNickname().empty() &&
+						(server.getClients().at(i)->getPass() == 1 || server.getPassword().empty())
+					) {
 						server.welcome(server.getClients().at(i));
 					}
 					else if (server.getClients().at(i)->getPass() == 0 && !server.getPassword().empty())
@@ -111,8 +114,7 @@ int	main(int ac, char **av)
 						server.getClients().at(i)->isWelcomed() &&
 						server.getClients().at(i)->getPass() == 2 &&
 						!server.getPassword().empty()
-					)
-					{
+					) {
 						std::string test = ":serverserver 461 ";
 						test.append(server.getClients().at(i)->getUsername());
 						test.append(" PASS :Not enough parameters\r\n");
@@ -136,7 +138,7 @@ int	main(int ac, char **av)
 
 						for (size_t j = 0; j < channels.size(); j++)
 						{
-							std::vector<Client*> clients = channels.at(j)->getClients();
+							std::vector<Client*>	clients = channels.at(j)->getClients();
 							for (size_t k = 0; k < clients.size(); k++)
 							{
 								if (clients.at(k)->getSocket() == server.getClients().at(i)->getSocket())
@@ -152,7 +154,7 @@ int	main(int ac, char **av)
 								delete channels.at(j);
 							}
 						}
-						Client *client = server.getClients().at(i);
+						Client	*client = server.getClients().at(i);
 						server.removeClient(server.getClients().at(i));
 						delete client;
 					}
