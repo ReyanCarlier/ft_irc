@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
 /*   Updated: 2023/04/17 18:49:58 by recarlie         ###   ########.fr       */
@@ -12,12 +12,12 @@
 
 #include <Client.hpp>
 
-Client::Client() : _socket(0), _isok(0), _bvn(1), _pass(2)
+Client::Client() : _socket(0), _isok(0), _bvn(1), _pass(2), _isadmin(false)
 {
 	std::cout << "Client created" << std::endl;
 }
 
-Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1), _pass(2) 
+Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1), _pass(2), _isadmin(false)
 {
 	std::cout << "Client created" << std::endl;
 }
@@ -155,4 +155,14 @@ void		Client::setWelcomed(int bvn)
 void		Client::setPass(int status)
 {
 	_pass = status;
+}
+
+void		Client::setAdmin(bool status)
+{
+	_isadmin = status;
+}
+
+bool		Client::isAdmin(void)
+{
+	return (_isadmin);
 }

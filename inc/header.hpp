@@ -37,4 +37,5 @@
 #define MAX_TCP_PORT	65535
 #define MAX_REQUESTS	8
 #define MAX_CLIENT		42
-#define SERVER_NAME     "ft_irc"
+#define SERVER_NAME		"ft_irc"
+#define OPER_PASSWORD	"frrusso_tu_tourne"

@@ -40,6 +40,7 @@ int	main(int ac, char **av)
 	}
 
 	Server	server(av);
+	server.setpassadmin(OPER_PASSWORD);
 	fd_set	readfds;
 	fd_set	writefds;
 
