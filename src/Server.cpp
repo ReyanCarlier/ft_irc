@@ -25,7 +25,7 @@ Server::Server(char **av)
 	_max_clients = MAX_CLIENT;
 	_clients = std::vector<Client *>();
 	_channels = std::vector<Channel *>();
-	bzero(_buffer, 1024);
+	bzero(_buffer, BUFFER_SIZE);
 	_die = false;
 	_passwordadmin = OPER_PASSWORD;
 }

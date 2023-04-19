@@ -22,7 +22,7 @@ class Server
 		int						_opt;
 		std::string				_password;
 		std::string				_passwordadmin;
-		char					_buffer[1024];
+		char					_buffer[BUFFER_SIZE];
 		std::vector<Channel *>	_channels;
 		std::vector<Client *>	_clients;
 		sockaddr_in				_address;

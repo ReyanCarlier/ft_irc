@@ -15,7 +15,7 @@
 #include <iostream>
 #include <sys/socket.h>	/* socket setsockopt bind listen accept send */
 #include <arpa/inet.h>	/* htons htonl */
-#include <unistd.h>     /* close read write */
+#include <unistd.h>		/* close read write */
 #include <cstring>		/* strlen */
 #include <cstdlib>		/* atoi */
 #include <cerrno>		/* errno */
@@ -32,7 +32,6 @@
 #define ERROR			"\33[31m" << "Error: "
 
 #define MAX_TCP_PORT	65535
-#define MAX_REQUESTS	8
 #define MAX_CLIENT		42
-#define SERVER_NAME		"ft_irc"
+#define BUFFER_SIZE		1024
 #define OPER_PASSWORD	"oper"
