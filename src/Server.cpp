@@ -289,11 +289,12 @@ void	Server::topic(std::string command, Client *client)
 		{
 			if (i == 2 and tokens[2][0] == ':')
 				tokens[2].erase(0, 1);
+			topic.append(tokens[i]);
 		}
 		channel->setTopic(topic);
 		std::vector<Client *> clients = channel->getClients();
 		for (size_t i = 0; i < clients.size(); i++)
-			sendToClient(":serverserver 332 " + client->getUsername() + " #" + tokens[1] + " :" + channel->getTopic(), clients[i]);
+			sendToClient(":serverserver 332 " + client->getUsername() + " #" + tokens[1] + " :" + topic, clients[i]);
 	}
 }
 
