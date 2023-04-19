@@ -1659,25 +1659,49 @@ void	Server::list(std::string command, Client *client) {
 	if (command.find('#') == std::string::npos) {
 		for (std::vector<Channel*>::iterator it = _channels.begin();
 		it != _channels.end(); it++) {
-			std::stringstream ss;
-
-			ss << '#' << (*it)->getName() << ' ' << (*it)->getClients().size()
-			<< ' ' << (*it)->getTopic();
+			std::stringstream	ss;
+			ss << '#' << (*it)->getName() << ' '
+			<< (*it)->getClients().size() << ' ' << (*it)->getTopic();
 			str = ss.str();
 			sendToClient(str, client);
 		}
 	} else {
-		std::string	channel = command.substr(command.find('#') + 1);
+		std::string				channel = command.substr(command.find('#') + 1);
+		std::string::size_type	pos;
+		std::string				substr;
 
+		while (channel.find('#') != std::string::npos)
+		{
+			pos = channel.find(',');
+			if (pos != std::string::npos)
+				substr = channel.substr(0, pos);
+			else
+				substr = channel;
+			for (std::vector<Channel*>::iterator it = _channels.begin();
+			it != _channels.end(); it++) {
+				if (substr != (*it)->getName())
+					continue ;
+				std::stringstream	ss;
+				ss << '#' << (*it)->getName() << ' '
+				<< (*it)->getClients().size() << ' ' << (*it)->getTopic();
+				str = ss.str();
+				sendToClient(str, client);
+			}
+			channel.erase(0, substr.size() + 1);
+			channel = channel.substr(channel.find('#') + 1);
+		}
+		pos = channel.find(',');
+		if (pos != std::string::npos)
+			substr = channel.substr(0, pos);
+		else
+			substr = channel;
 		for (std::vector<Channel*>::iterator it = _channels.begin();
 		it != _channels.end(); it++) {
-			if (channel != (*it)->getTopic())
-				break ;
-
-			std::stringstream ss;
-			
-			ss << '#' << (*it)->getName() << ' ' << (*it)->getClients().size()
-			<< ' ' << (*it)->getTopic();
+			if (substr != (*it)->getName())
+				continue ;
+			std::stringstream	ss;
+			ss << '#' << (*it)->getName() << ' '
+			<< (*it)->getClients().size() << ' ' << (*it)->getTopic();
 			str = ss.str();
 			sendToClient(str, client);
 		}
