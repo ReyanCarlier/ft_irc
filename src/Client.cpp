@@ -6,7 +6,7 @@
 /*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/17 15:11:02 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/17 18:49:58 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ Client::Client(const Client &src)
 
 Client::~Client()
 {
-	std::cout << "Client destroyed" << std::endl;
 	close(_socket);
 }
 
