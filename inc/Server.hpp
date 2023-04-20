@@ -28,6 +28,7 @@ class Server
 		sockaddr_in				_address;
 		int						_port;
 		int						_socket_fd;
+		int						_clientinqueue;
 		bool					_die;
 	public:
 		Server(char **av);
@@ -65,6 +66,10 @@ class Server
 
 		int						*getPtrOpt(void);
 		sockaddr				*getCastAddress(void);
+
+		void					addClientQeue(void);
+		void					removeClientQeue(void);
+		int						getClientQeue(void);
 
 		void					bind(int port);
 		void					listen(void);

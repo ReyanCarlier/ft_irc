@@ -23,6 +23,7 @@ Server::Server(char **av)
 	_accept_fd = 0;
 	_opt = 1;
 	_max_clients = MAX_CLIENT;
+	_clientinqueue = 0;
 	_clients = std::vector<Client *>();
 	_channels = std::vector<Channel *>();
 	bzero(_buffer, 1024);
@@ -1666,4 +1667,19 @@ void	Server::quit(std::string command, Client *client) {
 		if (tmp->isInChannel(client))
 			part("PART #" + tmp->getName() + " :" + raison, client);
 	}
+}
+
+void	Server::addClientQeue(void)
+{
+	_clientinqueue++;
+}
+
+void	Server::removeClientQeue(void)
+{
+	_clientinqueue--;
+}
+
+int		Server::getClientQeue(void)
+{
+	return (_clientinqueue);
 }
