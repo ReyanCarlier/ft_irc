@@ -13,13 +13,9 @@
 #pragma once
 
 #include <iostream>
-#include <sys/socket.h>	/* socket setsockopt getsockname bind connect listen accept send recv */
-#include <netdb.h>		/* getprotobyname gethostbyname getaddrinfo freeaddrinfo */
-#include <arpa/inet.h>	/* htons htonl ntohs ntohl inet_addr inet_ntoa */
-#include <csignal>		/* signal */
-#include <unistd.h>		/* lseek */
-#include <sys/stat.h>	/* fstat */
-#include <fcntl.h>		/* fcntl */
+#include <sys/socket.h>	/* socket setsockopt bind listen accept send */
+#include <arpa/inet.h>	/* htons htonl */
+#include <unistd.h>     /* close read write */
 #include <cstring>		/* strlen */
 #include <cstdlib>		/* atoi */
 #include <cerrno>		/* errno */
@@ -34,6 +30,7 @@
 #define CYAN			"\33[36m"
 #define ENDL			"\33[00m" << std::endl
 #define ERROR			"\33[31m" << "Error: "
+
 #define MAX_TCP_PORT	65535
 #define MAX_REQUESTS	8
 #define MAX_CLIENT		42

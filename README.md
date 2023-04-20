@@ -10,7 +10,8 @@ between connected machines. It is always interesting to know what kind of thing.
 - [Reyan Carlier](https://github.com/ReyanCarlier)
 
 ## Useful links
-- [IRC/2 Numeric List](https://www.alien.net.au/irc/irc2numerics.html) (RFC2812 priority / RFC1459)
+- [IRC/2 Numeric List](https://www.alien.net.au/irc/irc2numerics.html)
+(RFC2812 priority / RFC1459)
 
 ## Deployment
 To deploy this project run
@@ -69,9 +70,11 @@ Parameters :
 ```
 Description :
 ```
-The USER command is used at the beginning of connection to specify the username, hostname and realname of a new user.
+The USER command is used at the beginning of connection to specify the username,
+hostname and realname of a new user.
 The <realname> parameter may contain space characters.
-The <mode> parameter should be a numeric, and can be used to automatically set user modes when registering with the server.
+The <mode> parameter should be a numeric, and can be used to automatically set
+user modes when registering with the server.
 This parameter is a bitmask, with only 2 bits having any signification.
 ```
 Masks :
@@ -85,7 +88,8 @@ Examples :
 - USER guest 0 * :Reyan Carlier
 	=> User register itself with a username "guest" and realname "Reyan Carlier"
 - User guest 8 * :Reyan Carlier
-	=> User register itself with a username "guest" and realname "Reyan Carlier", and asking to be invisible
+	=> User register itself with a username "guest" and realname "Reyan Carlier"
+	, and asking to be invisible
 ```
 
 ## OPER
@@ -97,8 +101,9 @@ Parameters :
 Description :
 ```
 A normal user uses the OPER command to obtain operator privileges.
-The combination of <name> and <password> are required to gain Operator privileges.
-Upon success, the user will receive a MODE message, indicating the new user modes.
+The combination of <name> and <password> are required to gain Operator
+privileges. Upon success, the user will receive a MODE message, indicating the
+new user modes.
 ```
 Numeric replies :
 ```
@@ -110,7 +115,8 @@ Numeric replies :
 Example :
 ```
 - OPER rcrl secretpwd
-	=> Attempt to register as an operator using a username of "rcrl" and "secretpwd" as the password.
+	=> Attempt to register as an operator using a username of "rcrl" and
+	"secretpwd" as the password.
 ```
 
 ## MODE
@@ -121,14 +127,19 @@ Parameters :
 ```
 Description :
 ```
-The flag 'a' SHALL NOT be toggled by the user using the MODE command, instead use of the AWAY command is REQUIRED.
-If a user attempts to make themselves an operator using the "+o" or "+O" flag, the attempt SHOULD be ignored as users could bypass the authentication mechanisms of the OPER command.
-There is no restriction, however, on anyone `deopping' themselves (using "-o" or "-O").
+The flag 'a' SHALL NOT be toggled by the user using the MODE command, instead
+use of the AWAY command is REQUIRED. If a user attempts to make themselves an
+operator using the "+o" or "+O" flag, the attempt SHOULD be ignored as users
+could bypass the authentication mechanisms of the OPER command. There is no
+restriction, however, on anyone `deopping' themselves (using "-o" or "-O").
 
-On the other hand, if a user attempts to make themselves unrestricted using the "-r" flag, the attempt SHOULD be ignored.
+On the other hand, if a user attempts to make themselves unrestricted using the
+"-r" flag, the attempt SHOULD be ignored.
 There is no restriction, however, on anyone `deopping' themselves (using "+r").
-This flag is typically set by the server upon connection for administrative reasons.
-While the restrictions imposed are left up to the implementation, it is typical that a restricted user not be allowed to change nicknames, nor make use of the channel operator status on channels.
+This flag is typically set by the server upon connection for administrative
+reasons. While the restrictions imposed are left up to the implementation, it is
+typical that a restricted user not be allowed to change nicknames, nor make use
+of the channel operator status on channels.
 
 The flag 's' is obsolete but MAY still be used.
 

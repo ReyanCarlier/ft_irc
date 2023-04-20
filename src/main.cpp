@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfelsemb <nfelsemb@student.42.fr>          +#+  +:+       +#+        */
+/*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/17 15:17:22 by nfelsemb         ###   ########.fr       */
+/*   Updated: 2023/04/17 18:44:42 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ int	main(int ac, char **av)
 	}
 
 	Server	server(av);
-	server.setpassadmin(OPER_PASSWORD);
 	fd_set	readfds;
 	fd_set	writefds;
 
@@ -98,8 +97,12 @@ int	main(int ac, char **av)
 			{
 				if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
 				{
-					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed() && !server.getClients().at(i)->getNickname().empty() && (server.getClients().at(i)->getPass() == 1 || server.getPassword().empty()))
-					{
+					if (
+						server.getClients().at(i)->isReady() &&
+						server.getClients().at(i)->isWelcomed() &&
+						!server.getClients().at(i)->getNickname().empty() &&
+						(server.getClients().at(i)->getPass() == 1 || server.getPassword().empty())
+					) {
 						server.welcome(server.getClients().at(i));
 						server.removeClientQeue();
 					}
@@ -135,7 +138,7 @@ int	main(int ac, char **av)
 
 						for (size_t j = 0; j < channels.size(); j++)
 						{
-							std::vector<Client*> clients = channels.at(j)->getClients();
+							std::vector<Client*>	clients = channels.at(j)->getClients();
 							for (size_t k = 0; k < clients.size(); k++)
 							{
 								if (clients.at(k)->getSocket() == server.getClients().at(i)->getSocket())
@@ -151,7 +154,7 @@ int	main(int ac, char **av)
 								delete channels.at(j);
 							}
 						}
-						Client *client = server.getClients().at(i);
+						Client	*client = server.getClients().at(i);
 						server.removeClient(server.getClients().at(i));
 						delete client;
 					}
@@ -169,5 +172,6 @@ int	main(int ac, char **av)
 		std::cerr << RED << e << ENDL;
 		return (1);
 	}
+	
 	return (0);
 }

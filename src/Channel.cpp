@@ -23,11 +23,12 @@ Channel::Channel(const std::string name) {
     this->_name = name;
     this->_topic = "No topic yet";
     this->_inviteOnly = false;
+
     std::cout << "Channel " << this->_name << " created." << std::endl;
 }
 
 Channel::~Channel() {
-    std::cout << "Channel " << this->_name << " deleted." << std::endl;
+    
 }
 
 Channel& Channel::operator=(const Channel& other) {
@@ -146,7 +147,7 @@ void Channel::removeClient(Client *client) {
     for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			_clients.erase(it);
-			break;
+			break ;
 		}
 	}
 }
@@ -155,7 +156,7 @@ void Channel::removeOperator(Client *client) {
     for (std::vector<Client *>::iterator it = this->_operators.begin(); it != this->_operators.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             this->_operators.erase(it);
-            break;
+            break ;
         }
     }
 }
@@ -170,7 +171,7 @@ void Channel::unbanClient(Client *client) {
     for (std::vector<Client *>::iterator it = this->_banned.begin(); it != this->_banned.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             this->_banned.erase(it);
-            break;
+            break ;
         }
     }
 }
@@ -185,12 +186,14 @@ void Channel::unmuteClient(Client *client) {
     for (std::vector<Client *>::iterator it = this->_muted.begin(); it != this->_muted.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             this->_muted.erase(it);
-            break;
+            break ;
         }
     }
 }
 
 bool Channel::isBanned(Client *client) {
+    if (this->_banned.empty())
+        return false;
     for (std::vector<Client *>::iterator it = this->_banned.begin(); it != this->_banned.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             return true;
@@ -200,6 +203,8 @@ bool Channel::isBanned(Client *client) {
 }
 
 bool Channel::isMuted(Client *client) {
+    if (this->_muted.empty())
+        return false;
     for (std::vector<Client *>::iterator it = this->_muted.begin(); it != this->_muted.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             return true;
@@ -209,6 +214,8 @@ bool Channel::isMuted(Client *client) {
 }
 
 bool Channel::isOperator(Client *client) {
+    if (this->_operators.empty())
+        return false;
     for (std::vector<Client *>::iterator it = this->_operators.begin(); it != this->_operators.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             return true;
@@ -231,15 +238,19 @@ void Channel::addInvited(Client *client) {
 }
 
 void Channel::removeInvited(Client *client) {
+    if (this->_invited.empty())
+        return;
     for (std::vector<Client *>::iterator it = this->_invited.begin(); it != this->_invited.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             this->_invited.erase(it);
-            break;
+            break ;
         }
     }
 }
 
 bool Channel::isInvited(Client *client) {
+    if (this->_invited.empty())
+        return false;
     for (std::vector<Client *>::iterator it = this->_invited.begin(); it != this->_invited.end(); it++) {
         if ((*it)->getSocket() == client->getSocket()) {
             return true;
