@@ -15,7 +15,6 @@ SRC			=	main.cpp \
 				Server.cpp \
 				Client.cpp \
 				Channel.cpp \
-				Message.cpp \
 				Errors.cpp
 CPP			=	c++
 CPPFLAGS	=	-Wall -Wextra -Werror -MMD -g3 -std=c++98

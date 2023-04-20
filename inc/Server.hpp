@@ -10,7 +10,6 @@
 
 #include "Client.hpp"
 #include "Channel.hpp"
-#include "Message.hpp"
 #include "Errors.hpp"
 
 class Server
