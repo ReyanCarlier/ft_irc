@@ -19,6 +19,7 @@
 #include <cstring>		/* strlen */
 #include <cstdlib>		/* atoi */
 #include <cerrno>		/* errno */
+#include <sstream>      /* stringstream */
 
 #define RESET			"\33[00m"
 #define BLACK			"\33[30m"
@@ -35,3 +36,6 @@
 #define MAX_CLIENT		42
 #define BUFFER_SIZE		1024
 #define OPER_PASSWORD	"oper"
+#define BOT_NAME		"bot"
+#define BOT_PASSWORD	"password"
+#define CMD_CMP			cmd.compare

@@ -1497,7 +1497,7 @@ void	Server::list(std::string command, Client *client) {
 }
 
 /**
- * @brief Exit the server properly. The Client is removed from all channels he's in.
+ * @brief Exit the server properly. The Client is removed from all channels.
  * 
  * @param command 
  * @param client 
