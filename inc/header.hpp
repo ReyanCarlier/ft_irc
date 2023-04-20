@@ -36,4 +36,4 @@
 #define MAX_CLIENT		42
 #define SERVER_NAME		"ft_irc"
 #define OPER_PASSWORD	"frrusso_tu_tourne"
-#define MAX_CLIENT_IN_QUEU 8
+#define MAX_CLIENT_IN_QUEU 2

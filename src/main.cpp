@@ -132,6 +132,8 @@ int	main(int ac, char **av)
 					if (valread == 0)
 					{
 						std::cerr << RED << "Client " << server.getClients().at(i)->getSocket() << " disconnected." << ENDL;
+						if (server.getClients().at(i)->isWelcomed())
+							server.removeClientQeue();
 						close(server.getClients().at(i)->getSocket());
 
 						std::vector<Channel*>	channels = server.getChannels();
