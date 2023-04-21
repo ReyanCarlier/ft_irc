@@ -12,7 +12,7 @@
 
 #include <Server.hpp>
 
-bool	isport(char *av)
+bool	is_port(char *av)
 {
 	if (strlen(av) > 5)
 		return (false);
@@ -33,7 +33,7 @@ int	main(int ac, char **av)
 		std::cout << RED << "Usage: ./serverserv <port> <password>" << ENDL;
 		return (0);
 	}
-	if (isport(av[1]) == false)
+	if (is_port(av[1]) == false)
 	{
 		std::cerr << RED << "Port \"" << av[1] << "\" is not good." << ENDL;
 		return (0);
@@ -128,7 +128,7 @@ int	main(int ac, char **av)
 				}
 				if (FD_ISSET(server.getClients().at(i)->getSocket(), &readfds))
 				{
-					valread = read(server.getClients().at(i)->getSocket(), server.getBuffer(), 1024);
+					valread = read(server.getClients().at(i)->getSocket(), server.getBuffer(), BUFFER_SIZE);
 					if (valread == 0)
 					{
 						std::cerr << RED << "Client " << server.getClients().at(i)->getSocket() << " disconnected." << ENDL;

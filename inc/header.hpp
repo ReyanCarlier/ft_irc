@@ -15,10 +15,11 @@
 #include <iostream>
 #include <sys/socket.h>	/* socket setsockopt bind listen accept send */
 #include <arpa/inet.h>	/* htons htonl */
-#include <unistd.h>     /* close read write */
+#include <unistd.h>		/* close read write */
 #include <cstring>		/* strlen */
 #include <cstdlib>		/* atoi */
 #include <cerrno>		/* errno */
+#include <sstream>      /* stringstream */
 
 #define RESET			"\33[00m"
 #define BLACK			"\33[30m"
@@ -32,8 +33,10 @@
 #define ERROR			"\33[31m" << "Error: "
 
 #define MAX_TCP_PORT	65535
-#define MAX_REQUESTS	8
 #define MAX_CLIENT		42
-#define SERVER_NAME		"ft_irc"
-#define OPER_PASSWORD	"frrusso_tu_tourne"
 #define MAX_CLIENT_IN_QUEU 2
+#define BUFFER_SIZE		1024
+#define OPER_PASSWORD	"oper"
+#define BOT_NAME		"bot"
+#define BOT_PASSWORD	"password"
+#define CMD_CMP			cmd.compare

@@ -26,7 +26,7 @@ Server::Server(char **av)
 	_clientinqueue = 0;
 	_clients = std::vector<Client *>();
 	_channels = std::vector<Channel *>();
-	bzero(_buffer, 1024);
+	bzero(_buffer, BUFFER_SIZE);
 	_die = false;
 	_passwordadmin = OPER_PASSWORD;
 }
@@ -1564,7 +1564,7 @@ void	Server::list(std::string command, Client *client) {
 }
 
 /**
- * @brief Exit the server properly. The Client is removed from all channels he's in.
+ * @brief Exit the server properly. The Client is removed from all channels.
  * 
  * @param command 
  * @param client 
