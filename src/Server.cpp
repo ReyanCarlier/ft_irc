@@ -209,6 +209,11 @@ void	Server::commandHandler(std::string command, Client *client)
 	std::string					item;
 	std::vector<std::string>	tokens;
 
+	if (command.size() == 0)
+		return ;
+	if (command.at(command.size() - 1) == '\r' || command.at(command.size() - 1) == '\n')
+		return ;
+
 	while (std::getline(ss, item, '\n'))
 		tokens.push_back(item);
 	for (size_t i = 0; i < tokens.size(); i++)
@@ -395,9 +400,34 @@ void	Server::nick(std::string command, Client *client)
 
 void	Server::pass(std::string command, Client *client)
 {
-	command.erase(0, 5);
-	if (command != this->getPassword())
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+	
+	if (tokens.size() < 2)
+	{
+		std::cout << RED << "Invalid command sent by client " << client->getSocket() << " : " << YELLOW << command << ENDL;
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	if (tokens.size() > 2)
+	{
+		std::cout << RED << "Invalid command sent by client " << client->getSocket() << " : " << YELLOW << command << ENDL;
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Too many parameters", client);
+		return ;
+	}
+
+	if (tokens[1] != this->getPassword())
+	{
+		std::cout << RED << "Invalid password sent by client " << client->getSocket() << " : " << YELLOW << command << ENDL;
+		sendToClient(":serverserver " + Errors::ERR_PASSWDMISMATCH + " * :Password incorrect", client);
 		client->setPass(0);
+	}
 	else
 		client->setPass(1);
 }
@@ -414,7 +444,7 @@ void	Server::user(std::string command, Client *client)
 
 	if (tokens.size() < 4)
 	{
-		std::cout << RED << "Invalid command sent by " << client->getNickname() << " : " << YELLOW << command << ENDL;
+		std::cout << RED << "Invalid command sent by " << client->getSocket() << " : " << YELLOW << command << ENDL;
 		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
