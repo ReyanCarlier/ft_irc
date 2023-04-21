@@ -1462,7 +1462,6 @@ void	Server::oper(std::string command, Client *client)
 		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
-	std::cout << tokens[1] << ENDL;
 	if (tokens[1] == client->getNickname())
 	{
 		if (tokens[2] == this->getpassadmin())
