@@ -1456,6 +1456,12 @@ void	Server::oper(std::string command, Client *client)
 
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
+	if (tokens.size() < 3)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getSocket() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
 	std::cout << tokens[1] << ENDL;
 	if (tokens[1] == client->getNickname())
 	{
