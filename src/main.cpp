@@ -76,7 +76,7 @@ int	main(int ac, char **av)
 				if (new_socket < 0)
 					throw "Failed to accept connection.";
 				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << ". client in queu " << server.getClientQeue() << ENDL;
-				if (server.getClientQeue() >= MAX_CLIENT_IN_QUEU)
+				if (server.getClientQeue() >= MAX_IN_QUEUE)
 				{
 					std::string message = ":serverserver ERROR :Connection refused: Too many users on the server.\r\n";
 					send(new_socket, message.c_str(), message.length(), 0);

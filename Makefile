@@ -17,7 +17,7 @@ SRC			=	main.cpp \
 				Channel.cpp \
 				Errors.cpp
 CPP			=	c++
-CPPFLAGS	=	-Wall -Wextra -Werror -MMD -g3 -std=c++98
+CPPFLAGS	=	-Wall -Wextra -Werror -MMD -std=c++98
 RM			=	rm -rf
 INC			=	-I ./inc/
 SRC_PATH	=	./src/

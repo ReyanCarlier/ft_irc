@@ -12,6 +12,7 @@
 
 #pragma once
 
+/* Include */
 #include <iostream>
 #include <sys/socket.h>	/* socket setsockopt bind listen accept send */
 #include <arpa/inet.h>	/* htons htonl */
@@ -21,6 +22,7 @@
 #include <cerrno>		/* errno */
 #include <sstream>      /* stringstream */
 
+/* Color */
 #define RESET			"\33[00m"
 #define BLACK			"\33[30m"
 #define RED				"\33[31m"
@@ -32,11 +34,14 @@
 #define ENDL			"\33[00m" << std::endl
 #define ERROR			"\33[31m" << "Error: "
 
+/* Server */
 #define MAX_TCP_PORT	65535
 #define MAX_CLIENT		42
-#define MAX_CLIENT_IN_QUEU 2
+#define MAX_IN_QUEUE	2
 #define BUFFER_SIZE		1024
 #define OPER_PASSWORD	"oper"
+
+/* Bot */
 #define BOT_NAME		"bot"
 #define BOT_PASSWORD	"password"
 #define CMD_CMP			cmd.compare

@@ -224,7 +224,6 @@ bool Channel::isOperator(Client *client) {
     return false;
 }
 
-// INVITATION //
 bool Channel::isInviteOnly() const {
     return this->_inviteOnly;
 }
@@ -259,7 +258,6 @@ bool Channel::isInvited(Client *client) {
     return false;
 }
 
-// TOPIC //
 /**
  * @brief Sets the topic of a Channel.
  * 
