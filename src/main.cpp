@@ -75,7 +75,15 @@ int	main(int ac, char **av)
 				);
 				if (new_socket < 0)
 					throw "Failed to accept connection.";
-				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << "." << ENDL;
+				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << ". client in queu " << server.getClientQeue() << ENDL;
+				if (server.getClientQeue() >= MAX_CLIENT_IN_QUEU)
+				{
+					std::string message = ":serverserver ERROR :Connection refused: Too many users on the server.\r\n";
+					send(new_socket, message.c_str(), message.length(), 0);
+					close(new_socket);
+					continue ;
+				}
+				server.addClientQeue();
 				try
 				{
 					server.getClient(new_socket);
@@ -96,15 +104,11 @@ int	main(int ac, char **av)
 						(server.getClients().at(i)->getPass() == 1 || server.getPassword().empty())
 					) {
 						server.welcome(server.getClients().at(i));
+						server.removeClientQeue();
 					}
 					else if (server.getClients().at(i)->getPass() == 0 && !server.getPassword().empty())
 					{
-						std::string test = ":serverserver 464 ";
-						test.append(server.getClients().at(i)->getUsername());
-						test.append(" :Password incorrect\r\n");
-						std::cout << "DEBUG bad pass message : " << test << "    " <<
-						server.getClients().at(i)->getSocket() << std::endl;
-						write(server.getClients().at(i)->getSocket(), test.c_str(),test.size());
+						server.sendToClient(":serverserver 464 " + server.getClients().at(i)->getUsername() + " :Password incorrect", server.getClients().at(i));
 						close(server.getClients().at(i)->getSocket());
 						server.removeClient(server.getClients().at(i));
 						continue ;
@@ -114,13 +118,9 @@ int	main(int ac, char **av)
 						server.getClients().at(i)->isWelcomed() &&
 						server.getClients().at(i)->getPass() == 2 &&
 						!server.getPassword().empty()
-					) {
-						std::string test = ":serverserver 461 ";
-						test.append(server.getClients().at(i)->getUsername());
-						test.append(" PASS :Not enough parameters\r\n");
-						std::cout << "DEBUG bad pass message : " << test << "    " <<
-						server.getClients().at(i)->getSocket() << std::endl;
-						write(server.getClients().at(i)->getSocket(), test.c_str(),test.size());
+					)
+					{
+						server.sendToClient(":serverserver 461 " + server.getClients().at(i)->getUsername() + " PASS :Not enough parameters", server.getClients().at(i));
 						close(server.getClients().at(i)->getSocket());
 						server.removeClient(server.getClients().at(i));
 						continue ;
@@ -132,6 +132,8 @@ int	main(int ac, char **av)
 					if (valread == 0)
 					{
 						std::cerr << RED << "Client " << server.getClients().at(i)->getSocket() << " disconnected." << ENDL;
+						if (server.getClients().at(i)->isWelcomed())
+							server.removeClientQeue();
 						close(server.getClients().at(i)->getSocket());
 
 						std::vector<Channel*>	channels = server.getChannels();
@@ -149,7 +151,6 @@ int	main(int ac, char **av)
 							}
 							if (channels.at(j)->getClients().size() == 0)
 							{
-								std::cout << RED << "Channel " << channels.at(j)->getName() << " deleted." << ENDL;
 								server.removeChannel(channels.at(j));
 								delete channels.at(j);
 							}

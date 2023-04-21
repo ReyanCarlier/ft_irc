@@ -23,6 +23,7 @@ Server::Server(char **av)
 	_accept_fd = 0;
 	_opt = 1;
 	_max_clients = MAX_CLIENT;
+	_clientinqueue = 0;
 	_clients = std::vector<Client *>();
 	_channels = std::vector<Channel *>();
 	bzero(_buffer, BUFFER_SIZE);
@@ -204,7 +205,25 @@ void	Server::commandHandler(std::string command, Client *client)
 	std::cout << CYAN << "[CLIENT (" << client->getSocket() << ") => SERVER]\n" << YELLOW << command << ENDL;
 	std::cout << "----------------------------------------" << std::endl;
 
-	std::stringstream			ss(command);
+	if (command.size() == 0)
+		return ;
+	if (command.at(0) == '\n')
+		return ;
+
+	if (command.at(command.size() - 1) != '\n')
+	{
+		if (client->getBuffer().size() > 0)
+			command = client->getBuffer() + command;
+		client->setBuffer(command);
+		return ;
+	}
+	else if (client->getBuffer().size() > 0)
+	{
+		command = client->getBuffer() + command;
+		client->setBuffer("");
+	}
+
+	std::stringstream ss(command);
 	std::string					item;
 	std::vector<std::string>	tokens;
 
@@ -311,11 +330,7 @@ void	Server::topic(std::string command, Client *client)
  */
 void	Server::welcome(Client *client)
 {
-	std::cout << "WELCOME" << std::endl;
-	std::string buffer = ":serverserver 001 ";
-	buffer.append(client->getNickname());
-	buffer.append(" :coucou\r\n");
-	write(client->getSocket(), buffer.c_str(), buffer.size());
+	sendToClient(":serverserver 001 " + client->getNickname() + " :Ceci est un message d'accueil.", client);
 	client->setWelcomed(0);
 }
 
@@ -398,28 +413,80 @@ void	Server::nick(std::string command, Client *client)
 
 void	Server::pass(std::string command, Client *client)
 {
-	command.erase(0, 5);
-	if (command != this->getPassword())
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
+
+
+	std::cout << GREEN << "PASS command received from client " << client->getSocket() << ENDL;
+	std::cout << YELLOW << command << ENDL;
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+	
+	if (tokens.size() < 2)
+	{
+		std::cout << RED << "Invalid command sent by client " << client->getSocket() << " : " << YELLOW << command << ENDL;
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	if (tokens.size() > 2)
+	{
+		std::cout << RED << "Invalid command sent by client " << client->getSocket() << " : " << YELLOW << command << ENDL;
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Too many parameters", client);
+		return ;
+	}
+
+	if (tokens[1] != this->getPassword())
+	{
+		std::cout << RED << "Invalid password sent by client " << client->getSocket() << " : " << YELLOW << command << ENDL;
+		sendToClient(":serverserver " + Errors::ERR_PASSWDMISMATCH + " * :Password incorrect", client);
 		client->setPass(0);
+	}
 	else
 		client->setPass(1);
 }
 
 void	Server::user(std::string command, Client *client)
 {
-	command.erase(0, 5);
-	std::string	name = command;
-	name.erase(name.find(" "));
-	client->setUsername(name);
-	name = command;
-	name.erase(name.find(" "));
-	client->setHostname(name);
-	name = command;
-	name.erase(name.find(" "));
-	client->setHost(name);
-	name = command;
-	name.erase(name.find(" :"));
-	client->setRealName(name);
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() < 4)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getSocket() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	client->setUsername(tokens[1]);
+	client->setHost(tokens[2]);
+	client->setHostname(tokens[3]);
+	
+	std::string realname;
+	if (tokens.size() >= 5)
+	{
+		if (tokens[4][0] == ':')
+			tokens[4].erase(0, 1);
+		for (size_t i = 4; i < tokens.size(); i++)
+		{
+			realname.append(tokens[i]);
+			if (i != tokens.size() - 1)
+				realname.append(" ");
+		}
+	}
+	else
+		realname = client->getUsername() + "!" + client->getHost() + "@" + client->getHostname();
+
+	client->setRealName(realname);
+
+	std::cout << GREEN << "Username : " << client->getUsername() << " | Hostname : " << client->getHostname() << " | Host : " << client->getHost() << " | Realname : " << client->getRealName() << ENDL;
 	client->setOk(1);
 }
 
@@ -1588,4 +1655,19 @@ void	Server::invite(std::string command, Client *client) {
 		" #" + channel->getName(),
 		client_to_invite
 	);
+}
+
+void	Server::addClientQeue(void)
+{
+	_clientinqueue++;
+}
+
+void	Server::removeClientQeue(void)
+{
+	_clientinqueue--;
+}
+
+int		Server::getClientQeue(void)
+{
+	return (_clientinqueue);
 }

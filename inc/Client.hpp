@@ -42,6 +42,7 @@ class Client
 		int			getPass();
 		int			getId(void);
 		int			getMode(void);
+		std::string	getBuffer(void);
 
 		/* Setter *********************************************************** */
 		void		setNickname(std::string nickname);
@@ -58,6 +59,7 @@ class Client
 		void		setMode(int mode);
 		bool		isAdmin(void);
 		void		setAdmin(bool status);
+		void		setBuffer(std::string buffer);
 	private:
 		int			_id;
 		int			_mode;
@@ -66,6 +68,7 @@ class Client
 		std::string _hostname;
 		std::string _host;
 		std::string _realname;
+		std::string _buffer;
 		int			_socket;
 		std::string	_messageentrant;
 		int			_isok;

@@ -34,6 +34,7 @@
 
 #define MAX_TCP_PORT	65535
 #define MAX_CLIENT		42
+#define MAX_CLIENT_IN_QUEU 2
 #define BUFFER_SIZE		1024
 #define OPER_PASSWORD	"oper"
 #define BOT_NAME		"bot"
