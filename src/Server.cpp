@@ -412,7 +412,7 @@ void	Server::user(std::string command, Client *client)
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
 
-	if (tokens.size() < 5)
+	if (tokens.size() < 4)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getNickname() << " : " << YELLOW << command << ENDL;
 		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
@@ -422,16 +422,22 @@ void	Server::user(std::string command, Client *client)
 	client->setUsername(tokens[1]);
 	client->setHost(tokens[2]);
 	client->setHostname(tokens[3]);
-
-	if (tokens[4][0] == ':')
-		tokens[4].erase(0, 1);
 	
 	std::string realname;
-	for (size_t i = 4; i < tokens.size(); i++)
+	if (tokens.size() >= 5)
 	{
-		realname.append(tokens[i]);
-		realname.append(" ");
+		if (tokens[4][0] == ':')
+			tokens[4].erase(0, 1);
+		for (size_t i = 4; i < tokens.size(); i++)
+		{
+			realname.append(tokens[i]);
+			if (i != tokens.size() - 1)
+				realname.append(" ");
+		}
 	}
+	else
+		realname = client->getUsername() + "!" + client->getHost() + "@" + client->getHostname();
+
 	client->setRealName(realname);
 
 	std::cout << GREEN << "Username : " << client->getUsername() << " | Hostname : " << client->getHostname() << " | Host : " << client->getHost() << " | Realname : " << client->getRealName() << ENDL;
