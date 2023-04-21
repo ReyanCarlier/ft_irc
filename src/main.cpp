@@ -151,7 +151,6 @@ int	main(int ac, char **av)
 							}
 							if (channels.at(j)->getClients().size() == 0)
 							{
-								std::cout << RED << "Channel " << channels.at(j)->getName() << " deleted." << ENDL;
 								server.removeChannel(channels.at(j));
 								delete channels.at(j);
 							}

@@ -312,11 +312,7 @@ void	Server::topic(std::string command, Client *client)
  */
 void	Server::welcome(Client *client)
 {
-	std::cout << "WELCOME" << std::endl;
-	std::string buffer = ":serverserver 001 ";
-	buffer.append(client->getNickname());
-	buffer.append(" :coucou\r\n");
-	write(client->getSocket(), buffer.c_str(), buffer.size());
+	sendToClient(":serverserver 001 " + client->getNickname() + " :Ceci est un message d'accueil.", client);
 	client->setWelcomed(0);
 }
 
@@ -408,19 +404,37 @@ void	Server::pass(std::string command, Client *client)
 
 void	Server::user(std::string command, Client *client)
 {
-	command.erase(0, 5);
-	std::string	name = command;
-	name.erase(name.find(" "));
-	client->setUsername(name);
-	name = command;
-	name.erase(name.find(" "));
-	client->setHostname(name);
-	name = command;
-	name.erase(name.find(" "));
-	client->setHost(name);
-	name = command;
-	name.erase(name.find(" :"));
-	client->setRealName(name);
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() < 5)
+	{
+		std::cout << RED << "Invalid command sent by " << client->getNickname() << " : " << YELLOW << command << ENDL;
+		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	client->setUsername(tokens[1]);
+	client->setHost(tokens[2]);
+	client->setHostname(tokens[3]);
+
+	if (tokens[4][0] == ':')
+		tokens[4].erase(0, 1);
+	
+	std::string realname;
+	for (size_t i = 4; i < tokens.size(); i++)
+	{
+		realname.append(tokens[i]);
+		realname.append(" ");
+	}
+	client->setRealName(realname);
+
+	std::cout << GREEN << "Username : " << client->getUsername() << " | Hostname : " << client->getHostname() << " | Host : " << client->getHost() << " | Realname : " << client->getRealName() << ENDL;
 	client->setOk(1);
 }
 
