@@ -166,3 +166,13 @@ bool		Client::isAdmin(void)
 {
 	return (_isadmin);
 }
+
+void		Client::setBuffer(std::string buffer)
+{
+	_buffer = buffer;
+}
+
+std::string	Client::getBuffer(void)
+{
+	return (_buffer);
+}
