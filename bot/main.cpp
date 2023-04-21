@@ -149,10 +149,10 @@ void	bot_rainbow(std::string const &str_in, int client_fd) {
 			i++;
 		ss << str_in.substr(pos, i - pos);
 	}
-	ss << " :" << RED << "█████" << YELLOW << "█████" << GREEN << "█████" <<
-	CYAN << "█████" << BLUE << "█████" << MAGENTA << "█████" << RESET << '\n';
+	ss << " :" << RED << "█" << YELLOW << "█" << GREEN << "█" << CYAN << "█"
+	<< BLUE << "█" << MAGENTA << "█" << RESET << '\n';
 	buf_out = ss.str();
-	for (int i = 0; i < 8; i++)
+	for (size_t i = 0; i < BUFFER_SIZE; i += buf_out.size())
 		send(client_fd, buf_out.data(), buf_out.size(), 0);
 }
 
