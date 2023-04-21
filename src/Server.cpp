@@ -215,7 +215,6 @@ void	Server::commandHandler(std::string command, Client *client)
 		if (client->getBuffer().size() > 0)
 			command = client->getBuffer() + command;
 		client->setBuffer(command);
-		std::cout << "Buffer: " << client->getBuffer() << std::endl;
 		return ;
 	}
 	else if (client->getBuffer().size() > 0)
