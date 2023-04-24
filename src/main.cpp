@@ -106,18 +106,14 @@ int	main(int ac, char **av)
 					{
 						server.sendToClient(":serverserver 464 " + server.getClients().at(i)->getUsername() + " :Password incorrect", server.getClients().at(i));
 						close(server.getClients().at(i)->getSocket());
-						Client *client = server.getClients().at(i);
-						server.removeClient(client);
-						delete client;
+						server.removeClient(server.getClients().at(i));
 						continue ;
 					}
 					else if (server.getClients().at(i)->isReady() == 1 && server.getClients().at(i)->isWelcomed() && server.getClients().at(i)->getPass() == 2 && !server.getPassword().empty())
 					{
 						server.sendToClient(":serverserver 461 " + server.getClients().at(i)->getUsername() + " PASS :Not enough parameters", server.getClients().at(i));
 						close(server.getClients().at(i)->getSocket());
-						Client *client = server.getClients().at(i);
-						server.removeClient(client);
-						delete client;
+						server.removeClient(server.getClients().at(i));
 						continue ;
 					}
 				}

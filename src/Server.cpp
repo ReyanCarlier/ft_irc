@@ -168,7 +168,9 @@ void Server::addClient(Client *client) {
 void Server::removeClient(Client *client) {
 	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
+			Client *client = *it;
 			_clients.erase(it);
+			delete client;
 			break ;
 		}
 	}
@@ -1601,7 +1603,6 @@ void	Server::quit(std::string command, Client *client) {
 	std::cerr << RED << "Client " << client->getSocket() << " disconnected. Reason : " << reason << ENDL;
 	close(client->getSocket());
 	removeClient(client);
-	delete client;
 }
 
 /**
