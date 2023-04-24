@@ -290,6 +290,8 @@ int	main(int ac, char **av) {
 	{
 		read_server(buf_in, client_fd);
 		str_in = buf_in;
+		if (str_in.size() == 0)
+			continue;
 		str_in.erase(str_in.begin());
 		pos = str_in.find(" :!");
 		if (pos == std::string::npos)

@@ -348,8 +348,12 @@ std::string	Server::getPassword(void)
 }
 
 Channel *Server::getChannel(std::string name) {
-	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++) {
-		if ((*it)->getName() == name)
+	if (_channels.size() == 0)
+		return NULL;
+	
+	std::vector<Channel *> channels = _channels;
+	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); it++) {
+		if ((*it != NULL) && (*it)->getName() == name)
 			return (*it);
 	}
 	return NULL;

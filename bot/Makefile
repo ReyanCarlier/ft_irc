@@ -11,7 +11,7 @@ OBJ			=	${addprefix ${OBJ_PATH},${SRC:.cpp=.o}}
 DEPS		=	${addprefix ${OBJ_PATH},${SRC:.cpp=.d}}
 GARBAGE		=	.vscode
 PORT		=	6667
-PASSWORD	=	""
+PASSWORD	=	"lol"
 PROGRESS	=	🔁
 CHECK		=	✅
 
