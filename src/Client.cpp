@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/07 18:00:22 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/24 12:01:02 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/24 15:54:04 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ Client::Client(const Client &src)
 Client::~Client()
 {
 	close(_socket);
-	std::cout << "Client destroyed" << std::endl;
 }
 
 Client&		Client::operator=(Client const &rhs)

@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/24 12:18:42 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/24 15:56:23 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,19 +140,13 @@ int	main(int ac, char **av)
 								if (clients.at(k)->getSocket() == server.getClients().at(i)->getSocket())
 								{
 									channels.at(j)->removeClient(server.getClients().at(i));
-									delete clients.at(k);
 									break ;
 								}
 							}
 							if (channels.at(j)->getClients().size() == 0)
-							{
 								server.removeChannel(channels.at(j));
-								delete channels.at(j);
-							}
 						}
-						Client	*client = server.getClients().at(i);
 						server.removeClient(server.getClients().at(i));
-						delete client;
 					}
 					else
 					{
