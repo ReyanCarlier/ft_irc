@@ -275,6 +275,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			oper(tokens[i], client);
 		else if (startwith("kill", tokens[i]))
 			kill(tokens[i], client);
+		else if (startwith("time", tokens[i]))
+			time(tokens[i], client);
 	}
 }
 
@@ -1737,6 +1739,40 @@ void	Server::kill(std::string command, Client *client)
 			part("PART #" + channel->getName() + " :KILLED BY AN IRC OPERATOR (" + reason + ")", client_to_kill);
 	}
 	removeClient(client_to_kill);
+}
+
+void	Server::time(std::string command, Client *client)
+{
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() != 1) {
+		sendToClient(":serverserver ERROR * :Too much parameters", client);
+		return ;
+	}
+
+	time_t now = std::time(0);
+
+	// convert now to string form
+	char* date_time = ctime(&now);
+
+	std::string date = "";
+	std::string time = "";
+
+	for (size_t i = 0; i < strlen(date_time); i++)
+	{
+		if (i < 10)
+			date += date_time[i];
+		if (i > 10 && i < 19)
+			time += date_time[i];
+	}
+
+	sendToClient(":serverserver 391 " + client->getNickname() + " " + date + " " + time + " :Server time", client);
 }
 
 void	Server::addClientQueue(void)

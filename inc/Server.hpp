@@ -1,6 +1,7 @@
 #pragma once
 
 #include <header.hpp>
+#include <ctime>
 #include <vector>
 #include <ostream>
 #include <string>
@@ -93,6 +94,7 @@ class Server
 		void					invite(std::string command, Client *client);
 		void					oper(std::string command, Client *client);
 		void					kill(std::string command, Client *client);
+		void					time(std::string command, Client *client);
 		void					mute(std::string command, Client *client);
 		void					unmute(std::string command, Client *client);
 		void					list(std::string command, Client *client);
