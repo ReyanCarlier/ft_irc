@@ -1,7 +1,7 @@
 NAME		=	bot
 SRC			=	main.cpp
 CPP			=	c++
-CPPFLAGS	=	-Wall -Wextra -Werror -MMD -std=c++98 -g3
+CPPFLAGS	=	-Wall -Wextra -Werror -MMD -std=c++98
 RM			=	rm -rf
 INC			=	-I ../inc/
 SRC_PATH	=	./

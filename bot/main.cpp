@@ -47,13 +47,13 @@ void	bot_help(std::string const &str_in, int client_fd) {
 	}
 	buf_out = ss.str() + " :help : Show this text.\n";
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
-	buf_out = ss.str() + " :join <argument> : Join a channel.\n";
+	buf_out = ss.str() + " :join <channel_name> : Join a channel.\n";
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
 	buf_out = ss.str() + " :ping : Say pong (not a real ping).\n";
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
 	buf_out = ss.str() + " :rainbow : Show a beautiful rainbow.\n";
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
-	buf_out = ss.str() + " :die : Close the bot.\n";
+	buf_out = ss.str() + " :die <bot_password>: Close the bot.\n";
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
 }
 
@@ -312,6 +312,10 @@ int	main(int ac, char **av) {
 				break ;
 		}
 	}
+	ss.str("");
+	ss << "QUIT :leaving\n";
+	buf_out = ss.str();
+	send(client_fd, buf_out.data(), buf_out.size(), 0);
 	close(client_fd);
 	return (0);
 }
