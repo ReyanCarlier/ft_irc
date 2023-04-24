@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/17 18:44:42 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/24 12:07:26 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,15 +75,14 @@ int	main(int ac, char **av)
 				);
 				if (new_socket < 0)
 					throw "Failed to accept connection.";
-				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << ". client in queu " << server.getClientQeue() << ENDL;
-				if (server.getClientQeue() >= MAX_IN_QUEUE)
+				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << ". client in queu " << server.getClientQueue() << ENDL;
+				if (server.getClientQueue() >= MAX_IN_QUEUE || server.getClients().size() >= MAX_CLIENTS)
 				{
-					std::string message = ":serverserver ERROR :Connection refused: Too many users on the server.\r\n";
-					send(new_socket, message.c_str(), message.length(), 0);
+					server.sendToClient(":serverserver ERROR :Connection refused: Too many users on the server.", new_socket);
 					close(new_socket);
 					continue ;
 				}
-				server.addClientQeue();
+				server.addClientQueue();
 				try
 				{
 					server.getClient(new_socket);
@@ -97,32 +96,27 @@ int	main(int ac, char **av)
 			{
 				if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
 				{
-					if (
-						server.getClients().at(i)->isReady() &&
-						server.getClients().at(i)->isWelcomed() &&
-						!server.getClients().at(i)->getNickname().empty() &&
-						(server.getClients().at(i)->getPass() == 1 || server.getPassword().empty())
-					) {
+					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed() && !server.getClients().at(i)->getNickname().empty() && (server.getClients().at(i)->getPass() == 1 || server.getPassword().empty()))
+					{
 						server.welcome(server.getClients().at(i));
-						server.removeClientQeue();
+						server.removeClientQueue();
 					}
 					else if (server.getClients().at(i)->getPass() == 0 && !server.getPassword().empty())
 					{
 						server.sendToClient(":serverserver 464 " + server.getClients().at(i)->getUsername() + " :Password incorrect", server.getClients().at(i));
 						close(server.getClients().at(i)->getSocket());
-						server.removeClient(server.getClients().at(i));
+						Client *client = server.getClients().at(i);
+						server.removeClient(client);
+						delete client;
 						continue ;
 					}
-					else if (
-						server.getClients().at(i)->isReady() == 1 &&
-						server.getClients().at(i)->isWelcomed() &&
-						server.getClients().at(i)->getPass() == 2 &&
-						!server.getPassword().empty()
-					)
+					else if (server.getClients().at(i)->isReady() == 1 && server.getClients().at(i)->isWelcomed() && server.getClients().at(i)->getPass() == 2 && !server.getPassword().empty())
 					{
 						server.sendToClient(":serverserver 461 " + server.getClients().at(i)->getUsername() + " PASS :Not enough parameters", server.getClients().at(i));
 						close(server.getClients().at(i)->getSocket());
-						server.removeClient(server.getClients().at(i));
+						Client *client = server.getClients().at(i);
+						server.removeClient(client);
+						delete client;
 						continue ;
 					}
 				}
@@ -133,7 +127,7 @@ int	main(int ac, char **av)
 					{
 						std::cerr << RED << "Client " << server.getClients().at(i)->getSocket() << " disconnected." << ENDL;
 						if (server.getClients().at(i)->isWelcomed())
-							server.removeClientQeue();
+							server.removeClientQueue();
 						close(server.getClients().at(i)->getSocket());
 
 						std::vector<Channel*>	channels = server.getChannels();
@@ -146,6 +140,7 @@ int	main(int ac, char **av)
 								if (clients.at(k)->getSocket() == server.getClients().at(i)->getSocket())
 								{
 									channels.at(j)->removeClient(server.getClients().at(i));
+									delete clients.at(k);
 									break ;
 								}
 							}
@@ -173,6 +168,5 @@ int	main(int ac, char **av)
 		std::cerr << RED << e << ENDL;
 		return (1);
 	}
-	
 	return (0);
 }

@@ -33,10 +33,13 @@ Server::Server(char **av)
 
 Server::~Server()
 {
-	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
-		delete (*it);
-	for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); it++)
-		delete (*it);
+	std::vector<Client*> clients = getClients();
+	std::vector<Channel*> channels = getChannels();
+
+	for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); it++)
+		delete *it;
+	for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); it++)
+		delete *it;
 	close(_socket_fd);
 }
 
@@ -422,9 +425,6 @@ void	Server::pass(std::string command, Client *client)
 	std::string					item;
 	std::vector<std::string>	tokens;
 
-
-	std::cout << GREEN << "PASS command received from client " << client->getSocket() << ENDL;
-	std::cout << YELLOW << command << ENDL;
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
 		tokens.push_back(item);
@@ -433,6 +433,7 @@ void	Server::pass(std::string command, Client *client)
 	{
 		std::cout << RED << "Invalid command sent by client " << client->getSocket() << " : " << YELLOW << command << ENDL;
 		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		removeClient(client);
 		return ;
 	}
 
@@ -440,6 +441,7 @@ void	Server::pass(std::string command, Client *client)
 	{
 		std::cout << RED << "Invalid command sent by client " << client->getSocket() << " : " << YELLOW << command << ENDL;
 		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Too many parameters", client);
+		removeClient(client);
 		return ;
 	}
 
@@ -447,7 +449,7 @@ void	Server::pass(std::string command, Client *client)
 	{
 		std::cout << RED << "Invalid password sent by client " << client->getSocket() << " : " << YELLOW << command << ENDL;
 		sendToClient(":serverserver " + Errors::ERR_PASSWDMISMATCH + " * :Password incorrect", client);
-		client->setPass(0);
+		removeClient(client);
 	}
 	else
 		client->setPass(1);
@@ -467,6 +469,12 @@ void	Server::user(std::string command, Client *client)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getSocket() << " : " << YELLOW << command << ENDL;
 		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	if (client->getPass() == 0)
+	{
+		removeClient(client);
 		return ;
 	}
 
@@ -490,8 +498,6 @@ void	Server::user(std::string command, Client *client)
 		realname = client->getUsername() + "!" + client->getHost() + "@" + client->getHostname();
 
 	client->setRealName(realname);
-
-	std::cout << GREEN << "Username : " << client->getUsername() << " | Hostname : " << client->getHostname() << " | Host : " << client->getHost() << " | Realname : " << client->getRealName() << ENDL;
 	client->setOk(1);
 }
 
@@ -1654,7 +1660,7 @@ void	Server::invite(std::string command, Client *client) {
 
 	if (channel->isInChannel(client_to_invite)) {
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(":serverserver   * :User is already in that channel", client);
+		sendToClient(":serverserver ERROR * :User is already in that channel", client);
 		return ;
 	}
 
@@ -1667,17 +1673,17 @@ void	Server::invite(std::string command, Client *client) {
 	);
 }
 
-void	Server::addClientQeue(void)
+void	Server::addClientQueue(void)
 {
 	_clientinqueue++;
 }
 
-void	Server::removeClientQeue(void)
+void	Server::removeClientQueue(void)
 {
 	_clientinqueue--;
 }
 
-int		Server::getClientQeue(void)
+int		Server::getClientQueue(void)
 {
 	return (_clientinqueue);
 }

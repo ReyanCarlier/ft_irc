@@ -66,9 +66,9 @@ class Server
 		int						*getPtrOpt(void);
 		sockaddr				*getCastAddress(void);
 
-		void					addClientQeue(void);
-		void					removeClientQeue(void);
-		int						getClientQeue(void);
+		void					addClientQueue(void);
+		void					removeClientQueue(void);
+		int						getClientQueue(void);
 
 		void					bind(int port);
 		void					listen(void);
