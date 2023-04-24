@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:01:31 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/24 12:07:26 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/24 12:17:09 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ int	main(int ac, char **av)
 				if (new_socket < 0)
 					throw "Failed to accept connection.";
 				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << ". client in queu " << server.getClientQueue() << ENDL;
-				if (server.getClientQueue() >= MAX_IN_QUEUE || server.getClients().size() >= MAX_CLIENTS)
+				if (server.getClientQueue() >= MAX_IN_QUEUE || server.getClients().size() >= MAX_CLIENT)
 				{
 					server.sendToClient(":serverserver ERROR :Connection refused: Too many users on the server.", new_socket);
 					close(new_socket);
