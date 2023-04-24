@@ -315,11 +315,16 @@ void	Server::topic(std::string command, Client *client)
 			if (i == 2 and tokens[2][0] == ':')
 				tokens[2].erase(0, 1);
 			topic.append(tokens[i]);
+			if (i != tokens.size() - 1)
+				topic.append(" ");
 		}
 		channel->setTopic(topic);
 		std::vector<Client *> clients = channel->getClients();
 		for (size_t i = 0; i < clients.size(); i++)
+		{
+			sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " TOPIC #" + tokens[1] + " :" + topic, clients[i]);
 			sendToClient(":serverserver 332 " + client->getUsername() + " #" + tokens[1] + " :" + topic, clients[i]);
+		}
 	}
 }
 
@@ -372,13 +377,13 @@ void	Server::nick(std::string command, Client *client)
 	if (tokens.size() < 2)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getNickname() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NONICKNAMEGIVEN + " * :No nickname given", client);
+		sendToClient(":serverserver " + Errors::ERR_NONICKNAMEGIVEN + " * :No nickname given", client);
 		return ;
 	}
 	if (tokens.size() > 2)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getNickname() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_ERRONEUSNICKNAME + " * :Erroneous nickname", client);
+		sendToClient(":serverserver " + Errors::ERR_ERRONEUSNICKNAME + " * :Erroneous nickname", client);
 		return ;
 	}
 	old_nickname = client->getNickname();
@@ -461,7 +466,7 @@ void	Server::user(std::string command, Client *client)
 	if (tokens.size() < 4)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getSocket() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
 
@@ -525,7 +530,7 @@ void	Server::who(std::string command, Client *client)
 		if (channel == NULL)
 		{
 			std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-			sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+			sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 			return ;
 		}
 		if (tokens.size() == 2)
@@ -561,7 +566,7 @@ void	Server::mode(std::string command, Client *client)
 		if (channel == NULL)
 		{
 			std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-			sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+			sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 			return ;
 		}
 		if (tokens.size() == 2)
@@ -581,14 +586,14 @@ void	Server::mode(std::string command, Client *client)
 			if (channel->isInChannel(client) == false)
 			{
 				std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-				sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+				sendToClient(":serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 				return ;
 			}
 
 			if (channel->isOperator(client) == false)
 			{
 				std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-				sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not channel operator", client);
+				sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not channel operator", client);
 				return ;
 			}
 
@@ -598,7 +603,7 @@ void	Server::mode(std::string command, Client *client)
 				if (tokens.size() < 4)
 				{
 					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-					sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+					sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 					return ;
 				}
 				Client *target = NULL;
@@ -616,7 +621,7 @@ void	Server::mode(std::string command, Client *client)
 				if (target == NULL)
 				{
 					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-					sendToClient(": serverserver " + Errors::ERR_NOSUCHNICK + " * :No such nick", client);
+					sendToClient(":serverserver " + Errors::ERR_NOSUCHNICK + " * :No such nick", client);
 					return ;
 				}
 
@@ -648,7 +653,7 @@ void	Server::mode(std::string command, Client *client)
 				if (tokens.size() < 4)
 				{
 					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-					sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+					sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 					return ;
 				}
 
@@ -670,7 +675,7 @@ void	Server::mode(std::string command, Client *client)
 				if (target == NULL)
 				{
 					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-					sendToClient(": serverserver " + Errors::ERR_NOSUCHNICK + " * :Target isn't in blacklist of #" + channel->getName(), client);
+					sendToClient(":serverserver " + Errors::ERR_NOSUCHNICK + " * :Target isn't in blacklist of #" + channel->getName(), client);
 					return ;
 				}
 
@@ -686,7 +691,7 @@ void	Server::mode(std::string command, Client *client)
 				if (channel->isInviteOnly() == true)
 				{
 					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-					sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :Channel is already invite only", client);
+					sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :Channel is already invite only", client);
 					return ;
 				}
 				channel->setInviteOnly(true);
@@ -700,7 +705,7 @@ void	Server::mode(std::string command, Client *client)
 				if (channel->isInviteOnly() == false)
 				{
 					std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-					sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :Channel is not invite only", client);
+					sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :Channel is not invite only", client);
 					return ;
 				}
 				channel->setInviteOnly(false);
@@ -714,7 +719,7 @@ void	Server::mode(std::string command, Client *client)
 	if (tokens.size() < 3)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
 	if (tokens[2] == "+i")
@@ -724,7 +729,7 @@ void	Server::mode(std::string command, Client *client)
 	else
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_UMODEUNKNOWNFLAG + " * :Unknown MODE flag", client);
+		sendToClient(":serverserver " + Errors::ERR_UMODEUNKNOWNFLAG + " * :Unknown MODE flag", client);
 		return ;
 	}
 
@@ -771,7 +776,7 @@ void	Server::join(std::string command, Client *client)
 	else
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
@@ -795,7 +800,7 @@ void	Server::join(std::string command, Client *client)
 	if (channel_to_join->isInviteOnly() && not channel_to_join->isInvited(client))
 	{
 		std::cout << RED << "Client " << client->getUsername() << " cannot join " << channel_name << " because invite only." << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_INVITEONLYCHAN + " * :Cannot join channel (+i)", client);
+		sendToClient(":serverserver " + Errors::ERR_INVITEONLYCHAN + " * :Cannot join channel (+i)", client);
 		return ;
 	}
 	if (not added)
@@ -846,7 +851,7 @@ void	Server::part(std::string command, Client *client)
 	if (tokens.size() == 1)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
 
@@ -856,14 +861,14 @@ void	Server::part(std::string command, Client *client)
 	if (not channel)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
 	if (not channel->isInChannel(client))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 		return ;
 	}
 
@@ -911,7 +916,7 @@ void	Server::privmsg(std::string command, Client *client)
 	if (tokens.size() < 3)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
 
@@ -936,14 +941,14 @@ void	Server::privmsg(std::string command, Client *client)
 		if (not channel->isInChannel(client))
 		{
 			std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-			sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+			sendToClient(":serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 			return ;
 		}
 
 		if (channel->isMuted(client))
 		{
 			std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-			sendToClient(": serverserver " + Errors::ERR_CANNOTSENDTOCHAN + " * :Cannot speak in this channel, you're muted.", client);
+			sendToClient(":serverserver " + Errors::ERR_CANNOTSENDTOCHAN + " * :Cannot speak in this channel, you're muted.", client);
 			return ;
 		}
 
@@ -995,14 +1000,14 @@ void	Server::kick(std::string command, Client *client)
 	if (tokens.size() < 3)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
 
 	if (tokens[1][0] != '#')
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
@@ -1012,21 +1017,21 @@ void	Server::kick(std::string command, Client *client)
 	if (not channel)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
 	if (not channel->isInChannel(client))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 		return ;
 	}
 
 	if (not channel->isOperator(client))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
 		return ;
 	}
 
@@ -1034,21 +1039,21 @@ void	Server::kick(std::string command, Client *client)
 	if (not client_to_kick)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
+		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
 		return ;
 	}
 
 	if (not channel->isInChannel(client_to_kick))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
 		return ;
 	}
 
 	if (channel->isOperator(client_to_kick))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't kick an operator", client);
+		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't kick an operator", client);
 		return ;
 	}
 
@@ -1099,14 +1104,14 @@ void	Server::ban(std::string command, Client *client)
 	if (tokens.size() < 3)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
 
 	if (tokens[1][0] != '#')
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
@@ -1116,21 +1121,21 @@ void	Server::ban(std::string command, Client *client)
 	if (not channel)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
 	if (not channel->isInChannel(client))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 		return ;
 	}
 
 	if (not channel->isOperator(client))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
 		return ;
 	}
 
@@ -1138,21 +1143,21 @@ void	Server::ban(std::string command, Client *client)
 	if (not client_to_ban)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
+		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
 		return ;
 	}
 
 	if (not channel->isInChannel(client_to_ban))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
 		return ;
 	}
 
 	if (channel->isOperator(client_to_ban))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't ban an operator", client);
+		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't ban an operator", client);
 		return ;
 	}
 
@@ -1196,14 +1201,14 @@ void	Server::ban(std::string command, Client *client)
 // 	if (tokens.size() < 3)
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+// 		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 // 		return ;
 // 	}
 
 // 	if (tokens[1][0] != '#')
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 // 		return ;
 // 	}
 
@@ -1213,21 +1218,21 @@ void	Server::ban(std::string command, Client *client)
 // 	if (not channel)
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 // 		return ;
 // 	}
 
 // 	if (not channel->isInChannel(client))
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 // 		return ;
 // 	}
 
 // 	if (not channel->isOperator(client))
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
 // 		return ;
 // 	}
 
@@ -1235,21 +1240,21 @@ void	Server::ban(std::string command, Client *client)
 // 	if (not client_to_mute)
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
+// 		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
 // 		return ;
 // 	}
 
 // 	if (not channel->isInChannel(client_to_mute))
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
 // 		return ;
 // 	}
 
 // 	if (channel->isOperator(client_to_mute))
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't mute an operator", client);
+// 		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't mute an operator", client);
 // 		return ;
 // 	}
 
@@ -1286,14 +1291,14 @@ void	Server::ban(std::string command, Client *client)
 // 	if (tokens.size() < 3)
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+// 		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 // 		return ;
 // 	}
 
 // 	if (tokens[1][0] != '#')
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 // 		return ;
 // 	}
 
@@ -1303,21 +1308,21 @@ void	Server::ban(std::string command, Client *client)
 // 	if (not channel)
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 // 		return ;
 // 	}
 
 // 	if (not channel->isInChannel(client))
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 // 		return ;
 // 	}
 
 // 	if (not channel->isOperator(client))
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
 // 		return ;
 // 	}
 
@@ -1325,21 +1330,21 @@ void	Server::ban(std::string command, Client *client)
 // 	if (not client_to_unmute)
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
+// 		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
 // 		return ;
 // 	}
 
 // 	if (not channel->isInChannel(client_to_unmute))
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
+// 		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
 // 		return ;
 // 	}
 
 // 	if (channel->isOperator(client_to_unmute))
 // 	{
 // 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-// 		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't unmute an operator", client);
+// 		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You can't unmute an operator", client);
 // 		return ;
 // 	}
 
@@ -1376,14 +1381,14 @@ void	Server::unban(std::string command, Client *client)
 	if (tokens.size() < 3)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
 
 	if (tokens[1][0] != '#')
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
@@ -1393,21 +1398,21 @@ void	Server::unban(std::string command, Client *client)
 	if (not channel)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
 	if (not channel->isInChannel(client))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 		return ;
 	}
 
 	if (not channel->isOperator(client))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
 		return ;
 	}
 
@@ -1415,14 +1420,14 @@ void	Server::unban(std::string command, Client *client)
 	if (not client_to_unban)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
+		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
 		return ;
 	}
 
 	if (not channel->isInChannel(client_to_unban))
 	{
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User is not in that channel", client);
 		return ;
 	}
 
@@ -1459,7 +1464,7 @@ void	Server::oper(std::string command, Client *client)
 	if (tokens.size() < 3)
 	{
 		std::cout << RED << "Invalid command sent by " << client->getSocket() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
 	if (tokens[1] == client->getNickname())
@@ -1609,13 +1614,13 @@ void	Server::invite(std::string command, Client *client) {
 
 	if (tokens.size() < 3) {
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
 		return ;
 	}
 
 	if (tokens[1][0] != '#') {
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
@@ -1624,32 +1629,32 @@ void	Server::invite(std::string command, Client *client) {
 	Channel *channel = getChannel(tokens[1]);
 	if (not channel) {
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * :No such channel", client);
 		return ;
 	}
 
 	if (not channel->isInChannel(client)) {
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_NOTONCHANNEL + " * :You're not on that channel", client);
 		return ;
 	}
 
 	if (not channel->isOperator(client)) {
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
+		sendToClient(":serverserver " + Errors::ERR_CHANOPRIVSNEEDED + " * :You're not an operator in that channel", client);
 		return ;
 	}
 
 	Client *client_to_invite = getClientFromNick(tokens[2]);
 	if (not client_to_invite) {
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
+		sendToClient(":serverserver " + Errors::ERR_USERNOTINCHANNEL + " * :User doesn't exist", client);
 		return ;
 	}
 
 	if (channel->isInChannel(client_to_invite)) {
 		std::cout << RED << "Invalid command sent by " << client->getUsername() << " : " << YELLOW << command << ENDL;
-		sendToClient(": serverserver   * :User is already in that channel", client);
+		sendToClient(":serverserver   * :User is already in that channel", client);
 		return ;
 	}
 
