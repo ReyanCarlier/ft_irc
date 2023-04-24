@@ -273,6 +273,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			invite(tokens[i], client);
 		else if (startwith("OPER", tokens[i]))
 			oper(tokens[i], client);
+		else if (startwith("kill", tokens[i]))
+			kill(tokens[i], client);
 	}
 }
 
@@ -838,10 +840,7 @@ void	Server::join(std::string command, Client *client)
 	sendToClient(":serverserver 366 " + client->getNickname() + " " + channel_name + " :End of /NAMES list.", client);
 	for (size_t i = 0; i < channel_to_join->getClients().size(); i++)
 	{
-		sendToClient(
-			":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN #" + channel_name,
-			channel_to_join->getClients()[i]
-		);
+		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " JOIN #" + channel_name, channel_to_join->getClients()[i]);
 	}
 }
 
@@ -900,10 +899,7 @@ void	Server::part(std::string command, Client *client)
 
 			for (size_t i = 0; i < channel->getClients().size(); i++)
 			{
-				sendToClient(
-					":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel",
-					channel->getClients()[i]
-				);
+				sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PART #" + channel_name + " :Leaving channel",channel->getClients()[i]);
 			}
 
 			if (channel->getClients().size() == 1)
@@ -972,10 +968,7 @@ void	Server::privmsg(std::string command, Client *client)
 		{
 			if (channel->getClients()[i] != client)
 			{
-				sendToClient(
-					":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + tokens[1] + " :" + message,
-					channel->getClients()[i]
-				);
+				sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + tokens[1] + " :" + message, channel->getClients()[i]);
 			}
 		}
 	}
@@ -1088,17 +1081,9 @@ void	Server::kick(std::string command, Client *client)
 
 	for (size_t i = 0; i < channel->getClients().size(); i++)
 	{
-		sendToClient(
-			":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() +
-			" KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason,
-			channel->getClients()[i]
-		);
+		sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason, channel->getClients()[i]);
 	}
-	sendToClient(
-		":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() +
-		" KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason,
-		client_to_kick
-	);
+	sendToClient(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " KICK #" + channel->getName() + " " + client_to_kick->getNickname() + " :" + reason, client_to_kick);
 }
 
 /**
@@ -1681,6 +1666,77 @@ void	Server::invite(std::string command, Client *client) {
 		" #" + channel->getName(),
 		client_to_invite
 	);
+}
+
+void	Server::kill(std::string command, Client *client)
+{
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() < 3) {
+		sendToClient(":serverserver " + Errors::ERR_NEEDMOREPARAMS + " * :Not enough parameters", client);
+		return ;
+	}
+
+	if (!client->isAdmin())
+	{
+		sendToClient(":serverserver " + Errors::ERR_NOPRIVILEGES + " * :Permission Denied- You're not an IRC operator", client);
+		return ;
+	}
+
+	Client *client_to_kill = getClientFromNick(tokens[1]);
+	if (client_to_kill == NULL)
+	{
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHNICK + " * :No such nickname.", client);
+		return ;
+	}
+
+	if (client_to_kill->isAdmin())
+	{
+		sendToClient(":serverserver " + Errors::ERR_NOPRIVILEGES + " * :Permission Denied- You can't kill an IRC operator", client);
+		return ;
+	}
+
+	std::string reason = "";
+
+	if (tokens.size() == 3)
+	{
+		if (tokens[2].size() == 1 && tokens[2][0] == ':')
+			reason = "No reason.";
+	}
+	else
+		tokens[2].erase(0, 1);
+	if (reason != "No reason.")
+	{
+		for (size_t i = 2; i < tokens.size(); i++)
+		{
+			reason += tokens[i];
+			if (i != tokens.size() - 1)
+				reason += " ";
+		}
+	}
+	
+
+	sendToClient(":serverserver KILL " + client_to_kill->getNickname() + " :" + reason, client_to_kill);
+	sendToClient(":serverserver KILL " + client_to_kill->getNickname() + " :" + reason, client);
+	
+	for (size_t i = 0; i < _channels.size(); i++) {
+		Channel *channel = _channels.at(i);
+		if (channel->isBanned(client_to_kill))
+			channel->unbanClient(client_to_kill);
+		if (channel->isMuted(client_to_kill))
+			channel->unmuteClient(client_to_kill);
+		if (channel->isInvited(client_to_kill))
+			channel->removeInvited(client_to_kill);
+		if (channel->isInChannel(client_to_kill))
+			part("PART #" + channel->getName() + " :KILLED BY AN IRC OPERATOR (" + reason + ")", client_to_kill);
+	}
+	removeClient(client_to_kill);
 }
 
 void	Server::addClientQueue(void)
