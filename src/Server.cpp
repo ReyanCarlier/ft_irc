@@ -800,19 +800,25 @@ void	Server::join(std::string command, Client *client)
 		channel_to_join->addOperator(client);
 	}
 
-	if (channel_to_join->isBanned(client))
+	if (client->isAdmin() && !added)
+		channel_to_join->addOperator(client);
+	else
 	{
-		std::cout << RED << "Client " << client->getUsername() << " cannot join " << channel_name << " because banned." << ENDL;
-		sendToClient(":serverserver " + Errors::ERR_BANNEDFROMCHAN + " * :Cannot join channel " + channel_name + " because you're banned.", client);
-		return ;
-	}
+		if (channel_to_join->isBanned(client))
+		{
+			std::cout << RED << "Client " << client->getUsername() << " cannot join " << channel_name << " because banned." << ENDL;
+			sendToClient(":serverserver " + Errors::ERR_BANNEDFROMCHAN + " * :Cannot join channel " + channel_name + " because you're banned.", client);
+			return ;
+		}
 
-	if (channel_to_join->isInviteOnly() && not channel_to_join->isInvited(client))
-	{
-		std::cout << RED << "Client " << client->getUsername() << " cannot join " << channel_name << " because invite only." << ENDL;
-		sendToClient(":serverserver " + Errors::ERR_INVITEONLYCHAN + " * :Cannot join channel (+i)", client);
-		return ;
+		if (channel_to_join->isInviteOnly() && not channel_to_join->isInvited(client))
+		{
+			std::cout << RED << "Client " << client->getUsername() << " cannot join " << channel_name << " because invite only." << ENDL;
+			sendToClient(":serverserver " + Errors::ERR_INVITEONLYCHAN + " * :Cannot join channel (+i)", client);
+			return ;
+		}
 	}
+	
 	if (not added)
 		getChannel(channel_name)->addClient(client);
 
