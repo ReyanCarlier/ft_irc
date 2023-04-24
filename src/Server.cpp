@@ -183,7 +183,9 @@ void Server::addChannel(Channel *channel) {
 void Server::removeChannel(Channel *channel) {
 	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++) {
 		if ((*it)->getName() == channel->getName()) {
+			Channel *channel = *it;
 			_channels.erase(it);
+			delete channel;
 			break ;
 		}
 	}
@@ -861,7 +863,6 @@ void	Server::part(std::string command, Client *client)
 	std::stringstream			ss(command);
 	std::string					item;
 	std::vector<std::string>	tokens;
-	bool						removed_channel = false;
 
 	command[command.size()] = '\0';
 	while (std::getline(ss, item, ' '))
@@ -911,14 +912,11 @@ void	Server::part(std::string command, Client *client)
 			if (channel->getClients().size() == 1)
 			{
 				removeChannel(channel);
-				removed_channel = true;
 			}
 			else
 				channel->removeClient(client);
 		}
 	}
-	if (removed_channel)
-		delete channel;
 }
 
 void	Server::privmsg(std::string command, Client *client)
