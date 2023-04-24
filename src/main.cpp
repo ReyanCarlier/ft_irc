@@ -73,9 +73,10 @@ int	main(int ac, char **av)
 					reinterpret_cast<sockaddr*>(&address),
 					reinterpret_cast<socklen_t*>(&addrlen)
 				);
+
 				if (new_socket < 0)
 					throw "Failed to accept connection.";
-				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << ". client in queu " << server.getClientQueue() << ENDL;
+				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << ". client in queue " << server.getClientQueue() << ENDL;
 				if (server.getClientQueue() >= MAX_IN_QUEUE || server.getClients().size() >= MAX_CLIENT)
 				{
 					write(new_socket, ":serverserver ERROR: Server is full.\r\n", 38);
