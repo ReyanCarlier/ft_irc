@@ -98,4 +98,5 @@ class Server
 		void					mute(std::string command, Client *client);
 		void					unmute(std::string command, Client *client);
 		void					list(std::string command, Client *client);
+		void					version(std::string command, Client *client);
 };

@@ -277,6 +277,8 @@ void	Server::commandHandler(std::string command, Client *client)
 			kill(tokens[i], client);
 		else if (startwith("time", tokens[i]))
 			time(tokens[i], client);
+		else if (startwith("version", tokens[i]))
+			version(tokens[i], client);
 	}
 }
 
@@ -1773,6 +1775,24 @@ void	Server::time(std::string command, Client *client)
 	}
 
 	sendToClient(":serverserver 391 " + client->getNickname() + " " + date + " " + time + " :Server time", client);
+}
+
+void	Server::version(std::string command, Client *client)
+{
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() != 1) {
+		sendToClient(":serverserver ERROR * :Too much parameters", client);
+		return ;
+	}
+
+	sendToClient(":serverserver 351 " + client->getNickname() + " This awesome IRC Server was created by nfelsemb, frrusso and recarlie and is currently in it's V1 !", client);
 }
 
 void	Server::addClientQueue(void)
