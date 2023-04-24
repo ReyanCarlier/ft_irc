@@ -6,7 +6,7 @@
 /*   By: recarlie <recarlie@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/22 12:00:30 by frrusso           #+#    #+#             */
-/*   Updated: 2023/04/13 11:41:57 by recarlie         ###   ########.fr       */
+/*   Updated: 2023/04/24 11:07:20 by recarlie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@
 /* Server */
 #define MAX_TCP_PORT	65535
 #define MAX_CLIENT		42
-#define MAX_IN_QUEUE	2
+#define MAX_IN_QUEUE	100
 #define BUFFER_SIZE		1024
 #define OPER_PASSWORD	"oper"
 

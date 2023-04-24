@@ -197,7 +197,7 @@ void	Server::sendToClient(std::string message, Client *client)
 	std::cout << GREEN << "[SERVER => CLIENT (" << client->getSocket() << ")]\n" << YELLOW << message << ENDL;
 	std::cout << "----------------------------------------" << std::endl;
 	message.append("\r\n");
-	send(client->getSocket(), message.c_str(), message.length(), 0);
+	send(client->getSocket(), message.c_str(), message.length(), MSG_NOSIGNAL);
 }
 
 void	Server::commandHandler(std::string command, Client *client)
