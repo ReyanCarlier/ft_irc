@@ -261,7 +261,7 @@ void	Server::commandHandler(std::string command, Client *client)
 			topic(tokens[i], client);
 		else if (startwith("PART ", tokens[i]))
 			part(tokens[i], client);
-		else if (startwith("die\r\n", tokens[i]))
+		else if (tokens[i] == "die")
 			setDie(client);
 		else if (startwith("KICK ", tokens[i]))
 			kick(tokens[i], client);
@@ -269,7 +269,7 @@ void	Server::commandHandler(std::string command, Client *client)
 			ban(tokens[i], client);
 		else if (startwith("UNBAN ", tokens[i]))
 			unban(tokens[i], client);
-		else if (startwith("LIST\r\n", tokens[i]))
+		else if (tokens[i] == "LIST")
 			list(tokens[i], client);
 		else if (startwith("QUIT ", tokens[i]))
 			quit(tokens[i], client);
@@ -279,9 +279,9 @@ void	Server::commandHandler(std::string command, Client *client)
 			oper(tokens[i], client);
 		else if (startwith("kill ", tokens[i]))
 			kill(tokens[i], client);
-		else if (startwith("time\r\n", tokens[i]))
+		else if (tokens[i] == "time")
 			time(tokens[i], client);
-		else if (startwith("version\r\n", tokens[i]))
+		else if (tokens[i] == "version")
 			version(tokens[i], client);
 		else if (startwith("NAMES ", tokens[i]))
 			names(tokens[i], client);
