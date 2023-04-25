@@ -241,48 +241,50 @@ void	Server::commandHandler(std::string command, Client *client)
 			tokens[i].erase(tokens[i].size() - 1);
 	for (size_t i = 0; i < tokens.size(); i++)
 	{
-		if (startwith("NICK", tokens[i]))
+		if (startwith("NICK ", tokens[i]))
 			nick(tokens[i], client);
-		else if (startwith("USER", tokens[i]))
+		else if (startwith("USER ", tokens[i]))
 			user(tokens[i], client);
-		else if (startwith("PING", tokens[i]))
+		else if (startwith("PING ", tokens[i]))
 			ping(client);
-		else if (startwith("PASS", tokens[i]))
+		else if (startwith("PASS ", tokens[i]))
 			pass(tokens[i], client);
-		else if (startwith("MODE", tokens[i]))
+		else if (startwith("MODE ", tokens[i]))
 			mode(tokens[i], client);
-		else if (startwith("PRIVMSG", tokens[i]))
+		else if (startwith("PRIVMSG ", tokens[i]))
 			privmsg(tokens[i], client);
-		else if (startwith("JOIN", tokens[i]))
+		else if (startwith("JOIN ", tokens[i]))
 			join(tokens[i], client);
-		else if (startwith("WHO", tokens[i]))
+		else if (startwith("WHO ", tokens[i]))
 			who(tokens[i], client);
-		else if (startwith("TOPIC", tokens[i]))
+		else if (startwith("TOPIC ", tokens[i]))
 			topic(tokens[i], client);
-		else if (startwith("PART", tokens[i]))
+		else if (startwith("PART ", tokens[i]))
 			part(tokens[i], client);
-		else if (startwith("die", tokens[i]))
+		else if (startwith("die\r\n", tokens[i]))
 			setDie(client);
-		else if (startwith("KICK", tokens[i]))
+		else if (startwith("KICK ", tokens[i]))
 			kick(tokens[i], client);
-		else if (startwith("BAN", tokens[i]))
+		else if (startwith("BAN ", tokens[i]))
 			ban(tokens[i], client);
-		else if (startwith("UNBAN", tokens[i]))
+		else if (startwith("UNBAN ", tokens[i]))
 			unban(tokens[i], client);
-		else if (startwith("LIST", tokens[i]))
+		else if (startwith("LIST\r\n", tokens[i]))
 			list(tokens[i], client);
-		else if (startwith("QUIT", tokens[i]))
+		else if (startwith("QUIT ", tokens[i]))
 			quit(tokens[i], client);
-		else if (startwith("INVITE", tokens[i]))
+		else if (startwith("INVITE ", tokens[i]))
 			invite(tokens[i], client);
-		else if (startwith("OPER", tokens[i]))
+		else if (startwith("OPER ", tokens[i]))
 			oper(tokens[i], client);
-		else if (startwith("kill", tokens[i]))
+		else if (startwith("kill ", tokens[i]))
 			kill(tokens[i], client);
-		else if (startwith("time", tokens[i]))
+		else if (startwith("time\r\n", tokens[i]))
 			time(tokens[i], client);
-		else if (startwith("version", tokens[i]))
+		else if (startwith("version\r\n", tokens[i]))
 			version(tokens[i], client);
+		else if (startwith("NAMES ", tokens[i]))
+			names(tokens[i], client);
 	}
 }
 
@@ -1801,6 +1803,49 @@ void	Server::version(std::string command, Client *client)
 	}
 
 	sendToClient(":serverserver 351 " + client->getNickname() + " This awesome IRC Server was created by nfelsemb, frrusso and recarlie and is currently in it's V1 !", client);
+}
+
+void	Server::names(std::string command, Client *client)
+{
+	std::stringstream			ss(command);
+	std::string					item;
+	std::vector<std::string>	tokens;
+
+	command[command.size()] = '\0';
+	while (std::getline(ss, item, ' '))
+		tokens.push_back(item);
+
+	if (tokens.size() > 2) {
+		sendToClient(":serverserver ERROR * :Too much parameters", client);
+		return ;
+	}
+
+	if (tokens.size() < 2)
+	{
+		sendToClient(":serverserver ERROR * :Not enough parameters", client);
+	}
+
+	Channel *channel = getChannelFromName(tokens[1]);
+	if (channel == NULL)
+	{
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * " + tokens[1] + " :No such channel", client);
+		return ;
+	}
+
+	std::string names = "";
+	for (size_t i = 0; i < channel->getClients().size(); i++)
+	{
+		Client *client = channel->getClients().at(i);
+		if (client->getNickname() != "")
+		{
+			if (client->getNickname() == channel->getClients().at(channel->getClients().size() - 1)->getNickname())
+				names += client->getNickname();
+			else
+				names += client->getNickname() + " ";
+		}
+	}
+
+	sendToClient(":serverserver 353 " + client->getNickname() + " = " + channel->getName() + " :" + names, client);
 }
 
 void	Server::addClientQueue(void)
