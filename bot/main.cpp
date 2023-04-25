@@ -236,6 +236,7 @@ int	main(int ac, char **av) {
 	if (setsockopt(client_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt,
 	sizeof(int)) == -1) {
 		std::cerr << ERROR << "setsockopt()" << ENDL;
+		close(client_fd);
 		return (1);
 	}
 	sockaddr_in	serv_addr;
@@ -243,11 +244,13 @@ int	main(int ac, char **av) {
 	serv_addr.sin_port = htons(atoi(av[1]));
 	if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
 		std::cerr << ERROR << "inet_pton()" << ENDL;
+		close(client_fd);
 		return (1);
 	}
 	if (connect(client_fd, reinterpret_cast<sockaddr*>(&serv_addr),
 	sizeof(serv_addr)) < 0) {
 		std::cerr << ERROR << "connect()" << ENDL;
+		close(client_fd);
 		return (1);
 	}
 
@@ -267,6 +270,15 @@ int	main(int ac, char **av) {
 	buf_out = ss.str();
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
 	read_server(buf_in, client_fd);
+	str_in = buf_in;
+	std::string bot_name = BOT_NAME;
+	std::string error = ":serverserver 433 * " + bot_name + " :Nickname is already in use.\r\n";
+	if (str_in == error) {
+		std::cerr << ERROR << bot_name << " nickname is already in use." << ENDL;
+		close(client_fd);
+		return (1);
+	}
+
 
 	/* Oper */
 	ss.str("");

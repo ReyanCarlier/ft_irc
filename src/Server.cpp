@@ -837,8 +837,7 @@ void	Server::join(std::string command, Client *client)
 	std::string buffer;
 	for (size_t i = 0; i < channel_to_join->getClients().size(); i++)
 	{
-		std::vector<Client *> op = channel_to_join->getOperators();
-		if (std::find(op.begin(), op.end(), channel_to_join->getClients()[i]) != op.end())
+		if (channel_to_join->isOperator(channel_to_join->getClients().at(i)) || channel_to_join->getClients().at(i)->isAdmin())
 			buffer += "@";
 		buffer += channel_to_join->getClients()[i]->getNickname();
 		if (i != channel_to_join->getClients().size() - 1)
@@ -1484,6 +1483,11 @@ void	Server::oper(std::string command, Client *client)
 				if (tmp->isInChannel(client))
 				{
 					tmp->addOperator(client);
+					std::vector<Client *> channel_clients = tmp->getClients();
+					for (std::vector<Client *>::iterator it = channel_clients.begin(); it != channel_clients.end(); it++)
+					{
+						sendToClient(":serverserver MODE #" + tmp->getName() + " +o " + client->getNickname(), (*it));
+					}
 				}
 			}
 			sendToClient(":serverserver 381 " + client->getNickname() + " :You are now an IRC operator", client);
@@ -1509,6 +1513,11 @@ void	Server::oper(std::string command, Client *client)
 					if (tmp->isInChannel(target))
 					{
 						tmp->addOperator(target);
+						std::vector<Client *> channel_clients = tmp->getClients();
+						for (std::vector<Client *>::iterator it = channel_clients.begin(); it != channel_clients.end(); it++)
+						{
+							sendToClient(":serverserver MODE #" + tmp->getName() + " +o " + target->getNickname(), (*it));
+						}
 					}
 				}
 				sendToClient(":serverserver 381 " + target->getNickname() + " :You are now an IRC operator", target);
