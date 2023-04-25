@@ -1825,7 +1825,7 @@ void	Server::names(std::string command, Client *client)
 		sendToClient(":serverserver ERROR * :Not enough parameters", client);
 	}
 
-	Channel *channel = getChannelFromName(tokens[1]);
+	Channel *channel = getChannel(tokens[1]);
 	if (channel == NULL)
 	{
 		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * " + tokens[1] + " :No such channel", client);
