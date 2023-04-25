@@ -1825,6 +1825,14 @@ void	Server::names(std::string command, Client *client)
 		sendToClient(":serverserver ERROR * :Not enough parameters", client);
 	}
 
+	if (tokens[1][0] == '#')
+		tokens[1].erase(0, 1);
+	else
+	{
+		sendToClient(":serverserver " + Errors::ERR_NOSUCHCHANNEL + " * " + tokens[1] + " :No such channel", client);
+		return ;
+	}
+
 	Channel *channel = getChannel(tokens[1]);
 	if (channel == NULL)
 	{
@@ -1838,6 +1846,8 @@ void	Server::names(std::string command, Client *client)
 		Client *client = channel->getClients().at(i);
 		if (client->getNickname() != "")
 		{
+			if (channel->isOperator(client))
+				names += "@";
 			if (client->getNickname() == channel->getClients().at(channel->getClients().size() - 1)->getNickname())
 				names += client->getNickname();
 			else
