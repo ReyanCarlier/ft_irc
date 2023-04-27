@@ -1,61 +1,73 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Channel.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/04/27 13:22:27 by frrusso           #+#    #+#             */
+/*   Updated: 2023/04/27 13:22:29 by frrusso          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #pragma once
 
 #include "Client.hpp"
-#include <string>
-#include <iostream>
-#include <vector>
 
-/**
- * Representation of a channel in the server.
- */
+#define V_IT vector<Client*>::iterator it
+
 class Channel {
-    public:
-        Channel();
-        Channel(const Channel& other);
-        Channel(const std::string name);
-        ~Channel();
+	private:
+		int						_id;
+		string				_name;
+		string				_topic;
+		bool					_inviteOnly;
+		vector<Client*>	_clients;
+		vector<Client*>	_invited;
+		vector<Client*>	_operators;
+		vector<Client*>	_banned;
+		vector<Client*>	_muted;
+	public:
+		/* Constructor & Destructor ***************************************** */
+		Channel();
+		Channel(const Channel& other);
+		Channel(const string name);
+		~Channel();
 
-        Channel& operator=(const Channel& other);
+		/* Operator overload ************************************************ */
+		Channel& operator=(const Channel& other);
 
-        int                     getId() const;
-        bool                    isInviteOnly() const;
-        std::string             getTopic() const;
-        std::string             getName() const;
-        std::vector<Client *>   getClients();
-        std::vector<Client *>   getInvited();
-        std::vector<Client *>   getOperators();
-        std::vector<Client *>   getBanned();
-        std::vector<Client *>   getMuted();
+		/* Getter *********************************************************** */
+		int						getId() const;
+		bool					isInviteOnly() const;
+		string				getTopic() const;
+		string				getName() const;
+		vector<Client*>	getClients();
+		vector<Client*>	getInvited();
+		vector<Client*>	getOperators();
+		vector<Client*>	getBanned();
+		vector<Client*>	getMuted();
 
-        void setId(int id);
-        void setName(std::string name);
-        void setTopic(std::string topic);
-        void setInviteOnly(bool inviteOnly);
+		/* Setter *********************************************************** */
+		void					setId(int id);
+		void					setName(string name);
+		void					setTopic(string topic);
+		void					setInviteOnly(bool inviteOnly);
 
-        void addClient(Client *client);
-        void addInvited(Client *client);
-        void addOperator(Client *client);
-        void addBanned(Client *client);
-        void addMuted(Client *client);
-        void removeClient(Client *client);
-        void removeInvited(Client *client);
-        void removeOperator(Client *client);
-        void unbanClient(Client *client);
-        void unmuteClient(Client *client);
-        bool isBanned(Client *client);
-        bool isInvited(Client *client);
-        bool isMuted(Client *client);
-        bool isOperator(Client *client);
-        bool isInChannel(Client *client);
-        
-    private:
-        int                     _id;
-        std::string             _name;
-        std::string             _topic;
-        bool                    _inviteOnly;
-        std::vector<Client *>   _clients;
-        std::vector<Client *>   _invited;
-        std::vector<Client *>   _operators;
-        std::vector<Client *>  _banned;
-        std::vector<Client *>   _muted;
+		/* Function ********************************************************* */
+		void					addClient(Client *client);
+		void					addInvited(Client *client);
+		void					addOperator(Client *client);
+		void 					addBanned(Client *client);
+		void					addMuted(Client *client);
+		void					removeClient(Client *client);
+		void					removeInvited(Client *client);
+		void					removeOperator(Client *client);
+		void					unbanClient(Client *client);
+		void					unmuteClient(Client *client);
+		bool					isBanned(Client *client);
+		bool					isInvited(Client *client);
+		bool					isMuted(Client *client);
+		bool					isOperator(Client *client);
+		bool					isInChannel(Client *client);
 };

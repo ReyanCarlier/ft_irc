@@ -13,6 +13,7 @@
 NAME		=	ircserv
 SRC			=	main.cpp \
 				Server.cpp \
+				ServerCommand.cpp \
 				Client.cpp \
 				Channel.cpp \
 				Errors.cpp

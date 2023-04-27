@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/04/27 13:10:34 by frrusso           #+#    #+#             */
+/*   Updated: 2023/04/27 13:10:36 by frrusso          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <header.hpp>
 
 bool	is_port(char *av) {
@@ -271,10 +283,8 @@ int	main(int ac, char **av) {
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
 	read_server(buf_in, client_fd);
 	str_in = buf_in;
-	std::string bot_name = BOT_NAME;
-	std::string error = ":serverserver 433 * " + bot_name + " :Nickname is already in use.\r\n";
-	if (str_in == error) {
-		std::cerr << ERROR << bot_name << " nickname is already in use." << ENDL;
+	if (str_in.find(":serverserver 433") == std::string::npos) {
+		std::cerr << ERROR << "Nickname is already in use." << ENDL;
 		close(client_fd);
 		return (1);
 	}

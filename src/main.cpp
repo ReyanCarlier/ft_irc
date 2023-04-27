@@ -12,12 +12,10 @@
 
 #include <Server.hpp>
 
-bool	is_port(char *av)
-{
+bool	is_port(char *av) {
 	if (strlen(av) > 5)
 		return (false);
-	for (size_t i = 0; i < strlen(av); i++)
-	{
+	for (size_t i = 0; i < strlen(av); i++) {
 		if (isdigit(av[i]) == false)
 			return (false);
 	}
@@ -28,14 +26,12 @@ bool	is_port(char *av)
 
 int	main(int ac, char **av)
 {
-	if (ac != 3)
-	{
-		std::cout << RED << "Usage: ./serverserv <port> <password>" << ENDL;
+	if (ac != 3) {
+		cout << RED << "Usage: ./serverserv <port> <password>" << ENDL;
 		return (0);
 	}
-	if (is_port(av[1]) == false)
-	{
-		std::cerr << RED << "Port \"" << av[1] << "\" is not good." << ENDL;
+	if (is_port(av[1]) == false) {
+		cerr << RED << "Port \"" << av[1] << "\" is not good." << ENDL;
 		return (0);
 	}
 
@@ -43,29 +39,26 @@ int	main(int ac, char **av)
 	fd_set	readfds;
 	fd_set	writefds;
 
-	try
-	{
+	try {
 		server.run();
-		std::cout << GREEN << "✅ Socket created successfully." << ENDL;
+		cout << GREEN << "✅ Socket created successfully." << ENDL;
 		server.bind(atoi(av[1]));
-		std::cout << GREEN << "✅ Socket binded successfully." << ENDL;
+		cout << GREEN << "✅ Socket binded successfully." << ENDL;
 		server.listen();
-		std::cout << GREEN << "✅ Server listening on 127.0.0.1:" <<
+		cout << GREEN << "✅ Server listening on 127.0.0.1:" <<
 		server.getPort() << "." << ENDL;
 
 		int			valread;
-		std::string	buffer, name;
+		string	buffer, name;
 
-		while (server.getDie() == false)
-		{
+		while (server.getDie() == false)  {
 			FD_ZERO(&readfds);
 			FD_ZERO(&writefds);
 			FD_SET(server.getSocketFd(), &readfds);
 			FD_SET(server.getSocketFd(), &writefds);
 			if (select(server.getHighestFd(&readfds, &writefds) + 1, &readfds, &writefds, NULL, NULL) < 0 && errno != EINTR)
-				std::cerr << "select error" << std::endl;
-			if (FD_ISSET(server.getSocketFd(), &readfds))
-			{
+				cerr << "select error" << endl;
+			if (FD_ISSET(server.getSocketFd(), &readfds)) {
 				sockaddr_in	address;
 				int			addrlen = sizeof(address);
 				int			new_socket = accept(
@@ -76,87 +69,94 @@ int	main(int ac, char **av)
 
 				if (new_socket < 0)
 					throw "Failed to accept connection.";
-				std::cout << CYAN << "✅ Connection accepted on FD " << new_socket << ". client in queue " << server.getClientQueue() << ENDL;
-				if (server.getClientQueue() >= MAX_IN_QUEUE || server.getClients().size() >= MAX_CLIENT)
-				{
+				cout << CYAN << "✅ Connection accepted on FD " << new_socket <<
+				". client in queue " << server.getClientQueue() << ENDL;
+				if (
+					server.getClientQueue() >= MAX_IN_QUEUE ||
+					server.getClients().size() >= MAX_CLIENT
+				) {
 					write(new_socket, ":serverserver ERROR: Server is full.\r\n", 38);
 					close(new_socket);
 					continue ;
 				}
 				server.addClientQueue();
-				try
-				{
+				try {
 					server.getClient(new_socket);
-				}
-				catch (const char *e)
-				{
+				} catch (const char *e) {
 					server.addClient(new Client(new_socket));
 				}
 			}
-			for (size_t i = 0; i < server.getClients().size(); i++)
-			{
-				if (FD_ISSET(server.getClients().at(i)->getSocket(), &writefds))
-				{
-					if (server.getClients().at(i)->isReady() && server.getClients().at(i)->isWelcomed() && !server.getClients().at(i)->getNickname().empty() && (server.getClients().at(i)->getPass() == 1 || server.getPassword().empty()))
-					{
-						server.welcome(server.getClients().at(i));
+			for (size_t i = 0; i < server.getClients().size(); i++) {
+				if (FD_ISSET(CLIENTS->getSocket(), &writefds)) {
+					if (
+						CLIENTS->isReady() &&
+						CLIENTS->isWelcomed() &&
+						!CLIENTS->getNickname().empty() &&
+						(CLIENTS->getPass() == 1 || server.getPassword().empty())
+					) {
+						server.welcome(CLIENTS);
 						server.removeClientQueue();
-					}
-					else if (server.getClients().at(i)->getPass() == 0 && !server.getPassword().empty())
-					{
-						server.sendToClient(":serverserver 464 " + server.getClients().at(i)->getUsername() + " :Password incorrect", server.getClients().at(i));
-						close(server.getClients().at(i)->getSocket());
-						server.removeClient(server.getClients().at(i));
+					} else if (
+						CLIENTS->getPass() == 0 && !server.getPassword().empty()
+					) {
+						server.sendToClient(
+							":serverserver 464 " + CLIENTS->getUsername() + " :Password incorrect",
+							CLIENTS
+						);
+						close(CLIENTS->getSocket());
+						server.removeClient(CLIENTS);
 						continue ;
-					}
-					else if (server.getClients().at(i)->isReady() == 1 && server.getClients().at(i)->isWelcomed() && server.getClients().at(i)->getPass() == 2 && !server.getPassword().empty())
-					{
-						server.sendToClient(":serverserver 461 " + server.getClients().at(i)->getUsername() + " PASS :Not enough parameters", server.getClients().at(i));
-						close(server.getClients().at(i)->getSocket());
-						server.removeClient(server.getClients().at(i));
+					} else if (
+						CLIENTS->isReady() == 1 &&
+						CLIENTS->isWelcomed() &&
+						CLIENTS->getPass() == 2 &&
+						!server.getPassword().empty()
+					) {
+						server.sendToClient(
+							":serverserver 461 " + CLIENTS->getUsername() + " PASS :Not enough parameters",
+							CLIENTS
+						);
+						close(CLIENTS->getSocket());
+						server.removeClient(CLIENTS);
 						continue ;
 					}
 				}
-				if (FD_ISSET(server.getClients().at(i)->getSocket(), &readfds))
+				if (FD_ISSET(CLIENTS->getSocket(), &readfds))
 				{
-					valread = read(server.getClients().at(i)->getSocket(), server.getBuffer(), BUFFER_SIZE);
+					valread = read(CLIENTS->getSocket(), server.getBuffer(), BUFFER_SIZE);
 					if (valread == 0)
 					{
-						std::cerr << RED << "Client " << server.getClients().at(i)->getSocket() << " disconnected." << ENDL;
-						if (server.getClients().at(i)->isWelcomed())
+						cerr << RED << "Client " << CLIENTS->getSocket() << " disconnected." << ENDL;
+						if (CLIENTS->isWelcomed())
 							server.removeClientQueue();
-						close(server.getClients().at(i)->getSocket());
+						close(CLIENTS->getSocket());
 
-						std::vector<Channel*>	channels = server.getChannels();
+						vector<Channel*>	channels = server.getChannels();
 
 						for (size_t j = 0; j < channels.size(); j++)
 						{
-							std::vector<Client*>	clients = channels.at(j)->getClients();
+							vector<Client*>	clients = channels.at(j)->getClients();
 							for (size_t k = 0; k < clients.size(); k++)
 							{
-								if (clients.at(k)->getSocket() == server.getClients().at(i)->getSocket())
+								if (clients.at(k)->getSocket() == CLIENTS->getSocket())
 								{
-									channels.at(j)->removeClient(server.getClients().at(i));
+									channels.at(j)->removeClient(CLIENTS);
 									break ;
 								}
 							}
 							if (channels.at(j)->getClients().size() == 0)
 								server.removeChannel(channels.at(j));
 						}
-						server.removeClient(server.getClients().at(i));
-					}
-					else
-					{
+						server.removeClient(CLIENTS);
+					} else {
 						server.getBuffer()[valread] = '\0';
-						server.commandHandler(server.getBuffer(), server.getClients().at(i));
+						server.commandHandler(server.getBuffer(), CLIENTS);
 					}
 				}
 			}
 		}
-	}
-	catch(const char *e)
-	{
-		std::cerr << RED << e << ENDL;
+	} catch(const char *e) {
+		cerr << RED << e << ENDL;
 		return (1);
 	}
 	return (0);

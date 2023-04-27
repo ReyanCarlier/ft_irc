@@ -20,7 +20,9 @@
 #include <cstring>		/* strlen */
 #include <cstdlib>		/* atoi */
 #include <cerrno>		/* errno */
-#include <sstream>      /* stringstream */
+#include <ctime>		/* time */
+#include <sstream>		/* stringstream */
+#include <vector>
 
 /* Color */
 #define RESET			"\33[00m"
@@ -31,7 +33,7 @@
 #define BLUE			"\33[34m"
 #define MAGENTA			"\33[35m"
 #define CYAN			"\33[36m"
-#define ENDL			"\33[00m" << std::endl
+#define ENDL			"\33[00m" << endl
 #define ERROR			"\33[31m" << "Error: "
 
 /* Server */
@@ -45,3 +47,10 @@
 #define BOT_NAME		"bot"
 #define BOT_PASSWORD	"password"
 #define CMD_CMP			cmd.compare
+
+/* Code */
+#define CLIENTS			server.getClients().at(i)
+#define LINE            "\n===================================================="
+
+/* namespace */
+using namespace std;

@@ -14,12 +14,12 @@
 
 Client::Client() : _socket(0), _isok(0), _bvn(1), _pass(2), _isadmin(0)
 {
-	std::cout << "Client created" << std::endl;
+	cout << "Client created" << endl;
 }
 
 Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1), _pass(2), _isadmin(0)
 {
-	std::cout << "Client created" << std::endl;
+	cout << "Client created" << endl;
 }
 
 Client::Client(const Client &src)
@@ -47,12 +47,12 @@ int			Client::getSocket(void)
 	return (_socket);
 }
 
-std::string	Client::getMessage(void)
+string	Client::getMessage(void)
 {
 	return (_messageentrant);
 }
 
-std::string Client::getUsername(void)
+string Client::getUsername(void)
 {
 	return (_username);
 }
@@ -77,22 +77,22 @@ int			Client::getPass(void)
 	return (_pass);
 }
 
-std::string	Client::getHostname(void)
+string	Client::getHostname(void)
 {
 	return (_hostname);
 }
 
-std::string	Client::getRealName(void)
+string	Client::getRealName(void)
 {
 	return (_realname);
 }
 
-std::string	Client::getNickname(void)
+string	Client::getNickname(void)
 {
 	return (_nickname);
 }
 
-std::string	Client::getHost(void)
+string	Client::getHost(void)
 {
 	return (_host);
 }
@@ -107,27 +107,27 @@ void		Client::setSocket(int socket)
 	_socket = socket;
 }
 
-void		Client::setMessage(std::string	messageentrant)
+void		Client::setMessage(string	messageentrant)
 {
 	_messageentrant = messageentrant;
 }
 
-void		Client::setNickname(std::string nickname)
+void		Client::setNickname(string nickname)
 {
 	_nickname = nickname;
 }
 
-void		Client::setUsername(std::string name)
+void		Client::setUsername(string name)
 {
 	_username = name;
 }
 
-void		Client::setHostname(std::string name)
+void		Client::setHostname(string name)
 {
 	_hostname = name;
 }
 
-void		Client::setHost(std::string name)
+void		Client::setHost(string name)
 {
 	_host = name;
 }
@@ -137,7 +137,7 @@ void		Client::setMode(int mode)
 	_mode = mode;
 }
 
-void		Client::setRealName(std::string name)
+void		Client::setRealName(string name)
 {
 	_realname = name;
 }
@@ -167,12 +167,12 @@ bool		Client::isAdmin(void)
 	return (_isadmin);
 }
 
-void		Client::setBuffer(std::string buffer)
+void		Client::setBuffer(string buffer)
 {
 	_buffer = buffer;
 }
 
-std::string	Client::getBuffer(void)
+string	Client::getBuffer(void)
 {
 	return (_buffer);
 }
