@@ -154,7 +154,7 @@ void Channel::addMuted(Client *client) {
  * @param client 
  */
 void Channel::removeClient(Client *client) {
-	for (V_IT = _clients.begin(); it != _clients.end(); it++) {
+	for (CL_IT = _clients.begin(); it != _clients.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			_clients.erase(it);
 			break ;
@@ -163,7 +163,7 @@ void Channel::removeClient(Client *client) {
 }
 
 void Channel::removeOperator(Client *client) {
-	for (V_IT = this->_operators.begin(); it != this->_operators.end(); it++) {
+	for (CL_IT = this->_operators.begin(); it != this->_operators.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			this->_operators.erase(it);
 			break ;
@@ -178,7 +178,7 @@ void Channel::removeOperator(Client *client) {
  * @param client 
  */
 void Channel::unbanClient(Client *client) {
-	for (V_IT = this->_banned.begin(); it != this->_banned.end(); it++) {
+	for (CL_IT = this->_banned.begin(); it != this->_banned.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			this->_banned.erase(it);
 			break ;
@@ -193,7 +193,7 @@ void Channel::unbanClient(Client *client) {
  * @param client 
  */
 void Channel::unmuteClient(Client *client) {
-	for (V_IT = this->_muted.begin(); it != this->_muted.end(); it++) {
+	for (CL_IT = this->_muted.begin(); it != this->_muted.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			this->_muted.erase(it);
 			break ;
@@ -204,7 +204,7 @@ void Channel::unmuteClient(Client *client) {
 bool Channel::isBanned(Client *client) {
 	if (this->_banned.empty())
 		return false;
-	for (V_IT = this->_banned.begin(); it != this->_banned.end(); it++) {
+	for (CL_IT = this->_banned.begin(); it != this->_banned.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			return true;
 		}
@@ -215,7 +215,7 @@ bool Channel::isBanned(Client *client) {
 bool Channel::isMuted(Client *client) {
 	if (this->_muted.empty())
 		return false;
-	for (V_IT = this->_muted.begin(); it != this->_muted.end(); it++) {
+	for (CL_IT = this->_muted.begin(); it != this->_muted.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			return true;
 		}
@@ -226,7 +226,7 @@ bool Channel::isMuted(Client *client) {
 bool Channel::isOperator(Client *client) {
 	if (this->_operators.empty())
 		return false;
-	for (V_IT = this->_operators.begin(); it != this->_operators.end(); it++) {
+	for (CL_IT = this->_operators.begin(); it != this->_operators.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			return true;
 		}
@@ -249,7 +249,7 @@ void Channel::addInvited(Client *client) {
 void Channel::removeInvited(Client *client) {
 	if (this->_invited.empty())
 		return;
-	for (V_IT = this->_invited.begin(); it != this->_invited.end(); it++) {
+	for (CL_IT = this->_invited.begin(); it != this->_invited.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			this->_invited.erase(it);
 			break ;
@@ -260,10 +260,9 @@ void Channel::removeInvited(Client *client) {
 bool Channel::isInvited(Client *client) {
 	if (this->_invited.empty())
 		return false;
-	for (V_IT = this->_invited.begin(); it != this->_invited.end(); it++) {
-		if ((*it)->getSocket() == client->getSocket()) {
+	for (CL_IT = this->_invited.begin(); it != this->_invited.end(); it++) {
+		if ((*it)->getSocket() == client->getSocket())
 			return true;
-		}
 	}
 	return false;
 }
@@ -294,10 +293,9 @@ string Channel::getTopic() const {
  * @return false 
  */
 bool Channel::isInChannel(Client *client) {
-	for (V_IT = this->_clients.begin(); it != this->_clients.end(); it++) {
-		if ((*it)->getSocket() == client->getSocket()) {
+	for (CL_IT = this->_clients.begin(); it != this->_clients.end(); it++) {
+		if ((*it)->getSocket() == client->getSocket())
 			return true;
-		}
 	}
 	return false;
 }

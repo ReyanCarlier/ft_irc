@@ -16,8 +16,7 @@
 #include "Channel.hpp"
 #include "Errors.hpp"
 
-class Server
-{
+class Server {
 	private:
 		int					_addrlen;
 		int					_accept_fd;

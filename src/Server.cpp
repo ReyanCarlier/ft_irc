@@ -17,8 +17,7 @@ bool				Server::startwith(string prefix, string str) {
 
 	if (prefix.length() > str.length())
 		return (false);
-	while (prefix[i])
-	{
+	while (prefix[i]) {
 		if (prefix[i] != str[i])
 			return (false);
 		i++;
@@ -42,7 +41,7 @@ Server::Server(char **av) {
 }
 
 Server::~Server() {
-	vector<Client*>	clients = getClients();
+	vector<Client*>		clients = getClients();
 	vector<Channel*>	channels = getChannels();
 
 	for (vector<Client*>::iterator it = clients.begin(); it != clients.end(); it++)
@@ -74,7 +73,7 @@ char*				Server::getBuffer(void) {
 int					Server::getHighestFd(fd_set *readfds, fd_set *writefds) {
 	int	highest_fd = _socket_fd;
 
-	for (vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+	for (CL_IT = _clients.begin(); it != _clients.end(); it++) {
 		FD_SET((*it)->getSocket(), readfds);
 		FD_SET((*it)->getSocket(), writefds);
 		if ((*it)->getSocket() > highest_fd)
@@ -103,7 +102,7 @@ int*				Server::getPtrOpt(void) {
 }
 
 Client*				Server::getClient(int fd) {
-	for (vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	for (CL_IT = _clients.begin(); it != _clients.end(); it++)
 	{
 		if ((*it)->getSocket() == fd)
 			return (*it);
@@ -112,7 +111,7 @@ Client*				Server::getClient(int fd) {
 }
 
 Client*				Server::getClientFromNick(string nick) {
-	for (vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	for (CL_IT = _clients.begin(); it != _clients.end(); it++)
 	{
 		if ((*it)->getNickname() == nick)
 			return (*it);
@@ -142,8 +141,9 @@ void				Server::run() {
 	_socket_fd = socket(2, 1, 0);
 	if (_socket_fd == -1)
 		throw "Failed to create socket.";
-	if (setsockopt(_socket_fd, SOL_SOCKET,
-	SO_REUSEADDR | SO_REUSEPORT, &_opt, sizeof(int)))
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &_opt,
+		sizeof(int))
+	)
 		throw "Failed to set options on sockets.";
 }
 
@@ -156,7 +156,7 @@ void				Server::addClient(Client *client) {
 }
 
 void				Server::removeClient(Client *client) {
-	for (vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+	for (CL_IT = _clients.begin(); it != _clients.end(); it++) {
 		if ((*it)->getSocket() == client->getSocket()) {
 			Client *client = *it;
 			_clients.erase(it);
@@ -171,7 +171,7 @@ void				Server::addChannel(Channel *channel) {
 }
 
 void				Server::removeChannel(Channel *channel) {
-	for (vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++) {
+	for (CH_IT = _channels.begin(); it != _channels.end(); it++) {
 		if ((*it)->getName() == channel->getName()) {
 			Channel *channel = *it;
 			_channels.erase(it);
@@ -213,8 +213,8 @@ void				Server::commandHandler(string command, Client *client) {
 		client->setBuffer("");
 	}
 
-	stringstream			ss(command);
-	string					item;
+	stringstream	ss(command);
+	string			item;
 	vector<string>	tokens;
 
 	while (getline(ss, item, '\n'))
@@ -290,7 +290,7 @@ Channel*			Server::getChannel(string name) {
 
 	vector<Channel*>	channels = _channels;
 
-	for (vector<Channel *>::iterator it = channels.begin(); it != channels.end(); it++) {
+	for (CH_IT = channels.begin(); it != channels.end(); it++) {
 		if ((*it != NULL) && (*it)->getName() == name)
 			return (*it);
 	}
@@ -309,8 +309,7 @@ bool				Server::getDie(void) {
  * @return false 
  */
 bool				Server::channelExists(string channel_name) {
-	for (size_t i = 0; i < _channels.size(); i++)
-	{
+	for (size_t i = 0; i < _channels.size(); i++) {
 		if (_channels[i]->getName() == channel_name)
 			return (true);
 	}

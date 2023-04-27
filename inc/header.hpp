@@ -37,20 +37,25 @@
 #define ERROR			"\33[31m" << "Error: "
 
 /* Server */
+#define BUFFER_SIZE		1024
 #define MAX_TCP_PORT	65535
 #define MAX_CLIENT		42
 #define MAX_IN_QUEUE	100
-#define BUFFER_SIZE		1024
 #define OPER_PASSWORD	"oper"
 
 /* Bot */
 #define BOT_NAME		"bot"
 #define BOT_PASSWORD	"password"
-#define CMD_CMP			cmd.compare
 
 /* Code */
 #define CLIENTS			server.getClients().at(i)
-#define LINE            "\n===================================================="
+#define LINE			"\n===================================================="
+#define FULL			":serverserver ERROR: Server is full.\r\n"
+#define CL_IT			vector<Client*>::iterator it
+#define CL_IT2			vector<Client*>::iterator it2
+#define CH_IT			vector<Channel*>::iterator it
+#define VERSION1		" This awesome IRC Server was created by nfelsemb, "
+#define VERSION2		"frrusso and recarlie and is currently in it's V1 !"
 
-/* namespace */
+/* Namespace */
 using namespace std;

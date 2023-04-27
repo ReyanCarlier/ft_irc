@@ -12,28 +12,25 @@
 
 #include <Client.hpp>
 
-Client::Client() : _socket(0), _isok(0), _bvn(1), _pass(2), _isadmin(0)
-{
+Client::Client() :
+_socket(0), _isok(0), _bvn(1), _pass(2), _isadmin(0) {
 	cout << "Client created" << endl;
 }
 
-Client::Client(int _fd) : _socket(_fd), _isok(0), _bvn(1), _pass(2), _isadmin(0)
-{
+Client::Client(int _fd) :
+_socket(_fd), _isok(0), _bvn(1), _pass(2), _isadmin(0) {
 	cout << "Client created" << endl;
 }
 
-Client::Client(const Client &src)
-{
+Client::Client(const Client &src) {
 	*this = src;
 }
 
-Client::~Client()
-{
+Client::~Client() {
 	close(_socket);
 }
 
-Client&		Client::operator=(Client const &rhs)
-{
+Client&		Client::operator=(Client const &rhs) {
 	_nickname = rhs._nickname;
 	_username = rhs._username;
 	_hostname = rhs._hostname;
@@ -42,137 +39,110 @@ Client&		Client::operator=(Client const &rhs)
 	return (*this);
 }
 
-int			Client::getSocket(void)
-{
+int			Client::getSocket(void) {
 	return (_socket);
 }
 
-string	Client::getMessage(void)
-{
+string	Client::getMessage(void) {
 	return (_messageentrant);
 }
 
-string Client::getUsername(void)
-{
+string Client::getUsername(void) {
 	return (_username);
 }
 
-int			Client::isReady(void)
-{
+int			Client::isReady(void) {
 	return (_isok);
 }
 
-int			Client::isWelcomed(void)
-{
+int			Client::isWelcomed(void) {
 	return (_bvn);
 }
 
-int			Client::getId(void)
-{
+int			Client::getId(void) {
 	return (_id);
 }
 
-int			Client::getPass(void)
-{
+int			Client::getPass(void) {
 	return (_pass);
 }
 
-string	Client::getHostname(void)
-{
+string	Client::getHostname(void) {
 	return (_hostname);
 }
 
-string	Client::getRealName(void)
-{
+string	Client::getRealName(void) {
 	return (_realname);
 }
 
-string	Client::getNickname(void)
-{
+string	Client::getNickname(void) {
 	return (_nickname);
 }
 
-string	Client::getHost(void)
-{
+string	Client::getHost(void) {
 	return (_host);
 }
 
-void		Client::setId(int id)
-{
+void		Client::setId(int id) {
 	_id = id;
 }
 
-void		Client::setSocket(int socket)
-{
+void		Client::setSocket(int socket) {
 	_socket = socket;
 }
 
-void		Client::setMessage(string	messageentrant)
-{
+void		Client::setMessage(string	messageentrant) {
 	_messageentrant = messageentrant;
 }
 
-void		Client::setNickname(string nickname)
-{
+void		Client::setNickname(string nickname) {
 	_nickname = nickname;
 }
 
-void		Client::setUsername(string name)
-{
+void		Client::setUsername(string name) {
 	_username = name;
 }
 
-void		Client::setHostname(string name)
-{
+void		Client::setHostname(string name) {
 	_hostname = name;
 }
 
-void		Client::setHost(string name)
-{
+void		Client::setHost(string name) {
 	_host = name;
 }
 
-void		Client::setMode(int mode)
-{
+void		Client::setMode(int mode) {
 	_mode = mode;
 }
 
-void		Client::setRealName(string name)
-{
+void		Client::setRealName(string name) {
 	_realname = name;
 }
 
-void		Client::setOk(int ok)
-{
+void		Client::setOk(int ok) {
 	_isok = ok;
 }
 
-void		Client::setWelcomed(int bvn)
-{
+void		Client::setWelcomed(int bvn) {
 	_bvn = bvn;
 }
 
-void		Client::setPass(int status)
-{
+void		Client::setPass(int status) {
 	_pass = status;
 }
 
-void		Client::setAdmin(bool status)
-{
+void		Client::setAdmin(bool status) {
 	_isadmin = status;
 }
 
-bool		Client::isAdmin(void)
-{
+bool		Client::isAdmin(void) {
 	return (_isadmin);
 }
 
-void		Client::setBuffer(string buffer)
-{
+void		Client::setBuffer(string buffer) {
 	_buffer = buffer;
 }
 
-string	Client::getBuffer(void)
-{
+string	Client::getBuffer(void) {
 	return (_buffer);
 }
