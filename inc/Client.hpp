@@ -14,11 +14,22 @@
 
 #include <header.hpp>
 
-/**
- * Representation of a client.
- */
-class Client
-{
+class Client {
+	private:
+		int		_id;
+		int		_mode;
+		string	_nickname;
+		string	_username;
+		string	_hostname;
+		string	_host;
+		string	_realname;
+		string	_buffer;
+		int		_socket;
+		string	_messageentrant;
+		int		_isok;
+		int		_bvn;
+		int		_pass;
+		bool	_isadmin;
 	public:
 		/* Constructor & Destructor ***************************************** */
 		Client();
@@ -27,52 +38,37 @@ class Client
 		~Client();
 
 		/* Operator overload ************************************************ */
-		Client&		operator=(Client const &rhs);
+		Client&	operator=(Client const &rhs);
 
 		/* Getter *********************************************************** */
-		int			getSocket(void);
-		std::string	getMessage(void);
-		std::string getUsername(void);
-		std::string getHostname(void);
-		std::string getRealName(void);
-		std::string getNickname(void);
-		std::string getHost(void);
-		int			isReady(void);
-		int			isWelcomed(void);
-		int			getPass();
-		int			getId(void);
-		int			getMode(void);
-		std::string	getBuffer(void);
+		int		getSocket(void);
+		string	getMessage(void);
+		string	getUsername(void);
+		string	getHostname(void);
+		string	getRealName(void);
+		string	getNickname(void);
+		string	getHost(void);
+		int		isReady(void);
+		int		isWelcomed(void);
+		int		getPass();
+		int		getId(void);
+		int		getMode(void);
+		string	getBuffer(void);
 
 		/* Setter *********************************************************** */
-		void		setNickname(std::string nickname);
-		void		setSocket(int socket);
-		void		setMessage(std::string	messageentrant);
-		void		setUsername(std::string name);
-		void		setHostname(std::string name);
-		void		setRealName(std::string name);
-		void		setHost(std::string name);
-		void		setOk(int ok);
-		void		setWelcomed(int bvn);
-		void		setId(int id);
-		void		setPass(int id);
-		void		setMode(int mode);
-		bool		isAdmin(void);
-		void		setAdmin(bool status);
-		void		setBuffer(std::string buffer);
-	private:
-		int			_id;
-		int			_mode;
-		std::string _nickname;
-		std::string _username;
-		std::string _hostname;
-		std::string _host;
-		std::string _realname;
-		std::string _buffer;
-		int			_socket;
-		std::string	_messageentrant;
-		int			_isok;
-		int			_bvn;
-		int			_pass;
-		bool		_isadmin;
+		void	setNickname(string nickname);
+		void	setSocket(int socket);
+		void	setMessage(string	messageentrant);
+		void	setUsername(string name);
+		void	setHostname(string name);
+		void	setRealName(string name);
+		void	setHost(string name);
+		void	setOk(int ok);
+		void	setWelcomed(int bvn);
+		void	setId(int id);
+		void	setPass(int id);
+		void	setMode(int mode);
+		bool	isAdmin(void);
+		void	setAdmin(bool status);
+		void	setBuffer(string buffer);
 };

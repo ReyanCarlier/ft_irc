@@ -20,7 +20,9 @@
 #include <cstring>		/* strlen */
 #include <cstdlib>		/* atoi */
 #include <cerrno>		/* errno */
-#include <sstream>      /* stringstream */
+#include <ctime>		/* time */
+#include <sstream>		/* stringstream */
+#include <vector>
 
 /* Color */
 #define RESET			"\33[00m"
@@ -31,17 +33,26 @@
 #define BLUE			"\33[34m"
 #define MAGENTA			"\33[35m"
 #define CYAN			"\33[36m"
-#define ENDL			"\33[00m" << std::endl
+#define ENDL			"\33[00m" << endl
 #define ERROR			"\33[31m" << "Error: "
 
 /* Server */
+#define BUFFER_SIZE		1024
 #define MAX_TCP_PORT	65535
 #define MAX_CLIENT		42
 #define MAX_IN_QUEUE	100
-#define BUFFER_SIZE		1024
 #define OPER_PASSWORD	"oper"
 
 /* Bot */
 #define BOT_NAME		"bot"
 #define BOT_PASSWORD	"password"
-#define CMD_CMP			cmd.compare
+
+/* Code */
+#define CLIENTS			server.getClients().at(i)
+#define LINE			"\n===================================================="
+#define CL_IT			vector<Client*>::iterator it
+#define CL_IT2			vector<Client*>::iterator it2
+#define CH_IT			vector<Channel*>::iterator it
+
+/* Namespace */
+using namespace std;

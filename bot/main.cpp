@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frrusso <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/04/27 13:10:34 by frrusso           #+#    #+#             */
+/*   Updated: 2023/04/27 13:10:36 by frrusso          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <header.hpp>
 
 bool	is_port(char *av) {
@@ -15,21 +27,21 @@ bool	is_port(char *av) {
 void	read_server(char *buf_in, int client_fd) {
 	bzero(buf_in, BUFFER_SIZE);
 	if (read(client_fd, buf_in, BUFFER_SIZE) == -1) {
-		std::cerr << ERROR << "read()" << ENDL;
+		cerr << ERROR << "read()" << ENDL;
 		exit(1);
 	}
-	std::cout << GREEN << "(buf_in)\n" << buf_in << ENDL;
+	cout << GREEN << "(buf_in)\n" << buf_in << ENDL;
 }
 
 /* Command ****************************************************************** */
 
-void	bot_help(std::string const &str_in, int client_fd) {
-	std::string				buf_out;
-	std::stringstream		ss;
-	std::string::size_type	pos = str_in.find(" PRIVMSG ");
-	std::string::size_type	i;
+void	bot_help(string const &str_in, int client_fd) {
+	string				buf_out;
+	stringstream		ss;
+	string::size_type	pos = str_in.find(" PRIVMSG ");
+	string::size_type	i;
 
-	if (pos == std::string::npos)
+	if (pos == string::npos)
 		return ;
 	ss << "PRIVMSG ";
 	if (str_in[pos + 9] == '#') {
@@ -57,16 +69,16 @@ void	bot_help(std::string const &str_in, int client_fd) {
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
 }
 
-void	bot_join(std::string const &str_in, int client_fd) {
-	std::string				buf_out;
-	std::stringstream		ss;
-	std::string::size_type	pos = str_in.find(" PRIVMSG ");
-	std::string::size_type	i;
+void	bot_join(string const &str_in, int client_fd) {
+	string				buf_out;
+	stringstream		ss;
+	string::size_type	pos = str_in.find(" PRIVMSG ");
+	string::size_type	i;
 
-	if (pos == std::string::npos)
+	if (pos == string::npos)
 		return ;
 	pos = str_in.find(" :!join");
-	if (pos == std::string::npos)
+	if (pos == string::npos)
 		return ;
 	pos += 7;
 	while (str_in[pos] == ' ')
@@ -100,13 +112,13 @@ void	bot_join(std::string const &str_in, int client_fd) {
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
 }
 
-void	bot_ping(std::string const &str_in, int client_fd) {
-	std::string				buf_out;
-	std::stringstream		ss;
-	std::string::size_type	pos = str_in.find(" PRIVMSG ");
-	std::string::size_type	i;
+void	bot_ping(string const &str_in, int client_fd) {
+	string				buf_out;
+	stringstream		ss;
+	string::size_type	pos = str_in.find(" PRIVMSG ");
+	string::size_type	i;
 
-	if (pos == std::string::npos)
+	if (pos == string::npos)
 		return ;
 	ss << "PRIVMSG ";
 	if (str_in[pos + 9] == '#') {
@@ -127,13 +139,13 @@ void	bot_ping(std::string const &str_in, int client_fd) {
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
 }
 
-void	bot_rainbow(std::string const &str_in, int client_fd) {
-	std::string				buf_out;
-	std::stringstream		ss;
-	std::string::size_type	pos = str_in.find(" PRIVMSG ");
-	std::string::size_type	i;
+void	bot_rainbow(string const &str_in, int client_fd) {
+	string				buf_out;
+	stringstream		ss;
+	string::size_type	pos = str_in.find(" PRIVMSG ");
+	string::size_type	i;
 
-	if (pos == std::string::npos)
+	if (pos == string::npos)
 		return ;
 	ss << "PRIVMSG ";
 	if (str_in[pos + 9] == '#') {
@@ -156,16 +168,16 @@ void	bot_rainbow(std::string const &str_in, int client_fd) {
 		send(client_fd, buf_out.data(), buf_out.size(), 0);
 }
 
-bool	bot_die(std::string const &str_in, int client_fd) {
-	std::string				buf_out;
-	std::stringstream		ss;
-	std::string::size_type	pos = str_in.find(" PRIVMSG ");
-	std::string::size_type	i;
+bool	bot_die(string const &str_in, int client_fd) {
+	string				buf_out;
+	stringstream		ss;
+	string::size_type	pos = str_in.find(" PRIVMSG ");
+	string::size_type	i;
 
-	if (pos == std::string::npos)
+	if (pos == string::npos)
 		return (false);
 	pos = str_in.find(" :!die");
-	if (pos == std::string::npos)
+	if (pos == string::npos)
 		return (false);
 	pos += 6;
 	while (str_in[pos] == ' ')
@@ -220,22 +232,22 @@ bool	bot_die(std::string const &str_in, int client_fd) {
 
 int	main(int ac, char **av) {
 	if (ac != 3) {
-		std::cout << YELLOW << "Usage: ./bot <port> <password>" << ENDL;
+		cout << YELLOW << "Usage: ./bot <port> <password>" << ENDL;
 		return (0);
 	}
 	if (is_port(av[1]) == false) {
-		std::cerr << YELLOW << "Port \"" << av[1] << "\" is not good." << ENDL;
+		cerr << YELLOW << "Port \"" << av[1] << "\" is not good." << ENDL;
 		return (0);
 	}
 	int	client_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (client_fd < 0) {
-		std::cerr << ERROR << "socket()" << ENDL;
+		cerr << ERROR << "socket()" << ENDL;
 		return (1);
 	}
 	int	opt = 1;
 	if (setsockopt(client_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt,
 	sizeof(int)) == -1) {
-		std::cerr << ERROR << "setsockopt()" << ENDL;
+		cerr << ERROR << "setsockopt()" << ENDL;
 		close(client_fd);
 		return (1);
 	}
@@ -243,23 +255,23 @@ int	main(int ac, char **av) {
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port = htons(atoi(av[1]));
 	if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
-		std::cerr << ERROR << "inet_pton()" << ENDL;
+		cerr << ERROR << "inet_pton()" << ENDL;
 		close(client_fd);
 		return (1);
 	}
 	if (connect(client_fd, reinterpret_cast<sockaddr*>(&serv_addr),
 	sizeof(serv_addr)) < 0) {
-		std::cerr << ERROR << "connect()" << ENDL;
+		cerr << ERROR << "connect()" << ENDL;
 		close(client_fd);
 		return (1);
 	}
 
 	/* Variable */
-	char					buf_in[BUFFER_SIZE];
-	std::string				str_in;
-	std::string				buf_out;
-	std::stringstream		ss;
-	std::string::size_type	pos;
+	char				buf_in[BUFFER_SIZE];
+	string				str_in;
+	string				buf_out;
+	stringstream		ss;
+	string::size_type	pos;
 	
 	/* Login */
 	ss << "CAP LS\n";
@@ -271,14 +283,11 @@ int	main(int ac, char **av) {
 	send(client_fd, buf_out.data(), buf_out.size(), 0);
 	read_server(buf_in, client_fd);
 	str_in = buf_in;
-	std::string bot_name = BOT_NAME;
-	std::string error = ":serverserver 433 * " + bot_name + " :Nickname is already in use.\r\n";
-	if (str_in == error) {
-		std::cerr << ERROR << bot_name << " nickname is already in use." << ENDL;
+	if (str_in.find(":serverserver 433") != string::npos) {
+		cerr << ERROR << "Nickname is already in use." << ENDL;
 		close(client_fd);
 		return (1);
 	}
-
 
 	/* Oper */
 	ss.str("");
@@ -297,7 +306,7 @@ int	main(int ac, char **av) {
 	read_server(buf_in, client_fd);
 
 	/* Bot */
-	std::cout << CYAN << "Entering the main loop." << ENDL;
+	cout << CYAN << "Entering the main loop." << ENDL;
 	while (true)
 	{
 		read_server(buf_in, client_fd);
@@ -306,20 +315,20 @@ int	main(int ac, char **av) {
 			break ;
 		str_in.erase(str_in.begin());
 		pos = str_in.find(" :!");
-		if (pos == std::string::npos)
+		if (pos == string::npos)
 			continue ;
-		std::string	cmd = str_in.substr(pos + 3);
+		string	cmd = str_in.substr(pos + 3);
 
 		/* Command */
-		if (CMD_CMP(0, 4, "help") == 0 && isspace(cmd[4]))
+		if (cmd.compare(0, 4, "help") == 0 && isspace(cmd[4]))
 			bot_help(str_in, client_fd);
-		else if (CMD_CMP(0, 4, "join") == 0 && isspace(cmd[4]))
+		else if (cmd.compare(0, 4, "join") == 0 && isspace(cmd[4]))
 			bot_join(str_in, client_fd);
-		else if (CMD_CMP(0, 4, "ping") == 0 && isspace(cmd[4]))
+		else if (cmd.compare(0, 4, "ping") == 0 && isspace(cmd[4]))
 			bot_ping(str_in, client_fd);
-		else if (CMD_CMP(0, 7, "rainbow") == 0 && isspace(cmd[7]))
+		else if (cmd.compare(0, 7, "rainbow") == 0 && isspace(cmd[7]))
 			bot_rainbow(str_in, client_fd);
-		else if (CMD_CMP(0, 3, "die") == 0 && isspace(cmd[3])) {
+		else if (cmd.compare(0, 3, "die") == 0 && isspace(cmd[3])) {
 			if (bot_die(str_in, client_fd))
 				break ;
 		}
