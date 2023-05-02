@@ -44,10 +44,10 @@ Server::~Server() {
 	vector<Client*>		clients = getClients();
 	vector<Channel*>	channels = getChannels();
 
-	for (vector<Client*>::iterator it = clients.begin(); it != clients.end(); it++)
-		delete *it;
-	for (vector<Channel*>::iterator it = channels.begin(); it != channels.end(); it++)
-		delete *it;
+	for (CL_IT = clients.begin(); it != clients.end(); it++)
+		delete (*it);
+	for (CH_IT = channels.begin(); it != channels.end(); it++)
+		delete (*it);
 	close(_socket_fd);
 }
 
@@ -102,8 +102,7 @@ int*				Server::getPtrOpt(void) {
 }
 
 Client*				Server::getClient(int fd) {
-	for (CL_IT = _clients.begin(); it != _clients.end(); it++)
-	{
+	for (CL_IT = _clients.begin(); it != _clients.end(); it++) {
 		if ((*it)->getSocket() == fd)
 			return (*it);
 	}
@@ -111,8 +110,7 @@ Client*				Server::getClient(int fd) {
 }
 
 Client*				Server::getClientFromNick(string nick) {
-	for (CL_IT = _clients.begin(); it != _clients.end(); it++)
-	{
+	for (CL_IT = _clients.begin(); it != _clients.end(); it++) {
 		if ((*it)->getNickname() == nick)
 			return (*it);
 	}
@@ -276,12 +274,13 @@ void				Server::commandHandler(string command, Client *client) {
  * @param client 
  */
 void				Server::welcome(Client *client) {
-	sendToClient(":serverserver 001 " + client->getNickname() + " :Ceci est un message d'accueil.", client);
+	sendToClient(":serverserver 001 " + client->getNickname() +
+	" :Ceci est un message d'accueil.", client);
 	client->setWelcomed(0);
 }
 
 string				Server::getPassword(void) {
-	return(_password);
+	return (_password);
 }
 
 Channel*			Server::getChannel(string name) {
@@ -289,7 +288,6 @@ Channel*			Server::getChannel(string name) {
 		return NULL;
 
 	vector<Channel*>	channels = _channels;
-
 	for (CH_IT = channels.begin(); it != channels.end(); it++) {
 		if ((*it != NULL) && (*it)->getName() == name)
 			return (*it);

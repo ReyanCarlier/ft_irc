@@ -289,7 +289,6 @@ int	main(int ac, char **av) {
 		return (1);
 	}
 
-
 	/* Oper */
 	ss.str("");
 	ss << "OPER " << BOT_NAME << ' ' << OPER_PASSWORD << '\n';

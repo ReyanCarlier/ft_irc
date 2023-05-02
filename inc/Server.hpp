@@ -33,6 +33,7 @@ class Server {
 		int					_clientinqueue;
 		bool				_die;
 
+		/* Function ********************************************************* */
 		bool				startwith(string prefix, string str);
 	public:
 		/* Constructor & Destructor ***************************************** */

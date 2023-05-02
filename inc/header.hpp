@@ -50,12 +50,9 @@
 /* Code */
 #define CLIENTS			server.getClients().at(i)
 #define LINE			"\n===================================================="
-#define FULL			":serverserver ERROR: Server is full.\r\n"
 #define CL_IT			vector<Client*>::iterator it
 #define CL_IT2			vector<Client*>::iterator it2
 #define CH_IT			vector<Channel*>::iterator it
-#define VERSION1		" This awesome IRC Server was created by nfelsemb, "
-#define VERSION2		"frrusso and recarlie and is currently in it's V1 !"
 
 /* Namespace */
 using namespace std;
