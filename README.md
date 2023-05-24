@@ -12,5 +12,5 @@ between connected machines. It is always interesting to know what kind of thing.
 ## Deployment
 To deploy this project run
 ```bash
-git clone https://github.com/LolinEagle/ft_irc && cd ft_irc && make run
+git clone https://github.com/ReyanCarlier/ft_irc && cd ft_irc && make run
 ```
